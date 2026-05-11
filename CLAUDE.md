@@ -156,4 +156,19 @@ Fonts (Google Fonts, loaded via `<link>`):
 
 ## Git
 
-This is a git repository on branch `master`. 23 commits tracking the full build-out from initial spec through completed prototype enhancements. No remote is configured.
+This is a git repository on branch `main` (renamed from `master` on 2026-05-11). The GitHub remote is `git@github.com:Rapideo/impact-internship-portal.git` — public repo under the Rapideo organization. Branch protection on `main` requires PRs with passing CI; direct pushes are rejected.
+
+**Local working path:** `C:\Projects\impact-internship-portal\` (moved out of OneDrive on 2026-05-11; the OneDrive copy is renamed to `IMPACT Intretnship Assessment Portal _archived_2026-05-11` for a two-week safety net).
+
+**Repo split:** This repo holds the production rebuild. The frozen 34-page prototype lives in a sibling repo at `Rapideo/impact-prototype` (the prototype HTML is mirrored here under `Prototypes/PROTOTYPE/` for reference, and Netlify continues to publish that directory as the prototype preview).
+
+**Workflow + project dashboard:** `https://rapideo.github.io/impact-internship-portal/dev-portal/` — six-tab management-facing artifact (Overview / Phasing / Stack / Supabase / Workflow / Status). Status tab is JSON-driven from `docs/dev-portal/data/status.json`; updated on milestone-close PRs. The bare URL `https://rapideo.github.io/impact-internship-portal/` redirects to `/dev-portal/` via `docs/index.html`.
+
+**Conventions in place:**
+- **Conventional Commits** enforced on every commit (commitlint via Husky `commit-msg` hook). Subject ≤ 72 chars.
+- **Branch protection on `main`** — no direct pushes; squash-merge PRs only; required status check is the CI workflow.
+- **Hook chain:** Husky 9 + commitlint 19 + lint-staged 15. `pre-commit` runs `npx lint-staged` (currently a no-op stub; real Prettier + ESLint wired in sub-project 1). `commit-msg` runs commitlint against the Conventional Commits format.
+- **CI:** `.github/workflows/ci.yml` — runs on PRs to `main` and pushes to `main`. Sanity-check stub until sub-project 1 wires in real stages.
+- **Netlify** is connected to the GitHub repo; deploy previews on every PR publish `Prototypes/PROTOTYPE/` until sub-project 6 flips the publish-dir cutover to the production app build.
+
+**Workflow spec:** `docs/superpowers/specs/2026-05-11-development-workflow-design.md` is the source of truth for the workflow described above. The corresponding implementation plan is `docs/superpowers/plans/2026-05-11-sub-project-0-project-infrastructure.md`.
