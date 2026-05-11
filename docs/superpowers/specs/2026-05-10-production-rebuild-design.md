@@ -165,6 +165,25 @@ IMPACT Internship Assessment Portal/    Existing git repo (renamed from typo'd n
 
 The Netlify site (`impact-internship-portal.netlify.app`) is **repointed** from publishing the prototype directory to building the new app, in a late sub-project 1 task. The prototype remains live until that switch.
 
+### 2.4 Database environments
+
+**Amendment 2026-05-11:** Three independent Supabase projects, one per environment. Each has its own URL, anon key, service-role key, schema, and isolated data.
+
+| Environment | Supabase project | Used by | Data lifecycle |
+|---|---|---|---|
+| **Development** | `impact-dev` | Local development (`.env.local`) + Netlify deploy previews + branch deploys | Dev seed; wipeable anytime |
+| **Test** | `impact-test` | CI (integration + RLS tests via GitHub Actions) | Test fixtures; wiped before each CI run |
+| **Production** | `impact-prod` | Production deploy on `main` (Netlify production context) | Real intern data; daily Supabase backup; never wiped |
+
+**Key implementation points:**
+- Same Drizzle schema applies to all three projects. Migrations flow dev → test → prod, gated by PR review and a manual prod-deploy step.
+- The Supabase-related secrets (`DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) live in three separate locations: `.env.local` (dev), GitHub Secrets (test), Netlify env vars per deploy context (production context = prod values; deploy-preview + branch-deploy contexts = dev values). `SESSION_SECRET` is also per-environment.
+- `RESEND_API_KEY` is shared (one Resend workspace) — non-prod sends use Resend's test-mode address conventions. Decided in sub-project 6 if a second workspace becomes warranted.
+- `SENTRY_DSN` can be a single project with per-env `environment` tagging, or three DSNs. Single project + tagging is the lighter-weight default.
+- **Free-tier pause:** Supabase free-tier projects pause after 7 days of no traffic. `impact-test` stays warm via daily CI. `impact-dev` requires the developer to interact regularly; otherwise resume manually. `impact-prod` is kept alive by real traffic post-launch.
+
+**Sub-project 1 plan impact:** the current Phase 1 plan creates one Supabase project. **Before sub-project 1 executes**, that phase must be updated to create all three projects up front and add a `db:migrate:all` script for cross-environment migration apply. This update gets done at sub-project 1 kickoff.
+
 ---
 
 ## 3. Data Model
