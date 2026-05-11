@@ -11,7 +11,7 @@
 (function () {
   'use strict';
 
-  const VALID_TABS = ['overview', 'phasing', 'stack', 'supabase', 'workflow', 'status'];
+  const VALID_TABS = ['overview', 'process', 'phasing', 'stack', 'supabase', 'workflow', 'status'];
   const DEFAULT_TAB = 'overview';
 
   function getTabFromUrl() {
