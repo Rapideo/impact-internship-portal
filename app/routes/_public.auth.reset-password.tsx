@@ -31,7 +31,12 @@ export async function action({ request }: Route.ActionArgs) {
     return { error: 'Could not update password. Please try again.' };
   }
 
-  throw redirect('/login', { headers });
+  // Sign out the recovery session so the user actually has to enter the new password.
+  // Without this, the recovery session cookie remains valid and the user is silently
+  // bounced from /login to their dashboard, skipping the "use the new password" UX.
+  await supabase.auth.signOut();
+
+  throw redirect('/login?reset=ok', { headers });
 }
 
 export default function ResetPassword() {
