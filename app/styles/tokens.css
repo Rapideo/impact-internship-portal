@@ -1,0 +1,15 @@
+/* Lifted from Prototypes/PROTOTYPE/styles.css :root block */
+:root {
+  --navy: #153a98;
+  --navy-deep: #051028;
+  --cyan: #00a6f6;
+  --gold: #ffd71f;
+  --canvas: #eff1f5;
+  --ink: #14171f;
+  --ink-soft: #5b6376;
+  --line: #d6dae3;
+  --white: #ffffff;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+}

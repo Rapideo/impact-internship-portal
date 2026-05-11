@@ -8,23 +8,70 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "dev": "react-router dev",
+    "build": "react-router build",
+    "start": "react-router-serve ./build/server/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx db/seed.ts",
+    "db:seed-prod": "tsx db/seed-prod.ts",
+    "db:apply-policies": "tsx db/apply-policies.ts",
+    "admin:create": "tsx scripts/create-admin.ts",
     "prepare": "husky"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
-      "echo '[lint-staged] Prettier + ESLint wired in sub-project 1 — currently no-op.'"
+      "prettier --write",
+      "eslint --fix"
     ],
     "*.css": [
-      "echo '[lint-staged] Prettier for CSS wired in sub-project 1 — currently no-op.'"
+      "prettier --write"
     ],
     "*.md": [
-      "echo '[lint-staged] Prettier for Markdown wired in sub-project 1 — currently no-op.'"
+      "prettier --write"
     ]
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "@eslint/js": "^9.39.4",
+    "@playwright/test": "^1.60.0",
+    "@react-router/dev": "^7.15.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^22.19.18",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
+    "@vitest/ui": "^3.2.4",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^15.15.0",
     "husky": "^9.1.7",
-    "lint-staged": "^15.5.2"
+    "jsdom": "^25.0.1",
+    "lint-staged": "^15.5.2",
+    "prettier": "^3.8.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.59.3",
+    "vite": "^6.4.2",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@react-router/node": "^7.15.0",
+    "@react-router/serve": "^7.15.0",
+    "isbot": "^5.1.40",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router": "^7.15.0"
   }
 }
