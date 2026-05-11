@@ -144,6 +144,10 @@ Netlify watches the GitHub repo natively (no GitHub Actions deploy step).
 
 ### 2.9 Branch protection on `main`
 
+**Amendment 2026-05-11 (visibility shift):** Classic branch protection and the newer Rulesets API both require **GitHub Pro** on private repos for personal accounts (free-tier returns HTTP 403 on PUT `/branches/main/protection`). To enable protection without a paid subscription, the production app repo `Rapideo/impact-internship-portal` was changed from **private** to **public** during Phase E execution. The prototype repo `Rapideo/impact-prototype` remains private. Only placeholder values are stored in `.env.example`; real secrets live exclusively in GitHub Secrets and Netlify environment variables, neither of which are public.
+
+**Amendment 2026-05-11 (status check name):** The required status check is registered as `"Sanity checks (stub)"` (the job's display name from `.github/workflows/ci.yml`), not `"ci / Sanity checks (stub)"` as initially specified in the plan. GitHub's check-runs API uses the job display name only — the workflow name (`ci`) appears in the Actions UI but is not part of the check identifier.
+
 Configured in GitHub repo settings:
 - Require pull request before merge
 - Require status checks to pass before merging (the CI workflow is the only required check)
