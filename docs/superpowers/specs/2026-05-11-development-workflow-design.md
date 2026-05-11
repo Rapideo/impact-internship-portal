@@ -49,9 +49,20 @@ The repo is the single source of truth from sub-project 0 onward.
 
 **Amendment 2026-05-11:** Pre-execution prereq check revealed that `Rapideo` is a personal GitHub user account, not an organization, and no org exists. Decision: use the user account as-is rather than creating a new org. Existing Rapideo repos (`kp-web`, `kp-website`) already follow this pattern. Re-evaluate if a multi-dev team materializes.
 
+**Amendment 2026-05-11 (two-repo split):** During Phase B execution, Matt decided to split the work into two GitHub repos rather than the consolidated single-repo plan in §2.3 of the production rebuild design spec:
+
+| Repo | Purpose | History |
+|---|---|---|
+| `Rapideo/impact-prototype` | Frozen archive of the 34-page locked prototype | Full 177-commit history of prototype + planning iterations |
+| `Rapideo/impact-internship-portal` (this spec's target) | Production rebuild | Fresh initial commit (`792d239`) seeded with planning docs + `Prototypes/PROTOTYPE/` reference + `netlify.toml`; sub-projects 1-6 build on top |
+
+Planning docs (specs, plans, CLAUDE.md, BACKLOG.md, PRD.md, App Outline, etc.) are authoritative in the production app repo only going forward. The prototype repo's copies are frozen at the rename point. Sub-projects 1-6 commit only to the production app repo; the prototype repo receives only rare maintenance commits if any. Netlify-GitHub integration (Phase G) connects to the production app repo, not the prototype repo.
+
 ### 2.2 Local working location
 
-The repo moves out of OneDrive to `C:\Projects\impact-portal\` (or equivalent non-synced path on the user's machine). The OneDrive copy is preserved in-place as `_archived_2026-05-11/` for a two-week safety net before deletion. No data loss path: the new clone is verified against the OneDrive copy's `git log` and `git status` before the OneDrive copy is renamed.
+The production app repo lives locally at `C:\Projects\impact-internship-portal\`. The prototype repo lives at `C:\Projects\impact-prototype\`. Both are outside OneDrive. The OneDrive copy of the original combined repo is preserved in-place as `_archived_<date>/` for a two-week safety net before deletion.
+
+(Earlier draft of this section specified a single `C:\Projects\impact-portal\` location, before the two-repo split was decided.)
 
 ### 2.3 Branching strategy: GitHub Flow
 
