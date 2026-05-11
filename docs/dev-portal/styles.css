@@ -1,0 +1,271 @@
+/* ============================================================
+ * IMPACT dev-portal styles
+ * Tokens cloned from Prototypes/PROTOTYPE/styles.css (single source
+ * of truth is the prototype; this file mirrors so it can ship
+ * standalone via GitHub Pages without dependency on the prototype dir).
+ * ============================================================ */
+
+:root {
+  /* Palette — sampled from the IMPACT logo */
+  --navy: #153a98;
+  --navy-deep: #051028;
+  --cyan: #00a6f6;
+  --gold: #ffd71f;
+  --canvas: #eff1f5;
+
+  /* Derived */
+  --ink: #0d1430;
+  --ink-muted: #4a5374;
+  --line: #d6dbe6;
+  --line-strong: #b3bbcd;
+  --surface: #ffffff;
+  --surface-dim: #f6f8fb;
+
+  /* Status colors */
+  --status-not-started: #94a3b8;
+  --status-in-progress: var(--cyan);
+  --status-complete: #16a34a;
+
+  /* Typography */
+  --font-display: 'Archivo Black', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Spacing scale (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  /* Shadow */
+  --shadow-sm: 0 1px 2px rgba(5, 16, 40, 0.08);
+  --shadow-md: 0 6px 18px rgba(5, 16, 40, 0.12);
+}
+
+/* ---- Reset ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--canvas);
+  line-height: 1.55;
+}
+
+a {
+  color: var(--navy);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  color: var(--cyan);
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+/* ---- Container ---- */
+.container {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding-inline: var(--space-5);
+}
+
+/* ---- Header ---- */
+.portal-header {
+  background: var(--navy-deep);
+  color: #fff;
+  padding-block: var(--space-5);
+  border-bottom: 4px solid var(--gold);
+}
+
+.portal-header__inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.portal-header__brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.portal-header__wordmark {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  letter-spacing: 0.02em;
+  color: #fff;
+}
+
+.portal-header__subtitle {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.portal-header__meta {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.portal-header__label {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.portal-header__date {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+/* ---- Tabs ---- */
+.portal-tabs {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.portal-tabs__inner {
+  display: flex;
+  gap: var(--space-1);
+  overflow-x: auto;
+}
+
+.portal-tab {
+  background: transparent;
+  border: none;
+  padding: var(--space-4) var(--space-5);
+  font-weight: 600;
+  color: var(--ink-muted);
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  transition: color 120ms, border-color 120ms;
+}
+
+.portal-tab:hover {
+  color: var(--navy);
+}
+
+.portal-tab.is-active {
+  color: var(--navy);
+  border-bottom-color: var(--cyan);
+}
+
+.portal-tab:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: -2px;
+}
+
+/* ---- Main + sections ---- */
+.portal-main {
+  padding-block: var(--space-7);
+}
+
+.portal-section {
+  display: none;
+}
+
+.portal-section.is-active {
+  display: block;
+}
+
+.portal-section h1 {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--navy);
+  margin-block: 0 var(--space-3);
+}
+
+.portal-section h2 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--navy);
+  margin-block: var(--space-7) var(--space-3);
+}
+
+.portal-section h3 {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-block: var(--space-5) var(--space-2);
+}
+
+.portal-section p {
+  margin-block: var(--space-3);
+  max-width: 75ch;
+}
+
+/* ---- Footer ---- */
+.portal-footer {
+  background: var(--navy-deep);
+  color: rgba(255, 255, 255, 0.78);
+  padding-block: var(--space-6);
+  margin-top: var(--space-8);
+}
+
+.portal-footer__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.portal-footer__line {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.portal-footer__line--muted {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.85rem;
+}
+
+.portal-footer a {
+  color: var(--gold);
+}
+
+/* ---- Print ---- */
+@media print {
+  .portal-tabs,
+  .portal-footer {
+    display: none;
+  }
+  .portal-section {
+    display: block !important;
+    page-break-after: always;
+  }
+}
