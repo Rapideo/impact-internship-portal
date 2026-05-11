@@ -1,0 +1,18 @@
+project_id = "impact-dev"
+
+# Auth configuration. Mostly defaults; the one non-default item is the
+# Custom Access Token Hook that copies profile.role + profile.employer_id
+# into the JWT. Without this hook the app's getClaims() returns no role
+# claim and every login fails with "Account configured incorrectly".
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = []
+
+[auth.mfa]
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[auth.hook.custom_access_token]
+enabled = true
+uri = "pg-functions://postgres/public/custom_access_token_hook"
