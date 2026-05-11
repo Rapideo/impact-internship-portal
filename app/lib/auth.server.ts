@@ -56,23 +56,11 @@ export async function getAuthContext(
   headers: Headers,
 ): Promise<AuthContext | null> {
   const supabase = createSupabaseServerClient(request, headers);
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  if (!session) return null;
-
-  // The access token is a JWT; we decode the payload (no signature verification needed
-  // since Supabase already validated the session above).
-  const tokenParts = session.access_token.split('.');
-  if (tokenParts.length !== 3) return null;
-  const rawPayload = tokenParts[1];
-  if (!rawPayload) return null;
-  let payload: unknown;
-  try {
-    const base64 = rawPayload.replace(/-/g, '+').replace(/_/g, '/');
-    payload = JSON.parse(Buffer.from(base64, 'base64').toString('utf-8'));
-  } catch {
-    return null;
-  }
-  return decodeRoleFromJwtPayload(payload);
+  // getClaims() verifies the JWT signature against the project JWKS and returns
+  // the verified claims. Do NOT use getSession() here — in cookie-storage mode it
+  // returns the cookie contents WITHOUT signature verification, which lets a caller
+  // who controls cookies forge a role/employer_id claim.
+  const { data, error } = await supabase.auth.getClaims();
+  if (error || !data) return null;
+  return decodeRoleFromJwtPayload(data.claims);
 }
