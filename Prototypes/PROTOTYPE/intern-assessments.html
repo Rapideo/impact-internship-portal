@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intern Assessments — IMPACT 2026</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <header class="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="wordmark" aria-label="IMPACT — Expand Your Opportunities">
+        <img src="logo.png" alt="IMPACT — Expand Your Opportunities" class="wordmark__img" />
+      </a>
+      <nav class="nav__links">
+        <a href="index.html" class="back-link">&larr; Back to home</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- PAGE HEAD -->
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head__breadcrumb">
+        <span class="micro-label">INTERN ASSESSMENTS / 2026</span>
+      </div>
+      <div class="page-head__row">
+        <div>
+          <h1 class="page-head__title">CHOOSE YOUR<br/>ASSESSMENT.</h1>
+          <p class="page-head__sub" data-field="page-sub">
+            Confirm your identity to see which assessments you've completed and which are still ahead.
+            You'll complete three reflections during the program — one at the start, one at the midpoint,
+            and one at the end.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IDENTITY GATE — shown until intern is confirmed against the roster -->
+  <section data-section="identity-gate">
+    <div class="container">
+      <div class="identity-card">
+        <div class="identity-card__head">
+          <h3 class="identity-card__title">Confirm Your Identity</h3>
+          <span class="micro-label">UNIQUE KEY · FIRST INITIAL + LAST NAME + EMPLOYER + COHORT</span>
+        </div>
+        <div class="id-grid id-grid--4">
+          <div class="field">
+            <label for="firstInitial">First Initial</label>
+            <input class="input" id="firstInitial" type="text" maxlength="1" placeholder="e.g., M" style="text-transform: uppercase;" />
+          </div>
+          <div class="field">
+            <label for="last">Last Name</label>
+            <input class="input" id="last" type="text" placeholder="e.g., Bayer" />
+          </div>
+          <div class="field">
+            <label for="employer">Employer</label>
+            <select class="select" id="employer">
+              <option value="">Select employer</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="cohort">Cohort</label>
+            <select class="select" id="cohort" disabled>
+              <option value="">Select employer first</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--rule);">
+          <button type="button" class="btn btn--primary" data-action="confirm-identity">
+            Confirm
+            <span class="btn__arrow">&rarr;</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONFIRMED IDENTITY CHIP — shown after a successful lookup -->
+  <section data-section="identity-confirmed" hidden>
+    <div class="container">
+      <div class="identity-confirmed">
+        <div class="identity-confirmed__inner">
+          <span class="identity-confirmed__check" aria-hidden="true">&check;</span>
+          <div class="identity-confirmed__text">
+            <span class="identity-confirmed__label">CONFIRMED AS</span>
+            <span class="identity-confirmed__name" data-field="confirmed-name">—</span>
+          </div>
+          <span class="identity-confirmed__divider"></span>
+          <div class="identity-confirmed__text">
+            <span class="identity-confirmed__label">EMPLOYER</span>
+            <span class="identity-confirmed__name" data-field="confirmed-employer">—</span>
+          </div>
+          <span class="identity-confirmed__divider"></span>
+          <div class="identity-confirmed__text">
+            <span class="identity-confirmed__label">COHORT</span>
+            <span class="identity-confirmed__name" data-field="confirmed-cohort">—</span>
+          </div>
+          <button type="button" class="identity-confirmed__switch" data-action="switch-identity">
+            Not you? Switch &rarr;
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CARDS — shown after a successful lookup -->
+  <section data-section="cards" hidden>
+    <div class="container">
+      <div class="assessment-grid">
+
+        <article class="assessment-card" data-assessment="personal-goals">
+          <span class="assessment-card__stage">AT START</span>
+          <span class="assessment-card__meta">PERSONAL GOALS</span>
+          <h2 class="assessment-card__title">Set your starting line.</h2>
+          <p class="assessment-card__body">
+            Capture what you're hoping to learn, the skills you want to build, and how you'll know
+            you're making progress. Submit this in your first weeks.
+          </p>
+          <div class="assessment-card__status" data-status-slot>
+            <a href="personal-goals.html" class="btn btn--primary">
+              Begin Personal Goals
+              <span class="btn__arrow">&rarr;</span>
+            </a>
+          </div>
+        </article>
+
+        <article class="assessment-card" data-assessment="midpoint-reflection">
+          <span class="assessment-card__stage">AT MIDPOINT</span>
+          <span class="assessment-card__meta">MIDPOINT REFLECTION</span>
+          <h2 class="assessment-card__title">Reflect on the journey.</h2>
+          <p class="assessment-card__body">
+            Look back at your goals, what's gone well, what's been hard, and where you want to focus
+            for the second half. Submit this around the midpoint of your internship.
+          </p>
+          <div class="assessment-card__status" data-status-slot>
+            <a href="midpoint-reflection.html" class="btn btn--primary">
+              Begin Midpoint Reflection
+              <span class="btn__arrow">&rarr;</span>
+            </a>
+          </div>
+        </article>
+
+        <article class="assessment-card" data-assessment="participant-feedback">
+          <span class="assessment-card__stage">AT EXIT</span>
+          <span class="assessment-card__meta">PARTICIPANT FEEDBACK</span>
+          <h2 class="assessment-card__title">Look back on your journey.</h2>
+          <p class="assessment-card__body">
+            A short reflection on your experience — what went well, what was hard, and what you'd
+            recommend. Submit this near the end of your internship.
+          </p>
+          <div class="assessment-card__status" data-status-slot>
+            <a href="participant-feedback.html" class="btn btn--primary">
+              Begin Participant Feedback
+              <span class="btn__arrow">&rarr;</span>
+            </a>
+          </div>
+        </article>
+
+      </div>
+
+      <p class="assessment-foot-note">
+        Each assessment can only be submitted once. Completion is recorded for your cohort administrator.
+      </p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer__row">
+      <a href="index.html" class="wordmark" aria-label="IMPACT — Expand Your Opportunities">
+        <img src="logo.png" alt="IMPACT — Expand Your Opportunities" class="wordmark__img" />
+      </a>
+      <div class="footer__links">
+        <a href="index.html">Home</a>
+        <a href="intern-assessments.html">Intern Assessments</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer__meta">&copy; 2026 IMPACT / Indiana</div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    (function () {
+      var gate      = document.querySelector('[data-section="identity-gate"]');
+      var confirmed = document.querySelector('[data-section="identity-confirmed"]');
+      var cards     = document.querySelector('[data-section="cards"]');
+
+      // ---- Populate employer + cohort dropdowns (cascading) ----
+      var employerSelect = document.getElementById('employer');
+      var cohortSelect   = document.getElementById('cohort');
+      (IMPACT.EMPLOYERS || []).forEach(function (e) {
+        employerSelect.appendChild(new Option(e.name, e.id));
+      });
+      employerSelect.addEventListener('change', function () {
+        var employerId = employerSelect.value;
+        cohortSelect.innerHTML = '';
+        if (!employerId) {
+          cohortSelect.appendChild(new Option('Select employer first', ''));
+          cohortSelect.disabled = true;
+          return;
+        }
+        cohortSelect.appendChild(new Option('Select cohort', ''));
+        IMPACT.cohortsForEmployer(employerId).forEach(function (c) {
+          cohortSelect.appendChild(new Option(c.name, c.id));
+        });
+        cohortSelect.disabled = false;
+      });
+
+      // ---- Reveal the cards section + populate per-intern statuses ----
+      function revealForIntern(identity) {
+        var intern = IMPACT.internById(identity.internId);
+        if (!intern) {
+          // Roster changed since localStorage was written — bounce back to gate.
+          IMPACT.clearInternIdentity();
+          return;
+        }
+        var cohort   = IMPACT.cohortById(intern.cohortId);
+        var employer = cohort ? IMPACT.employerById(cohort.employerId) : null;
+
+        IMPACT.fillText('[data-field="confirmed-name"]',     IMPACT.internDisplayName(intern));
+        IMPACT.fillText('[data-field="confirmed-employer"]', employer ? employer.name : '—');
+        IMPACT.fillText('[data-field="confirmed-cohort"]',   cohort   ? cohort.name   : '—');
+
+        if (gate)      gate.hidden      = true;
+        if (confirmed) confirmed.hidden = false;
+        if (cards)     cards.hidden     = false;
+
+        // Per-intern completion status: flip the CTA into a "Submitted" pill
+        // for any assessment this intern has already submitted.
+        ['personal-goals', 'midpoint-reflection', 'participant-feedback'].forEach(function (type) {
+          var card = document.querySelector('[data-assessment="' + type + '"]');
+          if (!card) return;
+          var status = IMPACT.assessmentStatus(type, intern.id);
+          if (!status.completed) return;
+          card.classList.add('assessment-card--done');
+          var slot = card.querySelector('[data-status-slot]');
+          if (!slot) return;
+          slot.innerHTML =
+            '<div class="assessment-card__pill">' +
+              '<span class="assessment-card__check" aria-hidden="true">&check;</span>' +
+              '<span>Submitted on ' + IMPACT.formatCompletionDate(status.completedAt) + '</span>' +
+            '</div>';
+        });
+      }
+
+      // ---- Confirm button: validate, look up against the roster, persist ----
+      document.querySelector('[data-action="confirm-identity"]').addEventListener('click', function () {
+        var idValid = IMPACT.validate([
+          { selector: '#firstInitial', required: true, pattern: /^[A-Za-z]$/, message: 'one letter' },
+          { selector: '#last',         required: true },
+          { selector: '#employer',     required: true },
+          { selector: '#cohort',       required: true }
+        ]);
+        if (!idValid) {
+          IMPACT.toast({ kind: 'danger', label: 'CHECK FIELDS', message: 'Please fill in all four identity fields.' });
+          return;
+        }
+
+        var firstInitial = document.getElementById('firstInitial').value;
+        var last         = document.getElementById('last').value;
+        var employerId   = document.getElementById('employer').value;
+        var cohortId     = document.getElementById('cohort').value;
+
+        var intern = IMPACT.internByIdentity(firstInitial, last, cohortId);
+        if (!intern) {
+          IMPACT.toast({
+            kind: 'danger',
+            label: 'NOT FOUND',
+            message: 'No matching intern record. Check your details or contact your program administrator.'
+          });
+          return;
+        }
+
+        var identity = {
+          internId:     intern.id,
+          firstInitial: intern.firstInitial,
+          last:         intern.last,
+          employerId:   employerId,
+          cohortId:     intern.cohortId
+        };
+        IMPACT.setInternIdentity(identity);
+        IMPACT.toast({ kind: 'success', label: 'CONFIRMED', message: 'Welcome, ' + IMPACT.internDisplayName(intern) + '.' });
+        revealForIntern(identity);
+      });
+
+      // ---- Switch identity: clear + redisplay the gate ----
+      document.querySelector('[data-action="switch-identity"]').addEventListener('click', function () {
+        IMPACT.clearInternIdentity();
+        // Reset the cards back to their "Begin" state so a different intern
+        // doesn't inherit the previous intern's status pills.
+        location.reload();
+      });
+
+      // ---- On load: skip the gate if a valid identity is already stored ----
+      var existing = IMPACT.getInternIdentity();
+      if (existing && existing.internId && IMPACT.internById(existing.internId)) {
+        revealForIntern(existing);
+      }
+    })();
+  </script>
+
+</body>
+</html>

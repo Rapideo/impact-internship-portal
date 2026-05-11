@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Competency Questions — Settings — IMPACT Admin</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <header class="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="wordmark" aria-label="IMPACT — Expand Your Opportunities">
+        <img src="logo.png" alt="IMPACT — Expand Your Opportunities" class="wordmark__img" />
+      </a>
+      <nav class="nav__links">
+        <a href="admin.html" class="nav__link">Home</a>
+        <a href="interns-dashboard.html" class="nav__link">Interns</a>
+        <a href="assessments.html" class="nav__link">Assessments</a>
+        <a href="reports.html" class="nav__link">Reports</a>
+        <a href="settings-employers.html" class="nav__link nav__link--active">Settings</a>
+        <span class="admin-chip">
+          <span class="admin-chip__avatar">K</span>
+          kortney@impact.org
+          <span class="admin-chip__divider"></span>
+          <a href="index.html" class="admin-chip__logout">Logout</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- PAGE HEAD -->
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head__breadcrumb">
+        <span class="micro-label">
+          <a href="settings-questions.html" style="color:inherit; text-decoration:none;">ADMIN / SETTINGS / ASSESSMENTS</a> / COMPETENCY
+        </span>
+      </div>
+      <div class="page-head__row">
+        <div>
+          <h1 class="page-head__title">COMPETENCY QUESTIONS.</h1>
+          <p class="page-head__sub">
+            Authoring for the 3-tier Competency rubric: program-wide Core, optional per-cohort, and optional per-intern.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHELL -->
+  <section class="container">
+    <div class="settings-shell">
+
+      <aside class="settings-rail">
+        <span class="settings-rail__group">Settings</span>
+        <a class="settings-rail__item" href="settings-employers.html">Employers</a>
+        <a class="settings-rail__item settings-rail__item--active" href="settings-questions.html">Assessments</a>
+        <a class="settings-rail__item" href="settings-phases.html">Assessment Phases</a>
+        <a class="settings-rail__item" href="settings-barriers.html">Barriers</a>
+        <a class="settings-rail__item" href="settings-program-info.html">Program Info</a>
+      </aside>
+
+      <main>
+
+        <!-- Core summary card -->
+        <article class="qs-editor-card">
+          <div class="qs-editor-card__head">
+            <h2 class="qs-editor-card__title">Core Competencies</h2>
+            <span class="micro-label">PROGRAM-WIDE</span>
+          </div>
+          <p style="color: var(--muted); font-size: 14px; margin: 0 0 16px;">
+            Applied to every Competency assessment. Edit to change the program-wide rubric.
+          </p>
+          <div class="id-grid id-grid--4">
+            <div class="field" style="grid-column: span 1;">
+              <label>Questions</label>
+              <input class="input" type="text" id="coreCount" disabled value="—" />
+            </div>
+            <div class="field" style="grid-column: span 2;">
+              <label>Last Edited</label>
+              <input class="input" type="text" id="coreLastEdited" disabled value="—" />
+            </div>
+            <div class="field" style="grid-column: span 1; display: flex; align-items: end;">
+              <a href="settings-question-set.html?id=competency-core" class="btn btn--primary" style="width: 100%; text-align: center;">Edit Core</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Cohort Questions table -->
+        <article class="qs-editor-card">
+          <div class="qs-editor-card__head">
+            <h2 class="qs-editor-card__title">Cohort Questions</h2>
+            <span class="micro-label">PER-COHORT (OPTIONAL)</span>
+          </div>
+          <p style="color: var(--muted); font-size: 14px; margin: 0 0 16px;">
+            Add role-specific competencies that apply to one cohort's interns.
+          </p>
+          <table class="assessments" id="cohortQuestionsTable">
+            <thead>
+              <tr>
+                <th style="width: 30%;">Cohort</th>
+                <th style="width: 30%;">Employer</th>
+                <th style="width: 15%;">Questions</th>
+                <th style="width: 25%;">Last Edited</th>
+              </tr>
+            </thead>
+            <tbody id="cohortQuestionsTbody"></tbody>
+          </table>
+          <button type="button" class="settings-list__add" id="addCohortBtn">+ New Cohort Questions</button>
+        </article>
+
+        <!-- Intern Questions table -->
+        <article class="qs-editor-card">
+          <div class="qs-editor-card__head">
+            <h2 class="qs-editor-card__title">Intern Questions</h2>
+            <span class="micro-label">PER-INTERN (OPTIONAL)</span>
+          </div>
+          <p style="color: var(--muted); font-size: 14px; margin: 0 0 16px;">
+            Add competencies tailored to one intern's specific learning goals.
+          </p>
+          <table class="assessments" id="internQuestionsTable">
+            <thead>
+              <tr>
+                <th style="width: 30%;">Intern</th>
+                <th style="width: 30%;">Cohort</th>
+                <th style="width: 15%;">Questions</th>
+                <th style="width: 25%;">Last Edited</th>
+              </tr>
+            </thead>
+            <tbody id="internQuestionsTbody"></tbody>
+          </table>
+          <button type="button" class="settings-list__add" id="addInternBtn">+ New Intern Questions</button>
+        </article>
+
+      </main>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer__row">
+      <a href="index.html" class="wordmark" aria-label="IMPACT — Expand Your Opportunities">
+        <img src="logo.png" alt="IMPACT — Expand Your Opportunities" class="wordmark__img" />
+      </a>
+      <div class="footer__links">
+        <a href="settings-employers.html">Settings</a>
+        <a href="interns-dashboard.html">Interns</a>
+      </div>
+      <div class="footer__meta">&copy; 2026 IMPACT / Indiana</div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    (function () {
+      function fmtDate(iso) {
+        if (!iso) return '—';
+        try {
+          var d = new Date(iso);
+          return d.toLocaleDateString();
+        } catch (e) { return '—'; }
+      }
+
+      // --- Hydrate Core summary ---
+      var coreSet = IMPACT.competencyCoreSet();
+      document.getElementById('coreCount').value = coreSet ? String(coreSet.questions.length) : '—';
+      document.getElementById('coreLastEdited').value = coreSet ? fmtDate(coreSet.lastEdited) : '—';
+
+      // --- Hydrate Cohort Questions table ---
+      var cohortTbody = document.getElementById('cohortQuestionsTbody');
+      var cohortSets = IMPACT.QUESTION_SETS.filter(function (s) {
+        return s.id.indexOf('competency-cohort-') === 0;
+      });
+      if (cohortSets.length === 0) {
+        cohortTbody.innerHTML = '<tr><td colspan="4" style="color: var(--muted); font-style: italic; text-align: center; padding: 16px;">No cohort-specific competency sets yet. Click "+ New Cohort Questions" to add one.</td></tr>';
+      } else {
+        cohortTbody.innerHTML = cohortSets.map(function (set) {
+          var cohort = IMPACT.cohortById(set.cohortId);
+          var employerName = cohort ? IMPACT.employerNameFor(cohort) : '—';
+          var cohortName = cohort ? cohort.name : set.cohortId;
+          return '<tr data-cohort-id="' + set.cohortId + '" style="cursor:pointer;">' +
+            '<td>' + cohortName + '</td>' +
+            '<td>' + employerName + '</td>' +
+            '<td>' + set.questions.length + '</td>' +
+            '<td>' + fmtDate(set.lastEdited) + '</td>' +
+            '</tr>';
+        }).join('');
+      }
+
+      cohortTbody.addEventListener('click', function (ev) {
+        var row = ev.target.closest('tr[data-cohort-id]');
+        if (!row) return;
+        location.href = 'competency-cohort-set.html?id=' + row.dataset.cohortId;
+      });
+
+      document.getElementById('addCohortBtn').addEventListener('click', function () {
+        location.href = 'competency-cohort-set.html';
+      });
+
+      // --- Hydrate Intern Questions table ---
+      var internTbody = document.getElementById('internQuestionsTbody');
+      var internSets = IMPACT.QUESTION_SETS.filter(function (s) {
+        return s.id.indexOf('competency-intern-') === 0;
+      });
+      if (internSets.length === 0) {
+        internTbody.innerHTML = '<tr><td colspan="4" style="color: var(--muted); font-style: italic; text-align: center; padding: 16px;">No intern-specific competency sets yet. Click "+ New Intern Questions" to add one.</td></tr>';
+      } else {
+        internTbody.innerHTML = internSets.map(function (set) {
+          var intern = IMPACT.internById(set.internId);
+          var internName = intern ? IMPACT.internDisplayName(intern) : set.internId;
+          var cohort = intern ? IMPACT.cohortById(intern.cohortId) : null;
+          var cohortName = cohort ? cohort.name : '—';
+          return '<tr data-intern-id="' + set.internId + '" style="cursor:pointer;">' +
+            '<td>' + internName + '</td>' +
+            '<td>' + cohortName + '</td>' +
+            '<td>' + set.questions.length + '</td>' +
+            '<td>' + fmtDate(set.lastEdited) + '</td>' +
+            '</tr>';
+        }).join('');
+      }
+
+      internTbody.addEventListener('click', function (ev) {
+        var row = ev.target.closest('tr[data-intern-id]');
+        if (!row) return;
+        location.href = 'competency-intern-set.html?id=' + row.dataset.internId;
+      });
+
+      document.getElementById('addInternBtn').addEventListener('click', function () {
+        location.href = 'competency-intern-set.html';
+      });
+    })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,18 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+.vscode/
+.idea/
+
+# Temp files
+*.tmp
+*.log
+
+# Local Netlify folder
+.netlify
+
+# Local backup archives
+*Backup*.zip

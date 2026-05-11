@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interns — IMPACT Admin</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <header class="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="wordmark" aria-label="IMPACT — Expand Your Opportunities">
+        <img src="logo.png" alt="IMPACT — Expand Your Opportunities" class="wordmark__img" />
+      </a>
+      <nav class="nav__links">
+        <a href="admin.html" class="nav__link">Home</a>
+
+        <a href="interns-dashboard.html" class="nav__link nav__link--active">Interns</a>
+        <a href="assessments.html" class="nav__link">Assessments</a>
+
+        <a href="reports.html" class="nav__link">Reports</a>
+        <a href="settings-employers.html" class="nav__link">Settings</a>
+
+        <span class="admin-chip">
+          <span class="admin-chip__avatar">K</span>
+          kortney@impact.org
+          <span class="admin-chip__divider"></span>
+          <a href="index.html" class="admin-chip__logout">Logout</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- PAGE HEAD -->
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head__breadcrumb">
+        <span class="micro-label">ADMIN / INTERNS / 2026</span>
+      </div>
+      <div class="page-head__row">
+        <div>
+          <h1 class="page-head__title">INTERNS.</h1>
+          <p class="page-head__sub">
+            Active participants across the 2026 cohorts, with current phase and
+            post-placement outcomes.
+          </p>
+        </div>
+        <a href="intern-record.html" class="btn btn--primary">+ New Intern</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILTERS -->
+  <section>
+    <div class="container">
+      <div class="filters">
+        <input class="input input--search" type="search" placeholder="Search by last name or cohort..." />
+
+        <div class="filter-group">
+          <label class="filter-group__label" for="cohort-filter">Cohort</label>
+          <select class="select" id="cohort-filter">
+            <option>All cohorts</option>
+            <option>Eskenazi 2026</option>
+            <option>TTT 2026</option>
+            <option>Habitat 2026</option>
+            <option>Elevate 2026</option>
+            <option>Geminus 2026</option>
+            <option>Health Link 2026</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-group__label" for="outcome-filter">Outcome</label>
+          <select class="select" id="outcome-filter">
+            <option>All</option>
+            <option>Employed at 90d</option>
+            <option>Employed + Still at 180d</option>
+            <option>Not yet tracked</option>
+          </select>
+        </div>
+
+        <a href="#" class="btn btn--outline btn--sm">Export CSV</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TABLE -->
+  <section>
+    <div class="container table-wrap">
+      <div class="table-meta">
+        <span class="table-meta__count"><strong class="js-count">05</strong> &nbsp;/&nbsp; Active interns &nbsp;&middot;&nbsp; Last synced 09:42 CDT</span>
+        <span class="table-meta__sort">Sort: Start Date &darr;</span>
+      </div>
+
+      <table class="assessments">
+        <thead>
+          <tr>
+            <th style="width: 20%;">Intern</th>
+            <th style="width: 16%;">Cohort</th>
+            <th style="width: 13%;">Start Date</th>
+            <th style="width: 14%;">Current Phase</th>
+            <th style="width: 22%;">90-Day Outcome</th>
+            <th style="width: 15%;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr data-id="bayer">
+            <td>
+              <div class="col-name">
+                <span class="name-initial">BA</span>
+                M. Bayer
+              </div>
+            </td>
+            <td class="col-cohort">Eskenazi 2026</td>
+            <td class="col-date">04.14.2026</td>
+            <td><span class="col-phase">Week 2</span></td>
+            <td><span class="pill pill--tracked">Not yet tracked</span></td>
+            <td>
+              <div class="col-actions">
+                <a href="intern-record.html" class="action-link" data-edit-link>Edit</a>
+                <a href="#" class="action-link action-link--danger" data-open="deleteModal">Delete</a>
+              </div>
+            </td>
+          </tr>
+
+          <tr data-id="clark">
+            <td>
+              <div class="col-name">
+                <span class="name-initial">CL</span>
+                D. Clark
+              </div>
+            </td>
+            <td class="col-cohort">TTT 2026</td>
+            <td class="col-date">04.12.2026</td>
+            <td><span class="col-phase">Week 4</span></td>
+            <td><span class="pill pill--tracked">Not yet tracked</span></td>
+            <td>
+              <div class="col-actions">
+                <a href="intern-record.html" class="action-link" data-edit-link>Edit</a>
+                <a href="#" class="action-link action-link--danger" data-open="deleteModal">Delete</a>
+              </div>
+            </td>
+          </tr>
+
+          <tr data-id="evans">
+            <td>
+              <div class="col-name">
+                <span class="name-initial">EV</span>
+                J. Evans
+              </div>
+            </td>
+            <td class="col-cohort">Elevate 2026</td>
+            <td class="col-date">04.09.2026</td>
+            <td><span class="col-phase">Midpoint</span></td>
+            <td><span class="pill pill--employed-90">Employed at 90d</span></td>
+            <td>
+              <div class="col-actions">
+                <a href="intern-record.html" class="action-link" data-edit-link>Edit</a>
+                <a href="#" class="action-link action-link--danger" data-open="deleteModal">Delete</a>
+              </div>
+            </td>
+          </tr>
+
+          <tr data-id="holt">
+            <td>
+              <div class="col-name">
+                <span class="name-initial">HO</span>
+                T. Holt
+              </div>
+            </td>
+            <td class="col-cohort">Geminus 2026</td>
+            <td class="col-date">04.07.2026</td>
+            <td><span class="col-phase">Week 4</span></td>
+            <td><span class="pill pill--tracked">Not yet tracked</span></td>
+            <td>
+              <div class="col-actions">
+                <a href="intern-record.html" class="action-link" data-edit-link>Edit</a>
+                <a href="#" class="action-link action-link--danger" data-open="deleteModal">Delete</a>
+              </div>
+            </td>
+          </tr>
+
+          <tr data-id="patterson">
+            <td>
+              <div class="col-name">
+                <span class="name-initial">PA</span>
+                S. Patterson
+              </div>
+            </td>
+            <td class="col-cohort">Eskenazi 2026</td>
+            <td class="col-date">04.02.2026</td>
+            <td><span class="col-phase">Final</span></td>
+            <td><span class="pill pill--employed-180">Employed + Still at 180d</span></td>
+            <td>
+              <div class="col-actions">
+                <a href="intern-record.html" class="action-link" data-edit-link>Edit</a>
+                <a href="#" class="action-link action-link--danger" data-open="deleteModal">Delete</a>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer__row">
+      <a href="index.html" class="wordmark" aria-label="IMPACT — Expand Your Opportunities">
+        <img src="logo.png" alt="IMPACT — Expand Your Opportunities" class="wordmark__img" />
+      </a>
+      <div class="footer__links">
+        <a href="assessments.html">Assessments</a>
+        <a href="interns-dashboard.html">Interns</a>
+      </div>
+      <div class="footer__meta">ADMIN CONSOLE / v2.4</div>
+    </div>
+  </footer>
+
+  <script>
+    // Rows clickable → intern record (with ?id= from data-id)
+    document.querySelectorAll('.assessments tbody tr[data-id]').forEach(function (row) {
+      row.addEventListener('click', function (e) {
+        if (e.target.closest('a')) return;
+        window.location.href = 'intern-record.html?id=' + row.dataset.id;
+      });
+    });
+    // Rewrite Edit links to include the row's id
+    document.querySelectorAll('a[data-edit-link]').forEach(function (a) {
+      var row = a.closest('tr[data-id]');
+      if (row) a.href = 'intern-record.html?id=' + row.dataset.id;
+    });
+  </script>
+
+
+  <!-- MODAL: Delete Confirmation -->
+  <div class="modal" id="deleteModal" role="dialog" aria-modal="true" hidden>
+    <div class="modal__overlay" data-close></div>
+    <div class="modal__card modal__card--danger">
+      <span class="modal__label">DELETE RECORD</span>
+      <h3 class="modal__title">Delete this intern record?</h3>
+      <p class="modal__body">
+        This record will be permanently removed. This action cannot be undone.
+      </p>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--outline" data-close>Cancel</button>
+        <button type="button" class="btn btn--danger" onclick="IMPACT.toast({kind:'danger', label:'DELETED', message:'Intern record removed.'}); document.querySelector('#deleteModal').hidden=true;">Delete Permanently</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    (function () {
+      document.querySelectorAll('[data-open]').forEach(function (el) {
+        el.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var m = document.getElementById(el.dataset.open);
+          if (m) m.hidden = false;
+        });
+      });
+      document.addEventListener('click', function (e) {
+        var c = e.target.closest('[data-close]');
+        if (c) { var m = c.closest('.modal'); if (m) m.hidden = true; }
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          document.querySelectorAll('.modal:not([hidden])').forEach(function (m) { m.hidden = true; });
+        }
+      });
+    })();
+  </script>
+
+  <script>
+    IMPACT.wireTableFilter({
+      table: '.assessments',
+      inputs: ['input[type=search]', '#cohort-filter', '#outcome-filter'],
+      countEl: '.js-count'
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,80 @@
+# Backlog / Defer Log
+
+Things explicitly chosen NOT to build right now, with the reason. Living document — append new items at the bottom of each section as they surface. Re-evaluate during sub-project planning.
+
+## Sub-project C deferrals (Questions management)
+
+- **Settings → Questions live preview pane.** Editor was originally designed with a sticky right-pane that re-renders the working set as the admin types. Dropped from C2 for complexity reasons (debounce strategy, editor↔preview state sync, biggest single source of code paths in the editor). Workaround: admin verifies edits by opening the intern-facing form in a new tab. Revisit if admins report friction.
+- **Competency Rubric data-driven refactor.** All other 4 forms (Personal Goals, Midpoint Reflection, Participant Feedback, Exit Employer Survey) refactor to render from `IMPACT.QUESTION_SETS` in C2. Competency Rubric stays on its current bespoke implementation. Reason: it's the one form where the renderer must splice two data sources (program-wide Professional Competencies + per-cohort Role-Specific). Worth a focused later pass. Implication: `competency-rubric` does NOT exist in `IMPACT.QUESTION_SETS` after C2; only 4 sets ship.
+- **Versioning of question sets.** Dropped during brainstorming. Edit-as-you-go semantics; no draft/publish state. Persisted Exit Survey payloads keep their answer keys but don't preserve historical question wording. Acceptable prototype caveat.
+- **Custom question-type builder.** Dropped during brainstorming. Built-in catalog (textarea, short-text, radio, checkbox-group, likert, competency-rubric-row) covers all surveyed needs. New types require a developer commit, same as adding a new page.
+- **Creating new question sets / forms.** Level B editing — admins edit fixed forms, can't add a 6th. Adding a new form is a developer task because the chooser hubs and intern-facing routing reference forms by name.
+- **Renaming question sets in the editor.** `name` is read-only; the 5 sets are fixed identities tied to URL routes.
+- **Per-cohort role-specific competency questions migration into Settings → Questions.** Stays per-cohort, on the cohort form, where it is today. Q1 explicitly settled this.
+- **Section headers / intermediate copy in question-set data.** Page chrome lives in the HTML form file; the data is content-only.
+- **Cross-tab sessionStorage sync.** sessionStorage is per-tab. Edits in tab A won't appear in tab B until the user reloads. Acceptable prototype caveat.
+- **Migration of persisted Exit Survey payloads when labels change.** No automatic key remapping. Persisted answers may end up referencing renamed questions; not a real concern in the prototype where data resets per tab.
+- **DOCS placeholder-artifact verification.** The Personal Goals + Midpoint Reflection content is inferred from .docx text extraction; the source has fillable form fields that came through as placeholders ("build", "for"). My inferred wording is best-guess. Worth user review at C1 gate.
+- **Per-question `.input--error` class never cleared on resubmit.** All 4 refactored forms add `input--error` to errored question rows on validation failure but never strip it on the next submit. If admin fixes one error and resubmits with a different one, both rows stay highlighted until reload. Quick fix: clear `.assessment-question.input--error` at the top of each save handler.
+- **Editor accordion collapses on every action.** `settings-question-set.html`'s `render()` rebuilds `qsContainer.innerHTML` and loses each row's `--expanded` class. Reordering / removing options / adding options collapses the row the admin was just editing. Mildly disorienting on long sets.
+- **Editor type-picker + accordion lack keyboard a11y.** Esc doesn't dismiss the open type-picker; accordions toggle on click only (no Enter/Space binding on `[data-toggle]`). Roll into the broader sub-project D a11y pass.
+- **Editor save toast surfaces only the first validation error.** `errors[0]` shown on validation failure; multi-error scenarios force fix-retry-fix-retry cycles. Consider concatenating or showing a numbered list.
+- **Editor-generated new question ids drift from the per-set prefix convention.** New questions get `q-new-<random>` ids regardless of set. Doesn't follow the `pg-` / `mr-` / `pf-` / `ees-` pattern used by hardcoded defaults. Functionally fine (ids only need to be unique within a set), but tighten if persisted answers ever leak into analytics.
+- **Renderer-output ornamental classes have no CSS rules.** `.assessment-questions` (wrapper), `.assessment-section-head` (Personal Goals' section header — uses inline `style=` instead). Same shape as `.cohort-detail__phases` already documented for sub-project B. Either pair each with a CSS rule or drop the class.
+- **Print-color-adjust missing on `.assessment-likert__seg:has(input:checked)`.** The navy fill on the selected Likert segment is dropped when printing. Adding `-webkit-print-color-adjust: exact; print-color-adjust: exact;` would harden it. The value is still readable from the `:checked` radio so this is cosmetic.
+- **Rubric-row CSS still missing.** `.rubric-row__pills`, `.rubric-row__notes`, `.rubric-pill`, `.rubric-pill:has(input:checked)` were intentionally omitted in C2a Task 4 due to the existing-`.rubric-row` collision with `competency-new.html`. Pair with the deferred Competency Rubric data-driven refactor (when those classes get namespaced, e.g., `.qrender-rubric-row`).
+- **`_isAnswered('competency-rubric-row')` ignores notes-only answers.** Returns false when admin types notes but doesn't pick a rating. Dormant since the type isn't reachable from any shipping question set; revisit alongside the Competency Rubric refactor.
+
+## Sub-project A deferrals (Settings shell + Employers/Cohorts)
+
+- **`escapeHtml` helper.** Several sites interpolate `employer.name` directly into innerHTML strings. Hand-curated data is safe today, but a runtime layer that lets admins type employer names will surface latent XSS. Add when persistence becomes real.
+- **`.col-phase` class semantic mismatch on `settings-employers.html`.** Cohort count rendered inside a `.col-phase` span (a class meant for cohort phase pills). Visually OK; just a design-system reuse smell.
+- **Cursor-pointer rows without keyboard support.** `<tr style="cursor:pointer;">` row-click navigation on `cohort-detail.html`, `settings-employers.html`, `settings-employer.html`, `interns-dashboard.html`, etc. Pre-existing prototype-wide a11y debt; address in a focused a11y pass.
+- **Sidebar rail markup convention drift.** Some settings pages hardcode `--active`; settings-stub.html toggles it via JS. Document the convention in CLAUDE.md or unify when sub-project D adds rail items.
+- **`IMPACT.qs` documentation in CLAUDE.md.** Now used by non-hydrate page IIFEs (`settings-employer.html`, `settings-employer-form.html`, `settings-stub.html`). Should be listed in CLAUDE.md's app.js helper inventory alongside the hydrate functions.
+
+## Sub-project B deferrals (Phases / Barriers / Roles / Program Info)
+
+- **Real persistence for new/edited Phases/Barriers/Roles across reloads.** Currently the inline-edit pages mutate a working copy and toast SAVED, but don't write back to `IMPACT.PHASES` / `IMPACT.BARRIERS` / `IMPACT.ROLES`. Cross-page propagation works only for `IMPACT.PROGRAM_INFO` (sessionStorage). Rest are demo-only.
+- **Cohort cascade-clean when deleting a Role.** The Roles inline-edit page just removes the row from the working copy. Production should warn if the role is referenced by ≥1 cohort and offer to set those cohorts' `roleId` to null. Documented in `settings-roles.html`'s IIFE comment.
+- **Phase cascade-clean similarly.** Same shape as Role cascade.
+- **`cohort-edit.html` doesn't run `IMPACT.validate`.** Pre-existing asymmetry with `cohort-new.html`. Acceptable for a prototype with pre-filled fields, but the new Role select can be cleared by the user without consequence on Save.
+- **Orphan `.cohort-detail__phases` CSS class.** `cohort-detail.html` uses `<p class="cohort-detail__phases">` with no matching CSS rule. Inherits default `<p>` styling fine; class is ornamental dead weight. Remove or pair with a CSS rule.
+- **`PROGRAM_INFO` defaults wiring.** The defaults (`defaultCohortLengthWeeks`, `fiscalYearStartMonth`) persist when admin edits Program Info but aren't read by any other page. Cohort creation could pre-populate Start/End from `defaultCohortLengthWeeks`; reports could respect `fiscalYearStartMonth` for year-on-year framing. Wire when there's a concrete user story.
+
+## Sub-project E deferrals (Competency Questions Consolidation)
+
+- **`.assessment-rubric-notes` missing :focus / resize:vertical / transition.** The renderer-output notes textarea (Task 3) lacks the `:focus` cyan-border + box-shadow, `resize: vertical`, and `transition` properties that `.assessment-question__input` (the textarea used by other renderer types) carries. Inconsistent focus styling when tabbing across question types.
+- **`@media print` missing print-color-adjust on `.assessment-rubric-pill:has(input:checked)`.** The dark-navy fill on the selected Emerging/Developing/Ready pill drops to white on most printers. Add `-webkit-print-color-adjust: exact; print-color-adjust: exact;` to the print stylesheet, mirroring `.rating-view__option--selected`.
+- **4 pre-existing rules use `var(--radius-sm, 4px)` with wrong fallback.** Lines 3004, 3060, 3102, 3377 in `styles.css`. `--radius-sm` is `2px`; `4px` is `--radius-md`. Tasks 3 cleaned this up for the new rules; the 4 pre-existing instances remain as a future cleanup pass.
+- **Inline polymorphism comment for `setOrId` overload.** `IMPACT.collectAnswers` / `validateAnswers` / `restoreAnswers` accept either a setId string or a synthesized set object (Task 2 overload). A short inline comment above the resolution line would document the dual-type contract for future maintainers.
+- **`data-id="competency"` sentinel collision risk.** `settings-questions.html`'s row-click handler special-cases `data-id="competency"` to route to `settings-competency.html`. If a future real `QUESTION_SETS` entry is ever named exactly `competency` (without the `competency-` prefix), the handler would route it to the wrong page. Refactor to a separate attribute (e.g., `data-special="competency-rubric"`) so `data-id` stays semantically reserved for real set ids.
+- **Magic-string prefix repetition.** The strings `'competency-cohort-'` and `'competency-intern-'` appear in `settings-questions.html` AND in `app.js` helpers (`competencyCohortSet`, `competencyInternSet`). Extract to constants (e.g., `IMPACT.COMPETENCY_COHORT_PREFIX`, `IMPACT.COMPETENCY_INTERN_PREFIX`) so the prefix lives in one place.
+- **3-way editor shell duplication.** `settings-question-set.html`, `competency-cohort-set.html`, and `competency-intern-set.html` each have their own copy of `escapeHtml`, `renderTypeBody`, `render`, `syncFromInputs`, the qsContainer click handler, the typePicker handler, and the modal close logic — only the dropdown source + payload shape differ. `renderTypeBody` is the highest-priority drift risk: a new question type added to one editor without updating the other two would silently produce broken config renders for cross-edited questions. Extract a single shared editor module (e.g., `IMPACT.wireQuestionSetEditor({selector, source, payloadShape, ...})`).
+- **Action-bar status label always says "EDIT" in both new and edit modes.** `competency-cohort-set.html` and `competency-intern-set.html` show `"COHORT/INTERN COMPETENCY SET · EDIT"` regardless of mode. Should switch to `· NEW` in new mode for accuracy.
+- **Modal lacks `aria-labelledby` across the new editors.** `#deleteModal` on `competency-cohort-set.html` / `competency-intern-set.html` and `#resetModal` on `settings-program-info.html` — none reference the modal title via `aria-labelledby`. Pre-existing prototype-wide pattern; carry-forward for the broader a11y pass (sub-project D).
+- **`[data-action="submit-changes"]` selector on `competency-edit.html` has no null-guard.** Inconsistent with the `confirmSaveBtn` guard pattern used 2 lines later. If the button is ever conditionally absent (e.g., a future template variant), `.addEventListener` throws.
+- **`competency-edit.html` Cancel button href doesn't carry `?id=` forward.** Pre-existing — Cancel goes to `competency-detail.html` with no `?id=`, falling back to the hydrate default. Should carry the assessment id.
+- **Defense-in-depth: confirm-save handler doesn't re-validate before persisting.** `competency-edit.html`'s confirm-save click trusts that submit-changes already validated. Safe given current modal access path, but the spec's defensive double-validation pattern is worth restoring as a guard against future bypass paths.
+- **CLAUDE.md line 7 prose still says "21-page".** Page inventory header on line 37 correctly says 34. The `21-page` description in the intro paragraph is a stale descriptor — cosmetic but misleading.
+- **`settings-question-set.html` breadcrumb + Cancel don't preserve the Competency entry path.** When loaded with `?id=competency-core` (reached via the "Edit Core" button on `settings-competency.html`), the breadcrumb reads `ADMIN / SETTINGS / QUESTIONS / Competency Rubric — Core` and Cancel returns to `settings-questions.html` — both send users back to the wrong place when they came in via the Competency 3-tier detail page. Special-case for `setId.indexOf('competency-') === 0`: render breadcrumb as `... / QUESTIONS / COMPETENCY / <set name>` and route Cancel to `settings-competency.html`.
+- **`markAssessmentComplete('competency', internId, ...)` storage key doesn't include phase.** The committed COMPETENCY mock array keeps separate records per phase, but the persistence path stores ONE payload per intern under `impact.assessment.competency.<internId>.completedAt`. After two submissions for the same intern across different phases, only the most recent payload is restorable. PRD.md:107 also says "Multiple assessments per phase per intern are allowed" — doc/code drift. Either change the key shape to `impact.assessment.competency.<internId>.<phase>.completedAt` or document the prototype limitation.
+- **`competency-new.html` runs two IIFEs that both resolve intern context.** First IIFE early-returns to `assessments.html` on missing intern; second IIFE (phase dropdown) runs unconditionally for ~1.5s before the redirect fires. Pre-existing pattern (predates E); could be merged into one IIFE.
+
+## Sub-project D (queued, not yet brainstormed)
+
+- **Responsive display audit + hamburger menu for mobile.** Identified during the Settings brainstorming. Whole sub-project. Scope: surface broken layouts at small viewports, add a hamburger nav for the admin top-nav, fix touch-target sizing on tap targets that today rely on hover/cursor.
+- **A11y / keyboard-nav consolidation (consider folding into D when picked up).** Several items have accumulated in earlier sections that share the same theme and could be tackled together once sub-project D's scope is brainstormed:
+  - Cursor-pointer rows without keyboard support across `cohort-detail.html`, `settings-employers.html`, `settings-employer.html`, `interns-dashboard.html` (sub-project A item).
+  - Editor type-picker + accordion lack keyboard a11y in `settings-question-set.html` — Esc doesn't dismiss the open type-picker; accordions toggle on click only (sub-project C item).
+  - Sidebar rail markup convention drift — some pages hardcode `--active`, `settings-stub.html` toggled it via JS (sub-project A item; partially obsoleted by stub deletion but the inconsistency remains across the rest of the rail-using pages).
+
+## Original PRD non-goals (still out of scope)
+
+- Midpoint Performance Review form
+- Employer logins
+- Notifications (email, in-app, etc.)
+
+---
+
+**Maintenance:** when a sub-project closes its review, lift any newly-discovered deferrals into the matching section above. When a deferred item gets picked up, move it to the relevant sub-project's spec/plan and remove the line here.

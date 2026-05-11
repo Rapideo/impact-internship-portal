@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reports — IMPACT Admin</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <header class="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="wordmark" aria-label="IMPACT — Expand Your Opportunities">
+        <img src="logo.png" alt="IMPACT — Expand Your Opportunities" class="wordmark__img" />
+      </a>
+      <nav class="nav__links">
+        <a href="admin.html" class="nav__link">Home</a>
+        <a href="interns-dashboard.html" class="nav__link">Interns</a>
+        <a href="assessments.html" class="nav__link">Assessments</a>
+        <a href="reports.html" class="nav__link nav__link--active">Reports</a>
+        <a href="settings-employers.html" class="nav__link">Settings</a>
+
+        <span class="admin-chip">
+          <span class="admin-chip__avatar">K</span>
+          kortney@impact.org
+          <span class="admin-chip__divider"></span>
+          <a href="index.html" class="admin-chip__logout">Logout</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- PAGE HEAD -->
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head__breadcrumb">
+        <span class="micro-label">ADMIN / REPORTS / 2026</span>
+      </div>
+      <div class="page-head__row">
+        <div>
+          <h1 class="page-head__title">PROGRAM<br/>REPORTS.</h1>
+          <p class="page-head__sub">
+            Aggregate insights across the 2026 cohort cycle. Charts use demo data
+            and will be replaced with live queries in the production build.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPORTS -->
+  <section>
+    <div class="container" style="padding-bottom: 80px;">
+
+      <!-- Report 1: Top Entry Assessment Barriers -->
+      <article class="report-card">
+        <span class="report-demo-badge">DEMO DATA</span>
+        <div class="report-card__head">
+          <h2 class="report-card__title">Top Entry Assessment Barriers</h2>
+          <span class="micro-label">2026 CYCLE · 5 INTERNS</span>
+        </div>
+
+        <div class="bar-chart">
+          <div class="bar-chart__col">
+            <span class="bar-chart__value">3</span>
+            <div class="bar-chart__bar bar-chart__bar--navy" style="height: 60%;"></div>
+            <span class="bar-chart__label">Trans-<br/>portation</span>
+          </div>
+          <div class="bar-chart__col">
+            <span class="bar-chart__value">2</span>
+            <div class="bar-chart__bar bar-chart__bar--navy" style="height: 40%;"></div>
+            <span class="bar-chart__label">Childcare</span>
+          </div>
+          <div class="bar-chart__col">
+            <span class="bar-chart__value">2</span>
+            <div class="bar-chart__bar bar-chart__bar--navy" style="height: 40%;"></div>
+            <span class="bar-chart__label">Financial<br/>reserves</span>
+          </div>
+          <div class="bar-chart__col">
+            <span class="bar-chart__value">1</span>
+            <div class="bar-chart__bar bar-chart__bar--navy" style="height: 20%;"></div>
+            <span class="bar-chart__label">Housing</span>
+          </div>
+          <div class="bar-chart__col">
+            <span class="bar-chart__value">1</span>
+            <div class="bar-chart__bar bar-chart__bar--navy" style="height: 20%;"></div>
+            <span class="bar-chart__label">Documen-<br/>tation</span>
+          </div>
+          <div class="bar-chart__col">
+            <span class="bar-chart__value">1</span>
+            <div class="bar-chart__bar bar-chart__bar--navy" style="height: 20%;"></div>
+            <span class="bar-chart__label">Work<br/>history</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Report 2: Competency Progression -->
+      <article class="report-card">
+        <span class="report-demo-badge">DEMO DATA</span>
+        <div class="report-card__head">
+          <h2 class="report-card__title">Competency Progression Across Phases</h2>
+          <span class="micro-label">ALL COHORTS · PASS RATE PER PHASE</span>
+        </div>
+
+        <div class="bar-chart">
+          <div class="bar-chart__col">
+            <span class="bar-chart__value">67%</span>
+            <div class="bar-chart__bar bar-chart__bar--cyan" style="height: 67%;"></div>
+            <span class="bar-chart__label">Intake</span>
+          </div>
+          <div class="bar-chart__col">
+            <span class="bar-chart__value">50%</span>
+            <div class="bar-chart__bar bar-chart__bar--cyan" style="height: 50%;"></div>
+            <span class="bar-chart__label">Week 2</span>
+          </div>
+          <div class="bar-chart__col">
+            <span class="bar-chart__value">100%</span>
+            <div class="bar-chart__bar bar-chart__bar--gold" style="height: 100%;"></div>
+            <span class="bar-chart__label">Week 4</span>
+          </div>
+          <div class="bar-chart__col">
+            <span class="bar-chart__value">100%</span>
+            <div class="bar-chart__bar bar-chart__bar--gold" style="height: 100%;"></div>
+            <span class="bar-chart__label">Midpoint</span>
+          </div>
+          <div class="bar-chart__col">
+            <span class="bar-chart__value">&mdash;</span>
+            <div class="bar-chart__bar bar-chart__bar--muted" style="height: 8%;"></div>
+            <span class="bar-chart__label">Week 8</span>
+          </div>
+          <div class="bar-chart__col">
+            <span class="bar-chart__value">&mdash;</span>
+            <div class="bar-chart__bar bar-chart__bar--muted" style="height: 8%;"></div>
+            <span class="bar-chart__label">Final</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Report 3: 90-Day Outcome Tracking -->
+      <article class="report-card">
+        <span class="report-demo-badge">DEMO DATA</span>
+        <div class="report-card__head">
+          <h2 class="report-card__title">90-Day Outcome Tracking</h2>
+          <span class="micro-label">5 INTERNS · POST-PLACEMENT</span>
+        </div>
+
+        <div class="bar-chart">
+          <div class="bar-chart__col">
+            <span class="bar-chart__value">3</span>
+            <div class="bar-chart__bar bar-chart__bar--muted" style="height: 60%;"></div>
+            <span class="bar-chart__label">Not Yet<br/>Tracked</span>
+          </div>
+          <div class="bar-chart__col">
+            <span class="bar-chart__value">1</span>
+            <div class="bar-chart__bar bar-chart__bar--gold" style="height: 20%;"></div>
+            <span class="bar-chart__label">Employed<br/>at 90d</span>
+          </div>
+          <div class="bar-chart__col">
+            <span class="bar-chart__value">1</span>
+            <div class="bar-chart__bar bar-chart__bar--success" style="height: 20%;"></div>
+            <span class="bar-chart__label">Still at<br/>180d</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer__row">
+      <a href="index.html" class="wordmark" aria-label="IMPACT — Expand Your Opportunities">
+        <img src="logo.png" alt="IMPACT — Expand Your Opportunities" class="wordmark__img" />
+      </a>
+      <div class="footer__links">
+        <a href="admin.html">Admin Home</a>
+        <a href="interns-dashboard.html">Interns</a>
+      </div>
+      <div class="footer__meta">&copy; 2026 IMPACT / Indiana</div>
+    </div>
+  </footer>
+
+</body>
+</html>

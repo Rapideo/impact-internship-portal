@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Self-Assessment — IMPACT Admin</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <header class="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="wordmark" aria-label="IMPACT — Expand Your Opportunities">
+        <img src="logo.png" alt="IMPACT — Expand Your Opportunities" class="wordmark__img" />
+      </a>
+      <nav class="nav__links">
+        <a href="admin.html" class="nav__link">Home</a>
+        <a href="interns-dashboard.html" class="nav__link nav__link--active">Interns</a>
+        <a href="assessments.html" class="nav__link">Assessments</a>
+        <a href="reports.html" class="nav__link">Reports</a>
+        <a href="settings-employers.html" class="nav__link">Settings</a>
+        <span class="admin-chip">
+          <span class="admin-chip__avatar">K</span>
+          kortney@impact.org
+          <span class="admin-chip__divider"></span>
+          <a href="index.html" class="admin-chip__logout">Logout</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- PAGE HEAD -->
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head__breadcrumb">
+        <span class="micro-label" data-field="breadcrumb">
+          <a href="interns-dashboard.html" style="color:inherit; text-decoration:none;">ADMIN / INTERNS</a> / SELF-ASSESSMENT
+        </span>
+      </div>
+      <div class="page-head__row">
+        <div>
+          <h1 class="page-head__title"><span data-field="title-name">—</span> &mdash;<br/><span data-field="title-type">SELF-ASSESSMENT.</span></h1>
+          <p class="page-head__sub" data-field="sub-copy">
+            Submitted and locked. One submission per intern. Admins may remove the record but cannot modify the responses.
+          </p>
+        </div>
+      </div>
+
+      <!-- META STRIP -->
+      <div class="meta-strip" data-field="meta-strip">
+        <div class="meta-strip__item">
+          <span class="meta-strip__label">First Initial</span>
+          <span class="meta-strip__value mono" data-field="first-initial">—</span>
+        </div>
+        <div class="meta-strip__item">
+          <span class="meta-strip__label">Last Name</span>
+          <span class="meta-strip__value" data-field="last">—</span>
+        </div>
+        <div class="meta-strip__item">
+          <span class="meta-strip__label">Employer</span>
+          <span class="meta-strip__value" data-field="employer">—</span>
+        </div>
+        <div class="meta-strip__item">
+          <span class="meta-strip__label">Cohort</span>
+          <span class="meta-strip__value" data-field="cohort">—</span>
+        </div>
+        <div class="meta-strip__item">
+          <span class="meta-strip__label">Submitted</span>
+          <span class="meta-strip__value mono" data-field="submitted">—</span>
+        </div>
+        <div class="meta-strip__item">
+          <span class="meta-strip__label">Locked</span>
+          <span class="meta-strip__value">Immutable</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="assessment-wrap">
+    <div class="container">
+
+      <div class="detail-header">
+        <h2 class="detail-header__title" data-field="set-name">Responses</h2>
+        <span class="micro-label" data-field="set-meta">— QUESTIONS</span>
+      </div>
+
+      <!-- Empty-state card when no submission exists for this type.
+           Inline display:none is required because .rubric sets display:flex,
+           which beats the [hidden] attribute. -->
+      <div class="rubric assessment-questions" data-field="empty-state" style="display: none;">
+        <div class="rubric-panel" style="padding: 32px 28px; text-align: center; color: var(--muted);">
+          <p style="margin: 0 0 12px 0; font-family: var(--font-display); font-size: 18px; color: var(--ink);">No submission yet.</p>
+          <p style="margin: 0; font-size: 14px;">This intern has not yet submitted the assessment. The card on their record will update automatically once they do.</p>
+        </div>
+      </div>
+
+      <!-- Question container — populated by IMPACT.renderQuestion + restoreAnswers, then disabled -->
+      <div class="rubric assessment-questions" id="questions-container"></div>
+
+      <!-- ACTIONS -->
+      <div class="detail-actions">
+        <a class="btn btn--outline" data-action="close">&larr; Close</a>
+        <button type="button" class="btn btn--danger" data-open="deleteModal" data-field="delete-button" hidden>Delete Submission</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer__row">
+      <a href="index.html" class="wordmark" aria-label="IMPACT — Expand Your Opportunities">
+        <img src="logo.png" alt="IMPACT — Expand Your Opportunities" class="wordmark__img" />
+      </a>
+      <div class="footer__links">
+        <a href="interns-dashboard.html">Interns</a>
+        <a href="assessments.html">Assessments</a>
+      </div>
+      <div class="footer__meta">&copy; 2026 IMPACT / Indiana</div>
+    </div>
+  </footer>
+
+  <!-- MODAL: Delete Confirmation -->
+  <div class="modal" id="deleteModal" role="dialog" aria-modal="true" hidden>
+    <div class="modal__overlay" data-close></div>
+    <div class="modal__card modal__card--danger">
+      <span class="modal__label">DELETE SUBMISSION</span>
+      <h3 class="modal__title">Delete this submission?</h3>
+      <p class="modal__body">
+        The submitted responses will be permanently removed and the intern will be able to submit again. This cannot be undone.
+      </p>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--outline" data-close>Cancel</button>
+        <button type="button" class="btn btn--danger" data-action="confirm-delete">Delete Permanently</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    (function () {
+      // ---- Modal open/close ----
+      document.querySelectorAll('[data-open]').forEach(function (el) {
+        el.addEventListener('click', function (e) {
+          e.preventDefault();
+          var m = document.getElementById(el.dataset.open);
+          if (m) m.hidden = false;
+        });
+      });
+      document.addEventListener('click', function (e) {
+        var c = e.target.closest('[data-close]');
+        if (c) { var m = c.closest('.modal'); if (m) m.hidden = true; }
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          document.querySelectorAll('.modal:not([hidden])').forEach(function (m) { m.hidden = true; });
+        }
+      });
+
+      // ---- Per-type copy table (mirrors the public-side form titles) ----
+      var COPY = {
+        'personal-goals': {
+          breadcrumb: 'PERSONAL GOALS',
+          titleType:  'PERSONAL GOALS.',
+          subCopy:    'Submitted and locked. One submission per intern. The intern’s starting reflection on what they want to get out of this internship.',
+          setName:    'Personal Goals',
+          setId:      'personal-goals'
+        },
+        'midpoint-reflection': {
+          breadcrumb: 'MIDPOINT REFLECTION',
+          titleType:  'MIDPOINT REFLECTION.',
+          subCopy:    'Submitted and locked. One submission per intern. The intern’s mid-program reflection on progress and next steps.',
+          setName:    'Midpoint Reflection',
+          setId:      'midpoint-reflection'
+        },
+        'participant-feedback': {
+          breadcrumb: 'PARTICIPANT FEEDBACK',
+          titleType:  'PARTICIPANT FEEDBACK.',
+          subCopy:    'Submitted and locked. One submission per intern. End-of-program feedback covering experience, supports, and barriers.',
+          setName:    'Participant Feedback',
+          setId:      'participant-feedback'
+        }
+      };
+
+      var type = IMPACT.qs('type');
+      var internId = IMPACT.qs('internId');
+      var entry = COPY[type];
+
+      // Resolve the back-link target once: the intern record this was reached
+      // from (when internId is provided), otherwise the dashboard.
+      var backHref = internId ? ('intern-record.html?id=' + internId) : 'interns-dashboard.html';
+      document.querySelector('[data-action="close"]').setAttribute('href', backHref);
+
+      if (!entry) {
+        IMPACT.toast({ kind: 'danger', label: 'UNKNOWN TYPE', message: 'No assessment type specified.' });
+        setTimeout(function () { location.href = backHref; }, 1500);
+        return;
+      }
+
+      // Page-head copy from the type table.
+      IMPACT.fillText('[data-field="title-type"]', entry.titleType);
+      IMPACT.fillText('[data-field="sub-copy"]', entry.subCopy);
+      IMPACT.fillText('[data-field="set-name"]', entry.setName);
+
+      // Breadcrumb: ADMIN / INTERNS / <intern last name> / <TYPE>
+      var crumbEl = document.querySelector('[data-field="breadcrumb"]');
+      if (crumbEl) {
+        var contextIntern = internId ? IMPACT.internById(internId) : null;
+        var contextLast = contextIntern ? contextIntern.last.toUpperCase() : '';
+        crumbEl.innerHTML =
+          '<a href="interns-dashboard.html" style="color:inherit; text-decoration:none;">ADMIN / INTERNS</a>' +
+          (contextLast ? ' / <a href="' + backHref + '" style="color:inherit; text-decoration:none;">' + contextLast + '</a>' : '') +
+          ' / ' + entry.breadcrumb;
+      }
+
+      // ---- Resolve submission payload ----
+      // Self-assessments are now per-intern keyed: the intern confirms their
+      // identity on the chooser page, and submissions are stored under the
+      // intern.id. The intern record's Self-Assessments panel passes the
+      // matching internId in the URL, so we pull the per-intern status here.
+      var status = IMPACT.assessmentStatus(type, internId);
+
+      var emptyState = document.querySelector('[data-field="empty-state"]');
+      var qContainer = document.getElementById('questions-container');
+      var deleteBtn  = document.querySelector('[data-field="delete-button"]');
+
+      if (!status.completed || !status.payload) {
+        IMPACT.fillText('[data-field="title-name"]', 'NO SUBMISSION');
+        IMPACT.fillText('[data-field="set-meta"]', '—');
+        if (emptyState) emptyState.style.display = 'flex';
+        if (qContainer) qContainer.style.display = 'none';
+        return;
+      }
+
+      var payload = status.payload;
+      var submittedCohort   = payload.cohortId   ? IMPACT.cohortById(payload.cohortId) : null;
+      var submittedEmployer = payload.employerId
+        ? IMPACT.employerById(payload.employerId)
+        : (submittedCohort ? IMPACT.employerById(submittedCohort.employerId) : null);
+
+      // Meta-strip + title from the submission payload (not from the intern
+      // record being viewed — those identities can differ in the demo since
+      // submissions are stored globally).
+      var displayLast = payload.last || '—';
+      IMPACT.fillText('[data-field="title-name"]', displayLast.toUpperCase());
+      IMPACT.fillText('[data-field="first-initial"]', payload.firstInitial || '—');
+      IMPACT.fillText('[data-field="last"]', displayLast);
+      IMPACT.fillText('[data-field="employer"]', submittedEmployer ? submittedEmployer.name : '—');
+      IMPACT.fillText('[data-field="cohort"]', submittedCohort ? submittedCohort.name : '—');
+      IMPACT.fillText('[data-field="submitted"]', IMPACT.formatCompletionDate(status.completedAt));
+
+      // ---- Render the question set with answers restored, then disable inputs ----
+      var set = IMPACT.questionSetById(entry.setId);
+      if (!set) {
+        IMPACT.toast({ kind: 'danger', label: 'SET MISSING', message: 'Question set not found.' });
+        return;
+      }
+
+      IMPACT.fillText('[data-field="set-meta"]', String(set.questions.length).padStart(2, '0') + ' QUESTIONS');
+
+      set.questions.forEach(function (q, i) {
+        IMPACT.renderQuestion(q, qContainer, i);
+      });
+      IMPACT.restoreAnswers(set, qContainer, payload.answers || {});
+
+      // Read-only render: disable every input, select, textarea inside the
+      // question container. Inputs stay visible (and selected radios remain
+      // visually selected) — they just can't be edited.
+      qContainer.querySelectorAll('input, select, textarea').forEach(function (el) {
+        el.disabled = true;
+      });
+
+      // Show the Delete button only when there's an actual submission to delete.
+      if (deleteBtn) deleteBtn.hidden = false;
+
+      // ---- Delete flow: clear the per-intern submission key and bounce back. ----
+      var confirmDelete = document.querySelector('[data-action="confirm-delete"]');
+      if (confirmDelete) {
+        confirmDelete.addEventListener('click', function () {
+          try {
+            var key = 'impact.assessment.' + type + (internId ? '.' + internId : '') + '.completedAt';
+            window.sessionStorage.removeItem(key);
+          } catch (err) { /* sessionStorage unavailable; toast still fires */ }
+          IMPACT.toast({ kind: 'danger', label: 'DELETED', message: 'Submission removed.' });
+          setTimeout(function () { location.href = backHref; }, 700);
+        });
+      }
+    })();
+  </script>
+
+</body>
+</html>
