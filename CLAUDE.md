@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this project is
 
-The **IMPACT Internship Assessment Portal** is a web app for an Indiana-based internship program. The clickable 34-page prototype is **locked**, and the **production rebuild is fully planned** — 1 architectural design spec plus 6 sub-project implementation plans (256 tasks total), all committed. Sub-project 1 (Foundation) execution has not yet begun.
+The **IMPACT Internship Assessment Portal** is a web app for an Indiana-based internship program. The clickable 34-page prototype is **locked** (lives in a separate sibling repo, `Rapideo/impact-prototype`). The **production rebuild's infrastructure (Sub-project 0) is complete**: GitHub repo, branch protection, CI, hook chain, Husky/commitlint/lint-staged, Netlify wiring, GitHub Pages dashboard, methodology playbook. The remaining 6 sub-projects (Foundation through Polish & Launch — 256 application-level tasks) are planned and ready to execute. Sub-project 1 (Foundation) is the next thing to start.
 
 The app tracks:
 - Intake / Entry Assessment (captured on the intern record at creation)
@@ -15,13 +15,17 @@ The app tracks:
 ## Source-of-truth documents
 
 **Production rebuild (authoritative for production scope):**
-- **`docs/superpowers/specs/2026-05-10-production-rebuild-design.md`** — architectural design spec. Single source of truth for production stack (RR v7 + Drizzle + Supabase Postgres + Supabase Auth + Netlify), data model (15 tables), 3-tier permission model (admin / employer / anonymous intern), question-set engine, phasing, deferred items.
-- **`docs/superpowers/plans/2026-05-10-sub-project-1-foundation.md`** — 60 tasks. Repo scaffold, Supabase project, Drizzle schema, RLS policies, dev seed, CI/CD, login routing to placeholder dashboards.
+- **`docs/superpowers/specs/2026-05-10-production-rebuild-design.md`** — architectural design spec. Single source of truth for production stack (RR v7 + Drizzle + Supabase Postgres + Supabase Auth + Netlify), data model (15 tables), 3-tier permission model (admin / employer / anonymous intern), question-set engine, phasing, deferred items. **§2.4 amended** to specify 2 Supabase projects (`impact-dev` + `impact-prod`) with CI using `supabase start` for ephemeral local Postgres.
+- **`docs/superpowers/specs/2026-05-11-development-workflow-design.md`** — workflow design spec. Covers branching, Conventional Commits, PR conventions, branch protection, CI pipeline, Netlify deployment topology (2 projects — see Git section below), secrets management (per-deploy-context). Includes amendments documenting all in-flight deviations.
+- **`docs/superpowers/plans/2026-05-11-sub-project-0-project-infrastructure.md`** — 58 tasks across 8 phases (A-H). **Complete** — all phases shipped over 2026-05-11 as PRs #1, #2, #4, #5, #6, #7, #8, #9, #10, #11, #13, #14 (plus probe PR #12 closed without merging). Phase G (Netlify-GitHub UI) and Phase H (management dashboard at `docs/dev-portal/`) verified live.
+- **`docs/superpowers/plans/2026-05-10-sub-project-1-foundation.md`** — 60 tasks. Repo scaffold, Supabase project verification, Drizzle schema, RLS policies, dev seed, CI/CD, login routing to placeholder dashboards. Phase A amended for the 2-Supabase / 2-Netlify reality (Tasks 3, 5, 57, 58 reflect "verify existing infrastructure" rather than "create new").
 - **`docs/superpowers/plans/2026-05-10-sub-project-2-admin-core.md`** — 37 tasks. Admin shell + Settings (Employers/Cohorts/Roles/Phases/Barriers/Program Info) + Interns CRUD + unified intern record.
 - **`docs/superpowers/plans/2026-05-10-sub-project-3-question-engine.md`** — 38 tasks. 6 question type renderers + set editor (with accordion-collapse fix) + 3-tier competency stitching + verbatim seed content.
 - **`docs/superpowers/plans/2026-05-10-sub-project-4-assessment-forms.md`** — 31 tasks. All 5 assessment forms on the engine + intern identity gate (HMAC cookie) + anonymous submission via service-role bypass.
 - **`docs/superpowers/plans/2026-05-10-sub-project-5-employer-shell.md`** — 38 tasks. Employer login + scoped views + account provisioning + branded auth pages + self-service competency / exit-survey.
-- **`docs/superpowers/plans/2026-05-10-sub-project-6-polish-launch.md`** — 52 tasks. Reports stub + Resend branded emails + Sentry + e2e smoke + a11y + perf + Netlify publish-dir cutover + launch.
+- **`docs/superpowers/plans/2026-05-10-sub-project-6-polish-launch.md`** — 52 tasks. Reports stub + Resend branded emails + Sentry + e2e smoke + a11y + perf + launch. **Phase H "Netlify cutover" tasks now obsolete** — superseded by the two-Netlify-project structure (prototype and app each have their own Netlify project, so no publish-dir flip is needed). Tasks left in place with obsolescence notes for the historical record.
+- **`docs/methodology.md`** — 414-line replayable methodology playbook. How to apply the brainstorm → spec → plan → execute approach to future projects. Created for Matt's reuse on other engagements.
+- **`docs/dev-portal/`** — management-facing dashboard published via GitHub Pages at `https://rapideo.github.io/impact-internship-portal/dev-portal/`. 7 tabs: Overview, Planning Process, Phasing & Timeline, Tech Stack, Supabase Deep-Dive, Workflow & SDLC, Status. Status tab is JSON-driven from `docs/dev-portal/data/status.json` (update on milestone-close PRs).
 
 **Prototype-era and reference (still authoritative for prototype behavior; superseded by the production design spec for production scope):**
 - **`PRD.md`** — original requirements, business rules, roles, open questions, non-goals. v0 PRD predates the 3-tier user model added in production planning.
@@ -156,19 +160,31 @@ Fonts (Google Fonts, loaded via `<link>`):
 
 ## Git
 
-This is a git repository on branch `main` (renamed from `master` on 2026-05-11). The GitHub remote is `git@github.com:Rapideo/impact-internship-portal.git` — public repo under the Rapideo organization. Branch protection on `main` requires PRs with passing CI; direct pushes are rejected.
+This is a git repository on branch `main` (renamed from `master` on 2026-05-11). The GitHub remote is `https://github.com/Rapideo/impact-internship-portal.git` — public repo under the `Rapideo` GitHub user account (NOT a separate org — `Rapideo` is the user's GitHub login). Branch protection on `main` requires PRs with passing CI; direct pushes are rejected.
 
-**Local working path:** `C:\Projects\impact-internship-portal\` (moved out of OneDrive on 2026-05-11; the OneDrive copy is renamed to `IMPACT Intretnship Assessment Portal _archived_2026-05-11` for a two-week safety net).
+**Local working path:** `C:\Projects\impact-internship-portal\` (moved out of OneDrive on 2026-05-11). The OneDrive copy at `C:\Users\matts\OneDrive - Koehler Partners\Projects\IMPACT\Internship Assessment\IMPACT Intretnship Assessment Portal\` is to be renamed to `_archived_2026-05-11` on the next session restart (deferred to avoid breaking an active Claude Code working-directory anchor).
 
-**Repo split:** This repo holds the production rebuild. The frozen 34-page prototype lives in a sibling repo at `Rapideo/impact-prototype` (the prototype HTML is mirrored here under `Prototypes/PROTOTYPE/` for reference, and Netlify continues to publish that directory as the prototype preview).
+**Repo split (2 repos):**
+- **This repo** (`Rapideo/impact-internship-portal`, public) holds the production rebuild. The prototype HTML at `Prototypes/PROTOTYPE/` is a reference-only seed copy.
+- **`Rapideo/impact-prototype`** (public) holds the frozen 34-page prototype with its full 177-commit history. Local clone at `C:\Projects\impact-prototype\`. Receives only rare maintenance edits.
 
-**Workflow + project dashboard:** `https://rapideo.github.io/impact-internship-portal/dev-portal/` — six-tab management-facing artifact (Overview / Phasing / Stack / Supabase / Workflow / Status). Status tab is JSON-driven from `docs/dev-portal/data/status.json`; updated on milestone-close PRs. The bare URL `https://rapideo.github.io/impact-internship-portal/` redirects to `/dev-portal/` via `docs/index.html`.
+**Netlify (2 projects, one per repo):**
+- **Prototype Netlify project:** `impact-internship-portal.netlify.app` (project ID `65497097-8b5c-471e-a0c9-dc7ddea0fb2c`). Watches `Rapideo/impact-prototype`. Publishes `Prototypes/PROTOTYPE/`. Auto-deploys on every prototype-repo push.
+- **App Netlify project:** `impact-portal-app.netlify.app` (project ID `6e071577-7adb-4cae-82d6-b2b2b66a47aa`). Will watch this repo. Env vars pre-set per-context (production context → impact-prod values; deploy-preview + branch-deploy contexts → impact-dev values). Sub-project 1 Phase 1 Task 5 wires the GitHub connection.
+
+**Supabase (2 projects):**
+- **`impact-dev`** — ref `zdrxxcbhiovoaubkcqfj`, region `us-east-2`. Used by local dev (`.env.local`) + Netlify deploy previews + branch deploys.
+- **`impact-prod`** — ref `ptnhzdkspzquwcxdoqbt`, region `us-east-2`. Used by Netlify production context only.
+- **CI uses `supabase start`** (local Docker Postgres) for integration + RLS tests; no separate cloud test project.
+
+**Workflow + project dashboard:** `https://rapideo.github.io/impact-internship-portal/dev-portal/` — seven-tab management-facing artifact (Overview / Planning Process / Phasing & Timeline / Tech Stack / Supabase Deep-Dive / Workflow & SDLC / Status). Status tab is JSON-driven from `docs/dev-portal/data/status.json`; updated on milestone-close PRs. The bare URL `https://rapideo.github.io/impact-internship-portal/` redirects to `/dev-portal/` via `docs/index.html`.
 
 **Conventions in place:**
-- **Conventional Commits** enforced on every commit (commitlint via Husky `commit-msg` hook). Subject ≤ 72 chars.
-- **Branch protection on `main`** — no direct pushes; squash-merge PRs only; required status check is the CI workflow.
-- **Hook chain:** Husky 9 + commitlint 19 + lint-staged 15. `pre-commit` runs `npx lint-staged` (currently a no-op stub; real Prettier + ESLint wired in sub-project 1). `commit-msg` runs commitlint against the Conventional Commits format.
-- **CI:** `.github/workflows/ci.yml` — runs on PRs to `main` and pushes to `main`. Sanity-check stub until sub-project 1 wires in real stages.
-- **Netlify** is connected to the GitHub repo; deploy previews on every PR publish `Prototypes/PROTOTYPE/` until sub-project 6 flips the publish-dir cutover to the production app build.
+- **Conventional Commits** enforced on every commit (commitlint via Husky `commit-msg` hook). Subject ≤ 72 chars; body line ≤ 100 chars.
+- **Branch protection on `main`** — no direct pushes; squash-merge PRs only; required status check is the CI workflow (`Sanity checks (stub)` until sub-project 1 wires real stages).
+- **Hook chain:** Husky 9 + commitlint 19 + lint-staged 15. `pre-commit` runs `npx lint-staged` (no-op stub; real Prettier + ESLint wired in sub-project 1). `commit-msg` runs commitlint against the Conventional Commits format.
+- **CI:** `.github/workflows/ci.yml` — runs on PRs to `main` and pushes to `main`. Sanity-check stub until sub-project 1 wires real stages.
+- **PR workflow:** branch (`feat/`, `fix/`, `chore/`, `docs/`, `test/`, `refactor/`) → push → `gh pr create` → CI runs automatically → `gh pr merge --squash --delete-branch` after green CI.
+- **Secrets:** `.env.local` (gitignored) for local dev with impact-dev values; Netlify env vars set per-deploy-context for prod vs dev routing; GitHub Secrets are placeholder-only (CI uses `supabase start`).
 
-**Workflow spec:** `docs/superpowers/specs/2026-05-11-development-workflow-design.md` is the source of truth for the workflow described above. The corresponding implementation plan is `docs/superpowers/plans/2026-05-11-sub-project-0-project-infrastructure.md`.
+**Workflow spec:** `docs/superpowers/specs/2026-05-11-development-workflow-design.md` is the source of truth for the workflow above. The corresponding implementation plan is `docs/superpowers/plans/2026-05-11-sub-project-0-project-infrastructure.md` (complete).
