@@ -6,7 +6,14 @@ import postgres from 'postgres';
 
 /**
  * Open a connection that simulates an authenticated user with the given role + claims.
- * We use Postgres's request.jwt.claims setting to inject claims that auth.jwt() reads.
+ *
+ * We use Postgres's `request.jwt.claims` setting to inject claims that Supabase's
+ * `auth.jwt()` reads, and we switch to the `authenticated` role so RLS policies apply.
+ *
+ * `SET LOCAL` only takes effect inside a transaction block, so we wrap all work in
+ * `sql.begin(...)`. Without the transaction, `SET LOCAL ROLE` emits a WARNING and
+ * the session stays on the service role (which has BYPASSRLS) — making every test
+ * silently pass regardless of policy correctness.
  */
 export async function withClaims<T>(
   claims: Record<string, unknown>,
@@ -17,10 +24,12 @@ export async function withClaims<T>(
 
   const sql = postgres(databaseUrl, { max: 1 });
   try {
-    // The 'authenticated' role exists in Supabase Postgres. Switch to it for RLS to apply.
-    await sql`SELECT set_config('request.jwt.claims', ${JSON.stringify(claims)}, false)`;
-    await sql`SET LOCAL ROLE authenticated`;
-    return await fn(sql);
+    return await sql.begin(async (tx) => {
+      // `set_config(..., true)` = transaction-local, matching SET LOCAL semantics.
+      await tx`SELECT set_config('request.jwt.claims', ${JSON.stringify(claims)}, true)`;
+      await tx`SET LOCAL ROLE authenticated`;
+      return await fn(tx as unknown as postgres.Sql);
+    });
   } finally {
     await sql.end();
   }
