@@ -49,9 +49,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   if (isRouteErrorResponse(error)) {
     message = error.status === 404 ? 'Not found' : `Error ${error.status}`;
     details =
-      error.status === 404
-        ? 'The page you requested does not exist.'
-        : error.statusText || details;
+      error.status === 404 ? 'The page you requested does not exist.' : error.statusText || details;
   } else if (import.meta.env.DEV && error instanceof Error) {
     details = error.message;
     stack = error.stack;

@@ -1,0 +1,9 @@
+build/
+.react-router/
+node_modules/
+coverage/
+playwright-report/
+Prototypes/
+docs/
+package-lock.json
+*.md
