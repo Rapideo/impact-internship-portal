@@ -409,6 +409,35 @@
           The only way to bypass RLS is to use the service-role key, which never leaves the server
           (file convention: <code>.server.ts</code> suffix, enforced by the bundler).
         </p>
+
+        <h2>4. Three environments (dev, test, prod)</h2>
+        <p>
+          The system uses <strong>three independent Supabase projects</strong>, one per environment.
+          Each has its own URL, keys, schema, and data. Running the same Drizzle migrations against
+          all three keeps the schemas aligned; the data stays isolated.
+        </p>
+        <div class="env-grid">
+          <article class="env-card">
+            <h3 class="env-card__name">impact-dev</h3>
+            <p class="env-card__role">Development</p>
+            <p>Local developer machines (<code>.env.local</code>) and Netlify deploy previews. Seed data; wipeable anytime.</p>
+          </article>
+          <article class="env-card">
+            <h3 class="env-card__name">impact-test</h3>
+            <p class="env-card__role">CI / Testing</p>
+            <p>GitHub Actions integration + RLS policy tests run here. Test fixtures wipe before each CI run.</p>
+          </article>
+          <article class="env-card">
+            <h3 class="env-card__name">impact-prod</h3>
+            <p class="env-card__role">Production</p>
+            <p>Real intern data. Daily Supabase backups. Only the production deploy of <code>main</code> connects here.</p>
+          </article>
+        </div>
+        <p>
+          Netlify&rsquo;s per-deploy-context env var feature does the routing: production deploys
+          read <code>impact-prod</code> credentials; PR deploy previews read <code>impact-dev</code>.
+          A PR can never accidentally touch production data.
+        </p>
       </section>
       <section id="tab-workflow" class="portal-section" data-tab-panel="workflow" aria-hidden="true">
         <h1>Workflow &amp; SDLC</h1>
