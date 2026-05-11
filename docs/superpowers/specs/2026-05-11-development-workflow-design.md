@@ -136,11 +136,20 @@ CI gates merge — a PR cannot merge if any stage fails. Cache key includes lock
 
 ### 2.8 Deployment: Netlify-GitHub integration
 
-Netlify watches the GitHub repo natively (no GitHub Actions deploy step).
+Netlify watches each GitHub repo natively (no GitHub Actions deploy step).
 
-- **`main` branch** → auto-deploys to `https://impact-internship-portal.netlify.app` (production URL stays unchanged).
-- **Every PR** → deploy preview at `https://deploy-preview-<PR>--impact-internship-portal.netlify.app`. The deploy preview URL is posted as a PR comment by Netlify's bot. Use it to share work-in-progress visually with management or to manually walk through a flow before approving the merge.
-- **Production cutover** (prototype → production app) is handled by sub-project 6's plan, which flips `netlify.toml`'s `publish` directory from `Prototypes/PROTOTYPE/` to `build/client/`. Until that cutover, `main` continues to publish the prototype; PR previews publish whatever the PR's branch produces.
+**Amendment 2026-05-11 (two Netlify projects):** Originally drafted around a single Netlify project that would later cut over from publishing the prototype to publishing the production app. During Sub-project 0 wrap-up, Matt decided the prototype should keep its own Netlify project and URL independently of the app's deployment lifecycle. Two Netlify projects now exist:
+
+| Netlify project | URL | Project ID | Watches | Publishes |
+|---|---|---|---|---|
+| **Prototype** | `https://impact-internship-portal.netlify.app` | `65497097-8b5c-471e-a0c9-dc7ddea0fb2c` | `Rapideo/impact-prototype` (now public) | `Prototypes/PROTOTYPE/` on every push to that repo's `main` |
+| **App** | `https://impact-portal-app.netlify.app` | `6e071577-7adb-4cae-82d6-b2b2b66a47aa` | `Rapideo/impact-internship-portal` (wired in Sub-project 1 Phase 1) | `build/client/` once the build pipeline lands |
+
+- **Prototype Netlify project** — serves the frozen 34-page prototype indefinitely. Continues to receive deploys whenever the prototype repo's `main` advances (rare, mostly maintenance only).
+- **App Netlify project** — already exists with per-context env vars pre-seeded (production context = prod Supabase values, deploy-preview + branch-deploy contexts = dev Supabase values), but is **not yet connected to a GitHub repo**. Sub-project 1 Phase 1 wires it to `Rapideo/impact-internship-portal`. Once wired: every PR gets a deploy preview at `https://deploy-preview-<PR>--impact-portal-app.netlify.app`, and every push to `main` deploys to the app's production URL.
+- **No cutover step needed.** Because the prototype lives in its own Netlify project, there is no `netlify.toml` `publish`-dir flip and no DNS swap. The previously planned Sub-project 6 cutover phase is obsolete (see that plan's amendment).
+
+The `Rapideo/impact-prototype` repo was switched from private to public during Sub-project 0 wrap-up so Netlify could deploy it without requiring per-repo GitHub App permission setup.
 
 ### 2.9 Branch protection on `main`
 
@@ -199,21 +208,23 @@ Note: Husky and commitlint are installed as part of sub-project 0. ESLint/Pretti
 - A pre-commit secret-scanning hook (`gitleaks` or similar) is **deferred to sub-project 6**. Until then, the discipline relies on `.gitignore` plus a one-time review of staged files.
 - The Supabase service role key never appears in any file outside `app/lib/db.service.server.ts` (the `.server.ts` suffix is a React Router convention that prevents bundling into client code).
 
-**Amendment 2026-05-11 (three-environment secret split):** The production rebuild uses **three independent Supabase projects** (`impact-dev`, `impact-test`, `impact-prod`) per §2.4 of the production rebuild design spec. The five environment-sensitive secrets (`DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SESSION_SECRET`) have **three values each**, deployed as follows:
+**Amendment 2026-05-11 (two-environment secret split):** Originally drafted as a three-environment split (`impact-dev`, `impact-test`, `impact-prod`). **Revised the same day during Sub-project 0 wrap-up:** the test environment is no longer a cloud Supabase project — CI uses `supabase start` (the Supabase CLI's local Docker stack) for integration + RLS tests. See the production rebuild design spec §2.4 for rationale. The four environment-sensitive Supabase secrets and `SESSION_SECRET` now have **two values each**, deployed as follows:
 
-| Secret | `.env.local` (dev) | GitHub Secrets (test) | Netlify prod context | Netlify deploy-preview + branch-deploy contexts |
+| Secret | `.env.local` (dev) | GitHub Secrets (placeholder only) | Netlify prod context | Netlify deploy-preview + branch-deploy contexts |
 |---|---|---|---|---|
-| `DATABASE_URL` | impact-dev | impact-test | impact-prod | impact-dev |
-| `SUPABASE_URL` | impact-dev | impact-test | impact-prod | impact-dev |
-| `SUPABASE_ANON_KEY` | impact-dev | impact-test | impact-prod | impact-dev |
-| `SUPABASE_SERVICE_ROLE_KEY` | impact-dev | impact-test | impact-prod | impact-dev |
-| `SESSION_SECRET` | unique-dev | unique-test | unique-prod | unique-dev |
+| `DATABASE_URL` | impact-dev | placeholder | impact-prod | impact-dev |
+| `SUPABASE_URL` | impact-dev | placeholder | impact-prod | impact-dev |
+| `SUPABASE_ANON_KEY` | impact-dev | placeholder | impact-prod | impact-dev |
+| `SUPABASE_SERVICE_ROLE_KEY` | impact-dev | placeholder | impact-prod | impact-dev |
+| `SESSION_SECRET` | unique-dev | placeholder | unique-prod | unique-dev |
 | `RESEND_API_KEY` | shared | shared | shared | shared |
 | `SENTRY_DSN` | env-tagged or per-env | env-tagged or per-env | env-tagged or per-env | env-tagged or per-env |
 
-Netlify supports per-deploy-context env var values natively (Site settings → Environment variables → "Different value for each deploy context"). PR deploy previews therefore point at `impact-dev`, never at `impact-prod`, eliminating the risk of a preview-deploy mutation hitting prod data.
+**GitHub Secrets are placeholders.** CI integration tests run against a local Postgres+Auth stack spun up via `supabase start` at the top of the job and torn down via `supabase stop` at the end. The Supabase CLI emits its own ephemeral `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` for the running stack; tests pick those up directly. GitHub Secrets therefore don't need real Supabase credentials — they exist only as inert fallbacks so the workflow doesn't fail an env-var presence check.
 
-The current `.env.example` (sub-project 0) carries placeholders only. **Sub-project 1 expands** `.env.example` with comments noting which project each variable should reference, and the Netlify env var configuration UI gets all three sets seeded with real values when each Supabase project is created.
+Netlify supports per-deploy-context env var values natively (Site settings → Environment variables → "Different value for each deploy context"). The app Netlify project (`impact-portal-app`) already has per-context values seeded: PR deploy previews and branch deploys point at `impact-dev`, production points at `impact-prod`. This eliminates the risk of a preview-deploy mutation hitting prod data.
+
+The current `.env.example` (sub-project 0) carries placeholders only. **Sub-project 1 expands** `.env.example` with comments noting which project each variable should reference. The Netlify per-context values were seeded during Sub-project 0 kickoff prep; Sub-project 1 verifies rather than seeds them.
 
 ### 2.12 Issue tracking and milestones
 

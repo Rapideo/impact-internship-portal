@@ -1961,9 +1961,20 @@ Likely culprits + fixes:
 
 ## Phase H: Netlify production cutover
 
+> **Amendment 2026-05-11 — Phase H is OBSOLETE.** This phase was written when Sub-project 1 and Sub-project 6 shared a single Netlify project (`impact-internship-portal`) that initially published the prototype and would be flipped to publish `build/client/` here. During Sub-project 0 wrap-up on 2026-05-11, Matt adopted a **two-Netlify-project structure**:
+>
+> - **Prototype Netlify project** (`impact-internship-portal`, ID `65497097-8b5c-471e-a0c9-dc7ddea0fb2c`) — watches `Rapideo/impact-prototype`, publishes `Prototypes/PROTOTYPE/` at `https://impact-internship-portal.netlify.app` indefinitely.
+> - **App Netlify project** (`impact-portal-app`, ID `6e071577-7adb-4cae-82d6-b2b2b66a47aa`) — watches `Rapideo/impact-internship-portal`, publishes `build/client/` at `https://impact-portal-app.netlify.app` from Sub-project 1 Phase 1 onward.
+>
+> There is no `netlify.toml` `publish`-dir flip and no DNS swap. The app's `netlify.toml` was already configured to publish `build/client/` in Sub-project 1 Task 58. By the time Sub-project 6 runs, the app Netlify project is already serving the production app from `main`; "cutover day" is no longer an event.
+>
+> The tasks below are retained in place as historical reference rather than deleted, so the plan reads as a coherent document. Each task is marked **obsolete (superseded by two-Netlify-project structure adopted 2026-05-11)** with a brief note. Do not execute them.
+
 The riskiest phase. We do this in three sub-steps: (1) dry-run via a Netlify draft deploy off a feature branch, (2) production cutover on master, (3) verified rollback plan documented.
 
 ### Task 38: Update netlify.toml for the production app
+
+> **Obsolete (superseded by two-Netlify-project structure adopted 2026-05-11).** Sub-project 1 Task 58 now writes `netlify.toml` with `publish = "build/client"` and `command = "npm run build"` directly, because this repo's `netlify.toml` is consumed only by the app Netlify project. There is no prototype-to-app flip to perform here.
 
 **Files:**
 - Modify: `netlify.toml`
@@ -2033,6 +2044,8 @@ The current `netlify.toml` from sub-project 1 Task 58 is pinned to `publish = "P
 - [ ] **Step 4: Do NOT commit yet — Phase H is a sequence; we commit at the end of Task 41 after the draft deploy succeeds**
 
 ### Task 39: Document required Netlify environment variables
+
+> **Partly obsolete (superseded by two-Netlify-project structure adopted 2026-05-11).** The env-var table is still worth documenting, but the framing should target the **app Netlify project** (`impact-portal-app`, ID `6e071577-7adb-4cae-82d6-b2b2b66a47aa`), not `impact-internship-portal` (which now serves the prototype only). Per-context env vars on the app project were seeded during Sub-project 0 kickoff prep and verified in Sub-project 1 Task 5; this task becomes a "write `docs/deployment.md` describing what's already configured" task rather than a "configure for the first time" task.
 
 **Files:**
 - Modify: `docs/deployment.md` (full rewrite, no longer prototype-only)
@@ -2121,6 +2134,8 @@ The current `netlify.toml` from sub-project 1 Task 58 is pinned to `publish = "P
 
 ### Task 40: Set all production env vars in Netlify (manual, pre-cutover)
 
+> **Obsolete (superseded by two-Netlify-project structure adopted 2026-05-11).** The env vars on the app Netlify project (`impact-portal-app`) were seeded per deploy context during Sub-project 0 kickoff prep and verified in Sub-project 1 Task 5. By the time Sub-project 6 runs, no first-time configuration remains; the only valid action here is a re-verification pass, which Task 44 (final smoke) already covers.
+
 **Files:**
 - N/A — Netlify Dashboard click-through
 
@@ -2138,6 +2153,8 @@ The current `netlify.toml` from sub-project 1 Task 58 is pinned to `publish = "P
 - [ ] **Step 4: No commit (this is a Netlify-side change)**
 
 ### Task 41: Dry-run via Netlify draft deploy (feature branch)
+
+> **Obsolete (superseded by two-Netlify-project structure adopted 2026-05-11).** A dry-run is no longer needed because there is no cutover event — the app Netlify project has been publishing the production app from `main` since Sub-project 1 Phase 1. Routine pre-merge verification happens automatically via every PR's deploy preview URL.
 
 **Files:**
 - N/A — CLI deploy
@@ -2183,6 +2200,8 @@ The current `netlify.toml` from sub-project 1 Task 58 is pinned to `publish = "P
 
 ### Task 42: Production cutover
 
+> **Obsolete (superseded by two-Netlify-project structure adopted 2026-05-11).** There is no cutover commit to merge — `main` has been auto-deploying to the app Netlify project since Sub-project 1 Phase 1. The prototype Netlify project (`impact-internship-portal.netlify.app`) keeps running independently from its own repo.
+
 **Files:**
 - N/A — merge + watch
 
@@ -2218,6 +2237,8 @@ The current `netlify.toml` from sub-project 1 Task 58 is pinned to `publish = "P
   Per the spec — the prototype is preserved as a reference, just no longer served.
 
 ### Task 43: Rollback rehearsal
+
+> **Partly obsolete (superseded by two-Netlify-project structure adopted 2026-05-11).** The "revert to publishing the prototype" half of the rollback is no longer applicable — the prototype is permanently served from its own Netlify project. The "publish a known-good prior deploy on the app project" half is still useful and should be retained as part of routine release hygiene; verify that against the app Netlify project (`impact-portal-app`, ID `6e071577-7adb-4cae-82d6-b2b2b66a47aa`) rather than against `impact-internship-portal`.
 
 **Files:**
 - N/A — verify rollback works without using it for real

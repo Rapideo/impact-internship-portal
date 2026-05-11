@@ -167,22 +167,23 @@ The Netlify site (`impact-internship-portal.netlify.app`) is **repointed** from 
 
 ### 2.4 Database environments
 
-**Amendment 2026-05-11:** Three independent Supabase projects, one per environment. Each has its own URL, anon key, service-role key, schema, and isolated data.
+**Amendment 2026-05-11:** Originally drafted as three independent Supabase projects (`impact-dev`, `impact-test`, `impact-prod`). **Revised later the same day during Sub-project 0 wrap-up:** Supabase's free tier limits an organization to two projects. Rather than upgrade to Pro ($25/mo) for a dedicated cloud test project, the test environment moved to the Supabase CLI's local Docker-based stack (`supabase start`). The result is **two cloud Supabase projects** plus an ephemeral per-CI-run local Postgres.
 
 | Environment | Supabase project | Used by | Data lifecycle |
 |---|---|---|---|
-| **Development** | `impact-dev` | Local development (`.env.local`) + Netlify deploy previews + branch deploys | Dev seed; wipeable anytime |
-| **Test** | `impact-test` | CI (integration + RLS tests via GitHub Actions) | Test fixtures; wiped before each CI run |
-| **Production** | `impact-prod` | Production deploy on `main` (Netlify production context) | Real intern data; daily Supabase backup; never wiped |
+| **Development** | `impact-dev` (ref `zdrxxcbhiovoaubkcqfj`) | Local development (`.env.local`) + Netlify deploy previews + branch deploys | Dev seed; wipeable anytime |
+| **Production** | `impact-prod` (ref `ptnhzdkspzquwcxdoqbt`) | Production deploy on `main` (Netlify production context) | Real intern data; daily Supabase backup; never wiped |
+
+**CI uses `supabase start`** to spin up a local Docker-based Postgres + Auth stack for integration and RLS tests. This is the Supabase CLI's local development tooling. The CI workflow runs `supabase start` before tests and `supabase stop` after, providing an ephemeral fresh database per CI run. No cloud `impact-test` project is needed.
 
 **Key implementation points:**
-- Same Drizzle schema applies to all three projects. Migrations flow dev → test → prod, gated by PR review and a manual prod-deploy step.
-- The Supabase-related secrets (`DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) live in three separate locations: `.env.local` (dev), GitHub Secrets (test), Netlify env vars per deploy context (production context = prod values; deploy-preview + branch-deploy contexts = dev values). `SESSION_SECRET` is also per-environment.
+- Same Drizzle schema applies to both cloud projects and the CI-local stack. Migrations flow dev → prod, gated by PR review and a manual prod-deploy step. CI applies the same migrations to its ephemeral local Postgres before running integration tests.
+- The Supabase-related secrets (`DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) live in two main locations: `.env.local` (dev) and Netlify env vars per deploy context (production context = prod values; deploy-preview + branch-deploy contexts = dev values). GitHub Secrets hold only placeholder values since CI synthesizes its own credentials from `supabase start`. `SESSION_SECRET` is per-environment.
 - `RESEND_API_KEY` is shared (one Resend workspace) — non-prod sends use Resend's test-mode address conventions. Decided in sub-project 6 if a second workspace becomes warranted.
-- `SENTRY_DSN` can be a single project with per-env `environment` tagging, or three DSNs. Single project + tagging is the lighter-weight default.
-- **Free-tier pause:** Supabase free-tier projects pause after 7 days of no traffic. `impact-test` stays warm via daily CI. `impact-dev` requires the developer to interact regularly; otherwise resume manually. `impact-prod` is kept alive by real traffic post-launch.
+- `SENTRY_DSN` can be a single project with per-env `environment` tagging, or two DSNs. Single project + tagging is the lighter-weight default.
+- **Free-tier pause:** Supabase free-tier projects pause after 7 days of no traffic. `impact-dev` requires the developer (or Netlify deploy-preview activity) to interact regularly; otherwise resume manually. `impact-prod` is kept alive by real traffic post-launch. The CI-local stack has no pause concern — it's recreated per run.
 
-**Sub-project 1 plan impact:** the current Phase 1 plan creates one Supabase project. **Before sub-project 1 executes**, that phase must be updated to create all three projects up front and add a `db:migrate:all` script for cross-environment migration apply. This update gets done at sub-project 1 kickoff.
+**Sub-project 1 plan impact:** the current Phase 1 plan creates one Supabase project. **Before sub-project 1 executes**, that phase must be updated to wire up the two already-existing cloud projects (`impact-dev` and `impact-prod` were provisioned during Sub-project 0 kickoff prep on 2026-05-11) and to install the Supabase CLI in the CI workflow so `supabase start` / `supabase stop` bracket the test stage. This update gets done at sub-project 1 kickoff.
 
 ---
 
