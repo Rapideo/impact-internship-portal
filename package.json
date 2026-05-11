@@ -1,0 +1,30 @@
+{
+  "name": "impact-internship-portal",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "IMPACT Internship Assessment Portal — production rebuild scaffolding (sub-project 0 baseline).",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "echo '[lint-staged] Prettier + ESLint wired in sub-project 1 — currently no-op.'"
+    ],
+    "*.css": [
+      "echo '[lint-staged] Prettier for CSS wired in sub-project 1 — currently no-op.'"
+    ],
+    "*.md": [
+      "echo '[lint-staged] Prettier for Markdown wired in sub-project 1 — currently no-op.'"
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2"
+  }
+}
