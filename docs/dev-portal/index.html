@@ -43,6 +43,7 @@
     <nav class="portal-tabs" aria-label="Dashboard sections">
       <div class="portal-tabs__inner container">
         <button class="portal-tab" data-tab="overview" aria-controls="tab-overview">Overview</button>
+        <button class="portal-tab" data-tab="process" aria-controls="tab-process">Planning Process</button>
         <button class="portal-tab" data-tab="phasing" aria-controls="tab-phasing">Phasing &amp; Timeline</button>
         <button class="portal-tab" data-tab="stack" aria-controls="tab-stack">Tech Stack</button>
         <button class="portal-tab" data-tab="supabase" aria-controls="tab-supabase">Supabase Deep-Dive</button>
@@ -94,6 +95,171 @@
           planned phasing, the chosen technology stack, the development workflow, and a live(ish) view
           of progress. Each tab is a deep link &mdash; share the URL with the
           <code>?tab=&lt;slug&gt;</code> parameter to land directly on a section.
+        </p>
+      </section>
+      <section id="tab-process" class="portal-section" data-tab-panel="process" aria-hidden="true">
+        <h1>Planning Process</h1>
+        <p class="lede">
+          Before any production code was written, this project went through a four-stage planning
+          process &mdash; brainstorm, design spec, implementation plan, then execution. The result is
+          a 256-task plan-of-record that management can read end-to-end and engineers can execute one
+          bite-sized task at a time.
+        </p>
+
+        <div class="callout-grid">
+          <article class="callout callout--navy">
+            <h3>Plans first, code second</h3>
+            <p class="callout__metric">256 tasks</p>
+            <p>
+              Seven implementation plans, totalling 256 tasks, were committed to the repo before the
+              first line of production code. Estimated 8&ndash;14 weeks of focused part-time effort.
+            </p>
+          </article>
+          <article class="callout callout--cyan">
+            <h3>In writing, up front</h3>
+            <p class="callout__metric">2 design specs</p>
+            <p>
+              One architectural spec ( <em>what we&rsquo;re building</em>) and one workflow spec
+              ( <em>how we&rsquo;ll build it</em>). Both live in <code>docs/superpowers/specs/</code>
+              and are linked from the Tech Stack and Workflow tabs.
+            </p>
+          </article>
+          <article class="callout callout--gold">
+            <h3>Already underway</h3>
+            <p class="callout__metric">11 PRs merged</p>
+            <p>
+              Sub-project 0 (the infrastructure runway) is partly complete &mdash; eleven PRs merged
+              into <code>main</code> through the same review-gated flow every future PR will follow.
+            </p>
+          </article>
+        </div>
+
+        <h2>The four stages</h2>
+        <p>
+          Each stage produces a written, version-controlled artifact. The hand-off between stages is
+          explicit, so no stage skips ahead with assumptions baked in.
+        </p>
+
+        <ol class="flow-list">
+          <li>
+            <strong>Stage 1 &middot; Brainstorming.</strong> A structured Q&amp;A conversation
+            between the project lead and Claude to clarify intent, scope, constraints, and success
+            criteria. <strong>Output:</strong> a shared understanding of <em>what</em> is being built
+            and <em>why</em>. <strong>Skill:</strong> <code>superpowers:brainstorming</code>.
+          </li>
+          <li>
+            <strong>Stage 2 &middot; Design spec.</strong> The architectural decisions: technology
+            stack, data model, permission model, environment topology, non-goals. Resolves the
+            big-rocks questions before they become expensive.
+            <strong>Output:</strong> one markdown spec doc at
+            <code>docs/superpowers/specs/YYYY-MM-DD-&lt;topic&gt;-design.md</code>. Authoritative
+            for &ldquo;what we&rsquo;re building.&rdquo;
+            <strong>Skill:</strong> still <code>superpowers:brainstorming</code> &mdash; the spec is
+            the durable artifact of stage 1.
+          </li>
+          <li>
+            <strong>Stage 3 &middot; Implementation plan.</strong> The spec is decomposed into
+            bite-sized 2&ndash;5-minute tasks with exact file paths, complete code samples, and
+            per-task verification steps. A reader should be able to execute any one task without
+            needing to re-derive context.
+            <strong>Output:</strong> one markdown plan doc per sub-project at
+            <code>docs/superpowers/plans/YYYY-MM-DD-&lt;topic&gt;.md</code>. Authoritative for
+            &ldquo;how we&rsquo;ll build it.&rdquo;
+            <strong>Skill:</strong> <code>superpowers:writing-plans</code>.
+          </li>
+          <li>
+            <strong>Stage 4 &middot; Execution.</strong> A fresh agent (or developer) takes one task
+            at a time. Each task ends in a PR with a two-stage review &mdash; spec compliance, then
+            code quality &mdash; followed by a squash-merge. Phases land as cohesive PRs rather than
+            per-task PRs to keep the merge log readable.
+            <strong>Skill:</strong> <code>superpowers:subagent-driven-development</code>.
+          </li>
+        </ol>
+
+        <h2>How it played out on this project</h2>
+        <div class="usage-grid">
+          <article class="usage-card usage-card--use">
+            <h3>1 architectural design</h3>
+            <p>
+              <code>2026-05-10-production-rebuild-design.md</code> &mdash; full stack, data model,
+              RLS policy strategy, environment topology, non-goals.
+            </p>
+          </article>
+          <article class="usage-card usage-card--use">
+            <h3>1 workflow design</h3>
+            <p>
+              <code>2026-05-11-development-workflow-design.md</code> &mdash; branching, PR mechanics,
+              CI gates, deploy previews, hook chain, this dashboard&rsquo;s information architecture.
+            </p>
+          </article>
+          <article class="usage-card usage-card--use">
+            <h3>7 implementation plans</h3>
+            <p>
+              Sub-projects 0&ndash;6, totalling <strong>256 tasks</strong>. Each task is small enough
+              that a fresh agent can complete it without re-reading the whole plan.
+            </p>
+          </article>
+          <article class="usage-card usage-card--use">
+            <h3>All in git, before code</h3>
+            <p>
+              Every spec and plan was committed before any production code was written. Reviewable
+              by management; auditable by anyone.
+            </p>
+          </article>
+        </div>
+
+        <h2>Why this matters for management</h2>
+        <ul>
+          <li>
+            <strong>Visibility.</strong> Every decision is written down before code happens.
+            No quiet scope drift; no &ldquo;we always assumed X.&rdquo;
+          </li>
+          <li>
+            <strong>Estimability.</strong> 256 tasks at roughly ten minutes each is about
+            forty focused hours of typing &mdash; pad generously for tests, review, and the
+            inevitable blockers, and an 8&ndash;14-week part-time window becomes defensible.
+          </li>
+          <li>
+            <strong>Reviewability.</strong> Non-technical readers can audit the spec docs to
+            confirm we&rsquo;re building the right thing. Technical reviewers can audit the
+            plan docs to confirm we&rsquo;re building it the right way.
+          </li>
+          <li>
+            <strong>Reproducibility.</strong> The same approach can be applied to future
+            projects &mdash; the recipe is captured in the
+            <a href="https://github.com/rapideo/impact-internship-portal/blob/main/docs/methodology.md">Methodology Playbook</a>.
+          </li>
+        </ul>
+
+        <h2>Honest trade-offs</h2>
+        <ul>
+          <li>
+            <strong>Up-front cost.</strong> Planning takes roughly 10&ndash;20% of total project
+            time. That is real cost. It pays back on multi-week projects with multiple
+            stakeholders; it is overkill on a one-day bug fix.
+          </li>
+          <li>
+            <strong>Plan drift.</strong> A plan can go stale during long execution windows.
+            We capture deviations in two places &mdash; inline amendments at the bottom of the
+            spec doc with dated headers (e.g. <code>## Amendment 2026-05-11</code>), and notes
+            in the PR description for the deviating change. The IMPACT project itself has
+            already taken three such amendments (the public-repo decision, three Supabase
+            environments instead of two, and two Netlify projects instead of one).
+          </li>
+          <li>
+            <strong>Discipline tax.</strong> It is always tempting to skip straight to code. The
+            value of the methodology is precisely in resisting that urge on projects where the
+            cost of a wrong turn is high.
+          </li>
+        </ul>
+
+        <h2>Where to go next</h2>
+        <p>
+          The <a href="https://github.com/rapideo/impact-internship-portal/blob/main/docs/methodology.md">Methodology Playbook</a>
+          ( <code>docs/methodology.md</code>) is the full procedural write-up &mdash; intended for
+          anyone applying this approach to a new project. The two design specs and seven plan docs
+          referenced above live under <code>docs/superpowers/</code> in this repo and are the
+          best concrete examples.
         </p>
       </section>
       <section id="tab-phasing" class="portal-section" data-tab-panel="phasing" aria-hidden="true">
