@@ -1,4 +1,8 @@
+import 'dotenv/config';
+import { config } from 'dotenv';
 import { defineConfig, devices } from '@playwright/test';
+
+config({ path: '.env.test', override: false });
 
 const PORT = 5173;
 
