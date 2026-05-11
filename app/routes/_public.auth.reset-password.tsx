@@ -17,8 +17,8 @@ export async function action({ request }: Route.ActionArgs) {
   const password = String(formData.get('password') ?? '');
   const confirm = String(formData.get('confirm') ?? '');
 
-  if (!password || password.length < 8) {
-    return { error: 'Password must be at least 8 characters.' };
+  if (!password || password.length < 12) {
+    return { error: 'Password must be at least 12 characters.' };
   }
   if (password !== confirm) {
     return { error: 'Passwords do not match.' };
@@ -53,7 +53,7 @@ export default function ResetPassword() {
             type="password"
             name="password"
             required
-            minLength={8}
+            minLength={12}
             autoComplete="new-password"
             style={{
               padding: '0.625rem 0.75rem',
@@ -70,7 +70,7 @@ export default function ResetPassword() {
             type="password"
             name="confirm"
             required
-            minLength={8}
+            minLength={12}
             autoComplete="new-password"
             style={{
               padding: '0.625rem 0.75rem',
