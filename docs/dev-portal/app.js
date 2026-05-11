@@ -76,12 +76,53 @@
   function renderStatusTab() {
     const panel = document.getElementById('tab-status');
     if (!panel) return;
-    // Until H.2 lands, the panel is empty — there's nothing to render.
-    // H.2's Status-tab task fills the inner markup and switches statusLoaded
-    // to a real fetch + render. For H.1, this function is a placeholder
-    // that intentionally does nothing.
     if (statusLoaded) return;
     statusLoaded = true;
+
+    const grid = document.getElementById('status-grid');
+    const asOf = document.getElementById('status-asof');
+    if (!grid || !asOf) return;
+
+    fetch('data/status.json', { cache: 'no-cache' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        asOf.textContent = data.asOf || 'unknown';
+        const cards = (data.subProjects || []).map(function (sp) {
+          const statusKey = sp.status || 'not-started';
+          const pillLabel = statusKey.replace(/-/g, ' ');
+          const cardCls = 'status-card status-card--' + statusKey;
+          const pillCls = 'status-card__pill status-card__pill--' + statusKey;
+          return [
+            '<article class="' + cardCls + '">',
+            '  <div class="status-card__head">',
+            '    <h3 class="status-card__title">SP ' + sp.id + ' &middot; ' + escapeHtml(sp.name) + '</h3>',
+            '    <span class="' + pillCls + '">' + escapeHtml(pillLabel) + '</span>',
+            '  </div>',
+            '  <p class="status-card__summary">' + escapeHtml(sp.summary || '') + '</p>',
+            '  <div class="status-card__metrics">',
+            '    <span><strong>' + (sp.taskCount || 0) + '</strong>tasks</span>',
+            '    <span><strong>' + (sp.prCount || 0) + '</strong>PRs</span>',
+            '  </div>',
+            '</article>',
+          ].join('\n');
+        });
+        grid.innerHTML = cards.join('\n');
+      })
+      .catch(function (err) {
+        grid.innerHTML = '<p class="status-error">Could not load status: ' + escapeHtml(String(err && err.message)) + '</p>';
+      });
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   /* ---- Boot ---- */

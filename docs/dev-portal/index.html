@@ -44,12 +44,465 @@
     </nav>
 
     <main class="portal-main container">
-      <section id="tab-overview" class="portal-section" data-tab-panel="overview" aria-hidden="true"></section>
-      <section id="tab-phasing" class="portal-section" data-tab-panel="phasing" aria-hidden="true"></section>
-      <section id="tab-stack" class="portal-section" data-tab-panel="stack" aria-hidden="true"></section>
-      <section id="tab-supabase" class="portal-section" data-tab-panel="supabase" aria-hidden="true"></section>
-      <section id="tab-workflow" class="portal-section" data-tab-panel="workflow" aria-hidden="true"></section>
-      <section id="tab-status" class="portal-section" data-tab-panel="status" aria-hidden="true"></section>
+      <section id="tab-overview" class="portal-section" data-tab-panel="overview" aria-hidden="true">
+        <h1>Project Overview</h1>
+        <p class="lede">
+          The IMPACT Internship Assessment Portal is a web app for Indiana&rsquo;s IMPACT internship
+          program. It tracks intern intake, multi-phase competency assessments, intern self-assessments,
+          and 90-day / 180-day employment outcomes. A clickable prototype is locked; the production
+          rebuild is fully planned and now beginning execution.
+        </p>
+
+        <div class="callout-grid">
+          <article class="callout callout--navy">
+            <h3>Production rebuild planned</h3>
+            <p class="callout__metric">256 tasks</p>
+            <p>
+              Six sub-project implementation plans cover the full rebuild from foundation to launch.
+              Total estimated effort: 8&ndash;14 weeks of focused work.
+            </p>
+          </article>
+          <article class="callout callout--cyan">
+            <h3>Prototype locked</h3>
+            <p class="callout__metric">34 pages</p>
+            <p>
+              The clickable design prototype is the visual and interaction reference for the rebuild.
+              <a href="https://impact-internship-portal.netlify.app">View it live</a>.
+            </p>
+          </article>
+          <article class="callout callout--gold">
+            <h3>Infrastructure in flight</h3>
+            <p class="callout__metric">Sub-project 0</p>
+            <p>
+              The current work: GitHub remote, CI, deploy previews, hook chain, and this dashboard.
+              Prepares the runway for sub-project 1 to start.
+            </p>
+          </article>
+        </div>
+
+        <h2>What you&rsquo;re looking at</h2>
+        <p>
+          This dashboard is the single management-facing artifact for the project. It captures the
+          planned phasing, the chosen technology stack, the development workflow, and a live(ish) view
+          of progress. Each tab is a deep link &mdash; share the URL with the
+          <code>?tab=&lt;slug&gt;</code> parameter to land directly on a section.
+        </p>
+      </section>
+      <section id="tab-phasing" class="portal-section" data-tab-panel="phasing" aria-hidden="true">
+        <h1>Phasing &amp; Timeline</h1>
+        <p>
+          The work is decomposed into seven sub-projects. Sub-project 0 (this infrastructure work) runs
+          first; sub-projects 1&ndash;6 deliver the production application. Each sub-project ends with
+          something demo-able. The plans are committed under
+          <code>docs/superpowers/plans/</code> and total 256 tasks.
+        </p>
+
+        <h2>Sub-project breakdown</h2>
+        <div class="table-wrap">
+          <table class="phasing-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Scope summary</th>
+                <th>Tasks</th>
+                <th>Demo at end</th>
+                <th>Depends on</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0</td>
+                <td>Project Infrastructure</td>
+                <td>Repo migration, GitHub config, CI stub, hooks, Netlify wiring, this dashboard.</td>
+                <td>~52</td>
+                <td>This dashboard is live; CI runs on every PR.</td>
+                <td>&mdash;</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>Foundation</td>
+                <td>RR v7 scaffold, Supabase project, Drizzle schema, RLS policies, login routing.</td>
+                <td>60</td>
+                <td>Empty admin + employer dashboards behind a working login.</td>
+                <td>Sub-project 0</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Admin Core</td>
+                <td>Admin shell + Settings (Employers / Cohorts / Roles / Phases / Barriers / Program Info) + Interns CRUD.</td>
+                <td>37</td>
+                <td>Full intern lifecycle CRUD inside the admin app.</td>
+                <td>Sub-project 1</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Question Engine</td>
+                <td>6 question-type renderers + set editor + 3-tier competency stitching + verbatim seed content.</td>
+                <td>38</td>
+                <td>All assessment question sets editable from Settings.</td>
+                <td>Sub-project 2</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Assessment Forms</td>
+                <td>5 assessment forms wired to the engine + intern identity gate + anonymous submission.</td>
+                <td>31</td>
+                <td>All assessments end-to-end submittable.</td>
+                <td>Sub-project 3</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Employer Shell</td>
+                <td>Employer login + scoped views + account provisioning + branded auth pages.</td>
+                <td>38</td>
+                <td>Employer-side experience usable end-to-end.</td>
+                <td>Sub-project 4</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>Polish &amp; Launch</td>
+                <td>Reports + Resend emails + Sentry + e2e smoke + a11y + perf + Netlify publish-dir cutover.</td>
+                <td>52</td>
+                <td>Production cutover; prototype is replaced by the real app.</td>
+                <td>Sub-project 5</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Sequencing</h2>
+        <p>
+          No firm calendar dates yet. The chart below shows order and rough relative effort by sprint.
+          A &ldquo;sprint&rdquo; here is the working interval needed to land a sub-project end-to-end,
+          not a fixed two-week cadence.
+        </p>
+
+        <div class="gantt">
+          <div class="gantt-row">
+            <span class="gantt-label">SP 0 &middot; Infra</span>
+            <div class="gantt-track"><span class="gantt-bar gantt-bar--complete-ish" style="left: 0%; width: 8%;">~&frac12; sprint</span></div>
+          </div>
+          <div class="gantt-row">
+            <span class="gantt-label">SP 1 &middot; Foundation</span>
+            <div class="gantt-track"><span class="gantt-bar" style="left: 8%; width: 20%;">~2 sprints</span></div>
+          </div>
+          <div class="gantt-row">
+            <span class="gantt-label">SP 2 &middot; Admin Core</span>
+            <div class="gantt-track"><span class="gantt-bar" style="left: 28%; width: 14%;">~1.5 sprints</span></div>
+          </div>
+          <div class="gantt-row">
+            <span class="gantt-label">SP 3 &middot; Question Engine</span>
+            <div class="gantt-track"><span class="gantt-bar" style="left: 42%; width: 14%;">~1.5 sprints</span></div>
+          </div>
+          <div class="gantt-row">
+            <span class="gantt-label">SP 4 &middot; Assessment Forms</span>
+            <div class="gantt-track"><span class="gantt-bar" style="left: 56%; width: 12%;">~1 sprint</span></div>
+          </div>
+          <div class="gantt-row">
+            <span class="gantt-label">SP 5 &middot; Employer Shell</span>
+            <div class="gantt-track"><span class="gantt-bar" style="left: 68%; width: 14%;">~1.5 sprints</span></div>
+          </div>
+          <div class="gantt-row">
+            <span class="gantt-label">SP 6 &middot; Polish &amp; Launch</span>
+            <div class="gantt-track"><span class="gantt-bar" style="left: 82%; width: 18%;">~2 sprints</span></div>
+          </div>
+        </div>
+      </section>
+      <section id="tab-stack" class="portal-section" data-tab-panel="stack" aria-hidden="true">
+        <h1>Tech Stack</h1>
+        <p>
+          The chosen technologies and the one-sentence rationale for each. Full justification lives in
+          <a href="https://github.com/rapideo/impact-internship-portal/blob/main/docs/superpowers/specs/2026-05-10-production-rebuild-design.md">the production design spec</a>.
+        </p>
+
+        <div class="table-wrap">
+          <table class="stack-table">
+            <thead>
+              <tr>
+                <th>Technology</th>
+                <th>Role</th>
+                <th>Why</th>
+                <th>Docs</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>TypeScript 5.7</td>
+                <td>Language for the entire app + scripts</td>
+                <td>Strict typing catches a category of bugs before runtime; mature tooling.</td>
+                <td><a href="https://www.typescriptlang.org/">link</a></td>
+              </tr>
+              <tr>
+                <td>React Router v7 (framework mode)</td>
+                <td>App framework: routing, server runtime, data loading</td>
+                <td>Successor to Remix; SSR-first, file-based routing, loaders/actions are a clean data model.</td>
+                <td><a href="https://reactrouter.com/">link</a></td>
+              </tr>
+              <tr>
+                <td>Vite 6</td>
+                <td>Dev server + production build</td>
+                <td>Fast HMR; the default bundler in the RR v7 ecosystem.</td>
+                <td><a href="https://vite.dev/">link</a></td>
+              </tr>
+              <tr>
+                <td>Supabase Postgres</td>
+                <td>Primary database</td>
+                <td>Managed Postgres with RLS; eliminates a class of permission bugs at the DB layer.</td>
+                <td><a href="https://supabase.com/docs/guides/database">link</a></td>
+              </tr>
+              <tr>
+                <td>Supabase Auth</td>
+                <td>Admin + employer authentication</td>
+                <td>Email/password + Custom Access Token Hook for role + employer_id JWT claims.</td>
+                <td><a href="https://supabase.com/docs/guides/auth">link</a></td>
+              </tr>
+              <tr>
+                <td>Drizzle ORM 0.36</td>
+                <td>Type-safe DB access</td>
+                <td>Compile-time-typed queries; migrations live in the repo as SQL files.</td>
+                <td><a href="https://orm.drizzle.team/">link</a></td>
+              </tr>
+              <tr>
+                <td>Resend 4</td>
+                <td>Transactional email</td>
+                <td>Modern API, generous free tier, good DKIM/domain story.</td>
+                <td><a href="https://resend.com/docs">link</a></td>
+              </tr>
+              <tr>
+                <td>Sentry</td>
+                <td>Error tracking + source-mapped stack traces</td>
+                <td>Best-in-class for JS error visibility; cheap on hobby tier.</td>
+                <td><a href="https://docs.sentry.io/">link</a></td>
+              </tr>
+              <tr>
+                <td>Vitest 2</td>
+                <td>Unit + integration tests</td>
+                <td>Vite-native, fast watch mode, Jest-compatible API.</td>
+                <td><a href="https://vitest.dev/">link</a></td>
+              </tr>
+              <tr>
+                <td>Playwright 1.49</td>
+                <td>End-to-end tests + accessibility scans</td>
+                <td>Cross-browser, parallel by default, integrates axe-core for a11y.</td>
+                <td><a href="https://playwright.dev/">link</a></td>
+              </tr>
+              <tr>
+                <td>GitHub Actions</td>
+                <td>CI pipeline</td>
+                <td>Native to the repo host; no separate dashboard to maintain.</td>
+                <td><a href="https://docs.github.com/en/actions">link</a></td>
+              </tr>
+              <tr>
+                <td>Netlify</td>
+                <td>Hosting + PR deploy previews</td>
+                <td>Auto-deploy on push to <code>main</code>; preview URL on every PR.</td>
+                <td><a href="https://docs.netlify.com/">link</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>How the pieces fit</h2>
+        <div class="arch-diagram">
+          <div class="arch-node arch-node--browser">Browser<br /><small>(intern, admin, employer)</small></div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-node arch-node--netlify">Netlify edge<br /><small>(static + SSR)</small></div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-node arch-node--rr">RR v7 server<br /><small>(loaders / actions)</small></div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-stack">
+            <div class="arch-node arch-node--supabase">Supabase<br /><small>(Postgres + Auth + RLS)</small></div>
+            <div class="arch-node arch-node--resend">Resend<br /><small>(email)</small></div>
+            <div class="arch-node arch-node--sentry">Sentry<br /><small>(errors)</small></div>
+          </div>
+        </div>
+      </section>
+      <section id="tab-supabase" class="portal-section" data-tab-panel="supabase" aria-hidden="true">
+        <h1>Supabase Deep-Dive</h1>
+        <p>
+          Supabase is the back-end-of-choice for this project. It deserves its own tab because the
+          security model rests on one of its features (Row-Level Security) doing real work at the
+          database layer.
+        </p>
+
+        <h2>1. What it is</h2>
+        <p>
+          Supabase is a managed back-end-as-a-service built on top of <strong>Postgres</strong>. The
+          product bundles a hosted Postgres database, an Auth service, file Storage, Realtime, and
+          Edge Functions. Pricing is per-project with a free tier suitable for development.
+        </p>
+        <p>
+          The crucial framing: Supabase is not a custom database. The database itself is plain
+          Postgres &mdash; the same Postgres you would run on any host. Anything you can do in
+          Postgres, you can do in Supabase. The difference is Supabase manages the hosting, backups,
+          and the surrounding services.
+        </p>
+
+        <h2>2. What we use</h2>
+        <div class="usage-grid">
+          <article class="usage-card usage-card--use">
+            <h3>Postgres</h3>
+            <p>The 15-table application database, accessed via Drizzle ORM with strict typing.</p>
+          </article>
+          <article class="usage-card usage-card--use">
+            <h3>Auth (email + password)</h3>
+            <p>
+              Admin and employer login. Anonymous interns never authenticate &mdash; they are identified
+              by First Initial + Last Name + Employer + Cohort at submission time.
+            </p>
+          </article>
+          <article class="usage-card usage-card--use">
+            <h3>Row-Level Security (RLS)</h3>
+            <p>
+              Permission rules enforced inside the database. Every query carries the user&rsquo;s JWT
+              claims; Postgres decides at the row level whether the query is allowed. See section 3.
+            </p>
+          </article>
+          <article class="usage-card usage-card--skip">
+            <h3>Storage (not yet)</h3>
+            <p>
+              File uploads aren&rsquo;t in v1 scope. If interns ever upload a resume, this is where it
+              will live.
+            </p>
+          </article>
+          <article class="usage-card usage-card--skip">
+            <h3>Edge Functions (not yet)</h3>
+            <p>
+              We use Netlify&rsquo;s edge for SSR. If we later need Postgres-co-located server logic,
+              this is the option.
+            </p>
+          </article>
+          <article class="usage-card usage-card--skip">
+            <h3>Realtime (not yet)</h3>
+            <p>
+              No live-updating views are planned. The assessment forms are submit-once, immutable
+              &mdash; no realtime needed.
+            </p>
+          </article>
+        </div>
+
+        <h2>3. Why this matters for security</h2>
+        <p>
+          The system has three actor classes &mdash; admin, employer, and anonymous intern &mdash;
+          and each can only see a strict subset of the data. The naive way to enforce that is in
+          application code: every query gets a <code>WHERE employer_id = ?</code> clause, and the
+          app-code author has to remember to add it every single time.
+        </p>
+        <p>
+          <strong>Row-Level Security</strong> moves that enforcement into the database itself. The
+          policies say things like &ldquo;an employer can only SELECT interns where
+          <code>interns.cohort_id IN (SELECT id FROM cohorts WHERE employer_id = auth.jwt().employer_id)</code>&rdquo;.
+          The database refuses any other query &mdash; even if app code is buggy or compromised.
+        </p>
+        <p>
+          This is the load-bearing reason Supabase was chosen. An app-code bug cannot leak one
+          employer&rsquo;s interns to another, because the database itself will not return them.
+          The only way to bypass RLS is to use the service-role key, which never leaves the server
+          (file convention: <code>.server.ts</code> suffix, enforced by the bundler).
+        </p>
+      </section>
+      <section id="tab-workflow" class="portal-section" data-tab-panel="workflow" aria-hidden="true">
+        <h1>Workflow &amp; SDLC</h1>
+        <p>
+          How code moves from a developer&rsquo;s machine to production. Every change goes through
+          the same path; there are no shortcuts and no direct-to-production pushes.
+        </p>
+
+        <h2>1. How code reaches production</h2>
+        <ol class="flow-list">
+          <li><strong>Branch.</strong> The developer creates a short-lived branch off <code>main</code> using a typed name (<code>feat/</code>, <code>fix/</code>, <code>chore/</code>, etc.).</li>
+          <li><strong>Commit.</strong> Each commit message follows the Conventional Commits format. A <code>commit-msg</code> Git hook rejects messages that don&rsquo;t.</li>
+          <li><strong>Push + PR.</strong> The branch is pushed and a Pull Request is opened against <code>main</code>. The PR template asks the author to link the spec section or plan task and to drop the deploy preview URL.</li>
+          <li><strong>CI.</strong> GitHub Actions runs lint, typecheck, unit tests, integration tests, e2e tests, accessibility checks, bundle-size check, and production build. ~5&ndash;8 minutes total.</li>
+          <li><strong>Review.</strong> An AI review (<code>/review</code>) inspects the diff. For security-sensitive areas (auth, RLS, secrets, untrusted input) a second pass (<code>/security-review</code>) runs. Matt does the final eyeball.</li>
+          <li><strong>Merge.</strong> Squash-merge to <code>main</code>. A single commit lands per PR.</li>
+          <li><strong>Deploy.</strong> Netlify watches <code>main</code> and auto-deploys to the live URL within ~90 seconds.</li>
+        </ol>
+
+        <h2>2. Quality gates (CI)</h2>
+        <div class="table-wrap">
+          <table class="ci-table">
+            <thead>
+              <tr>
+                <th>Stage</th>
+                <th>Tool</th>
+                <th>What it catches</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Lint</td><td>ESLint 9</td><td>Code-style violations, dead imports, unsafe patterns.</td></tr>
+              <tr><td>Format check</td><td>Prettier 3</td><td>Inconsistent formatting (no debate; one style).</td></tr>
+              <tr><td>Typecheck</td><td>tsc --noEmit</td><td>Type errors across the whole project.</td></tr>
+              <tr><td>Unit tests</td><td>Vitest</td><td>Logic bugs in pure functions.</td></tr>
+              <tr><td>Integration + RLS tests</td><td>Vitest + Supabase test project</td><td>Cross-tenant data leaks; bad RLS policies.</td></tr>
+              <tr><td>E2E tests</td><td>Playwright (headless Chromium)</td><td>Broken user journeys end-to-end.</td></tr>
+              <tr><td>Accessibility</td><td>axe-core (inside Playwright)</td><td>WCAG violations.</td></tr>
+              <tr><td>Bundle size check</td><td>Rollup visualizer + custom script</td><td>Bundle bloat / accidental dep additions.</td></tr>
+              <tr><td>Production build</td><td>RR v7 build + Netlify adapter</td><td>Anything the dev server hides.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Any failing stage blocks the merge. There is no &ldquo;merge anyway&rdquo; button.</p>
+
+        <h2>3. Deploy previews</h2>
+        <p>
+          Netlify produces a fresh URL for every PR &mdash; <code>https://deploy-preview-N--impact-internship-portal.netlify.app</code>.
+          The bot posts the URL as a comment on the PR within ~60 seconds of opening. This is what
+          reviewers (and Matt&rsquo;s management) click to visually walk through a change before merge.
+          The preview is the actual production build of the PR branch &mdash; not a mock.
+        </p>
+
+        <h2>4. What cannot happen on <code>main</code></h2>
+        <ul>
+          <li>No direct pushes &mdash; even from admins.</li>
+          <li>No force pushes.</li>
+          <li>No branch deletion.</li>
+          <li>No merge without all CI checks green.</li>
+          <li>No merge with unresolved review conversations.</li>
+          <li>No non-linear history &mdash; squash-merge only, no merge commits.</li>
+        </ul>
+
+        <h2>5. Secrets and security</h2>
+        <p>
+          The application needs ~9 secrets (database URL, Supabase keys, session signing key,
+          email API key, error-tracking tokens). None of them are committed to the repo. Three places
+          hold them:
+        </p>
+        <ul>
+          <li>
+            <strong>Local development</strong> &mdash; each developer has a <code>.env.local</code>
+            file that is in <code>.gitignore</code> from day one.
+          </li>
+          <li>
+            <strong>CI</strong> &mdash; the same names live in GitHub Secrets, scoped to the repo.
+            The workflow injects them as environment variables for test runs.
+          </li>
+          <li>
+            <strong>Production</strong> &mdash; the same names again, this time in Netlify&rsquo;s
+            environment-variable settings. They are injected into the running server at request time;
+            they never appear in build logs or source maps.
+          </li>
+        </ul>
+        <p>
+          A canonical list of expected variables lives in <code>.env.example</code> (committed). It
+          contains placeholder values only &mdash; copying it to <code>.env.local</code> and filling
+          in real values is the per-developer setup.
+        </p>
+      </section>
+      <section id="tab-status" class="portal-section" data-tab-panel="status" aria-hidden="true">
+        <h1>Status</h1>
+        <p>
+          Live(ish) view of project progress. Driven by
+          <code>docs/dev-portal/data/status.json</code>, which is updated on milestone-close PRs.
+          Refresh the page after a milestone PR merges to see the new state.
+        </p>
+        <p class="status-asof">As of <span id="status-asof">&hellip;</span></p>
+
+        <div id="status-grid" class="status-grid" aria-live="polite">
+          <p class="status-loading">Loading status&hellip;</p>
+        </div>
+      </section>
     </main>
 
     <footer class="portal-footer">
