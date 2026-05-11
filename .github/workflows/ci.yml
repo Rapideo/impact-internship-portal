@@ -96,13 +96,23 @@ jobs:
         run: supabase start
       - name: Export local Supabase credentials to env
         # `supabase status -o env` emits shell-style `KEY="value"` lines. $GITHUB_ENV
-        # treats the surrounding quotes as part of the value, so we strip them and
-        # also re-export DB_URL as DATABASE_URL / DATABASE_POOL_URL for our app.
+        # treats the surrounding quotes as part of the value, so we strip them. We
+        # also alias supabase's names (DB_URL, API_URL, ANON_KEY, SERVICE_ROLE_KEY)
+        # to the names env.server.ts expects (DATABASE_URL, DATABASE_POOL_URL,
+        # SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY).
         run: |
           supabase status -o env | sed 's/="\(.*\)"$/=\1/' >> "$GITHUB_ENV"
-          DB_URL_RAW=$(supabase status -o env | grep '^DB_URL=' | sed 's/^DB_URL="\(.*\)"$/\1/')
-          echo "DATABASE_URL=${DB_URL_RAW}" >> "$GITHUB_ENV"
-          echo "DATABASE_POOL_URL=${DB_URL_RAW}" >> "$GITHUB_ENV"
+          eval "$(supabase status -o env)"
+          {
+            echo "DATABASE_URL=${DB_URL}"
+            echo "DATABASE_POOL_URL=${DB_URL}"
+            echo "SUPABASE_URL=${API_URL}"
+            echo "SUPABASE_ANON_KEY=${ANON_KEY}"
+            echo "SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}"
+            echo "RESEND_API_KEY=fake"
+            echo "RESEND_FROM=fake@example.com"
+            echo "APP_URL=http://localhost:5173"
+          } >> "$GITHUB_ENV"
       - name: Apply migrations + policies + seed
         run: |
           npm run db:migrate
@@ -110,10 +120,6 @@ jobs:
           npm run db:seed
       - name: Run unit tests against live local stack
         run: npm test
-        env:
-          RESEND_API_KEY: 'fake'
-          RESEND_FROM: 'fake@example.com'
-          APP_URL: 'http://localhost:5173'
       - name: Run RLS tests
         run: npm run test:rls
       - name: Stop local Supabase stack
