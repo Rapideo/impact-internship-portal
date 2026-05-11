@@ -1,0 +1,62 @@
+{
+  "$schema-comment": "Sub-project status seed. Updated on milestone-close PRs per spec §2.13. Statuses: not-started | in-progress | complete. Counts are taken from the implementation plans committed under docs/superpowers/plans/.",
+  "asOf": "2026-05-11",
+  "subProjects": [
+    {
+      "id": 0,
+      "name": "Project Infrastructure",
+      "status": "in-progress",
+      "taskCount": 52,
+      "prCount": 6,
+      "summary": "Repo migration, GitHub config, CI stub, hook chain, Netlify wiring, management dashboard."
+    },
+    {
+      "id": 1,
+      "name": "Foundation",
+      "status": "not-started",
+      "taskCount": 60,
+      "prCount": 0,
+      "summary": "RR v7 scaffold, Supabase project, Drizzle schema, RLS policies, dev seed, login routing."
+    },
+    {
+      "id": 2,
+      "name": "Admin Core",
+      "status": "not-started",
+      "taskCount": 37,
+      "prCount": 0,
+      "summary": "Admin shell, Settings (Employers / Cohorts / Roles / Phases / Barriers / Program Info), Interns CRUD."
+    },
+    {
+      "id": 3,
+      "name": "Question Engine",
+      "status": "not-started",
+      "taskCount": 38,
+      "prCount": 0,
+      "summary": "6 question-type renderers, set editor, 3-tier competency stitching, verbatim seed content."
+    },
+    {
+      "id": 4,
+      "name": "Assessment Forms",
+      "status": "not-started",
+      "taskCount": 31,
+      "prCount": 0,
+      "summary": "All 5 assessment forms on the engine, intern identity gate, anonymous submission via service role."
+    },
+    {
+      "id": 5,
+      "name": "Employer Shell",
+      "status": "not-started",
+      "taskCount": 38,
+      "prCount": 0,
+      "summary": "Employer login, scoped views, account provisioning, branded auth pages."
+    },
+    {
+      "id": 6,
+      "name": "Polish & Launch",
+      "status": "not-started",
+      "taskCount": 52,
+      "prCount": 0,
+      "summary": "Reports, branded emails, Sentry, e2e smoke, a11y, perf, Netlify cutover, launch."
+    }
+  ]
+}
