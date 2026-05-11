@@ -113,6 +113,14 @@ The engineer/agent executing this plan needs:
 
 These tasks are performed by a human, not automated. They're prerequisites for the rest of the plan.
 
+**Amendment 2026-05-11 (Sub-project 0 kickoff prep):** The Sub-project 0 wrap-up session on 2026-05-11 already provisioned the cloud infrastructure this phase used to create. Specifically:
+
+- The two cloud Supabase projects (`impact-dev` ref `zdrxxcbhiovoaubkcqfj`, `impact-prod` ref `ptnhzdkspzquwcxdoqbt`) already exist. Task 3 below is now a verification + credential-capture task, not a create-from-scratch task. The free-tier 2-project cap is the reason there is no `impact-test` project — see Task 57 + the production rebuild spec §2.4.
+- The app Netlify project (`impact-portal-app`, ID `6e071577-7adb-4cae-82d6-b2b2b66a47aa`) already exists at `https://impact-portal-app.netlify.app` with per-context env vars seeded (production = prod values, deploy-preview + branch-deploy = dev values). It is **not yet connected to a GitHub repo** — Task 5 below now wires that connection.
+- The prototype Netlify project (`impact-internship-portal`, ID `65497097-8b5c-471e-a0c9-dc7ddea0fb2c`) is unchanged and continues to publish `Prototypes/PROTOTYPE/` from the `Rapideo/impact-prototype` repo. Sub-project 6's previously planned cutover is obsolete.
+
+This Phase wires the existing resources into the application code rather than provisioning new ones.
+
 ### Task 1: Rename the repo folder
 
 The existing folder is `IMPACT Intretnship Assessment Portal` (typo). Rename to `IMPACT Internship Assessment Portal`.
@@ -177,39 +185,45 @@ The existing folder is `IMPACT Intretnship Assessment Portal` (typo). Rename to 
   git commit -m "Move floating artifacts (Deferred.md, Punch List) into repo"
   ```
 
-### Task 3: Create the Supabase project
+### Task 3: Verify the two Supabase projects and capture credentials
 
-Manual UI flow at `https://supabase.com/dashboard`.
+**Amendment 2026-05-11:** Sub-project 0 kickoff prep already created **two** Supabase projects (the free-tier limit is 2 projects per org; we chose this over upgrading to Pro). Originally this task created one project; it is now a verification + credential-capture task across both.
+
+| Environment | Project name | Project ref | Purpose |
+|---|---|---|---|
+| Dev | `impact-dev` | `zdrxxcbhiovoaubkcqfj` | Local `.env.local` + Netlify deploy previews + branch deploys |
+| Prod | `impact-prod` | `ptnhzdkspzquwcxdoqbt` | Production deploys only |
+
+CI does **not** use a third cloud project — it uses `supabase start` (local Docker stack). See Task 57.
 
 **Files:**
-- N/A — external service setup
+- N/A — external service verification
 
-- [ ] **Step 1: Create new Supabase project**
+- [ ] **Step 1: Confirm both projects exist in the Supabase Dashboard**
 
-  - Project name: `impact-internship-portal`
-  - Region: `us-east-1` (closest to Indiana)
-  - Database password: generate strong, save to password manager
-  - Pricing tier: Free
+  Visit `https://supabase.com/dashboard`. Both `impact-dev` and `impact-prod` should appear in the project list. If either is missing, stop and create it before continuing (Free tier; `us-east-1`; strong DB password saved to password manager).
 
-  Wait ~2 minutes for project to provision.
-
-- [ ] **Step 2: Capture the connection details**
+- [ ] **Step 2: Capture credentials for `impact-dev`**
 
   From `Settings → API`:
-  - Project URL (`https://<ref>.supabase.co`)
+  - Project URL (`https://zdrxxcbhiovoaubkcqfj.supabase.co`)
   - `anon` public key
   - `service_role` secret key
 
   From `Settings → Database`:
-  - Connection string (Direct connection, not pooler) — shape: `postgresql://postgres:<password>@db.<ref>.supabase.co:5432/postgres`
+  - Direct connection string — shape: `postgresql://postgres:<password>@db.zdrxxcbhiovoaubkcqfj.supabase.co:5432/postgres`
   - Pooled connection string (Transaction mode, port 6543) — for serverless functions
 
-  Save all of these for Task 22 (env vars).
+  Save all of these for Task 22 (env vars) — these go into `.env.local`.
 
-- [ ] **Step 3: Verify Postgres is reachable**
+- [ ] **Step 3: Capture credentials for `impact-prod`**
+
+  Same as Step 2, against the `impact-prod` project (`ptnhzdkspzquwcxdoqbt`). These values are **not** put in `.env.local`; they are already configured as the Netlify production-context env vars on the `impact-portal-app` Netlify project (verified in Task 5). Record them in the password manager for emergency recovery only.
+
+- [ ] **Step 4: Verify Postgres is reachable on `impact-dev`**
 
   ```bash
-  psql "<direct connection string>" -c "SELECT version();"
+  psql "<direct connection string for impact-dev>" -c "SELECT version();"
   ```
 
   Expected: `PostgreSQL 15.x ...`. If `psql` is not installed locally, skip — `npm run db:push` will validate connectivity later.
@@ -235,24 +249,44 @@ Manual UI flow at `https://resend.com/`.
 
   Save for Task 22.
 
-### Task 5: Confirm Netlify project is still pointed at the prototype
+### Task 5: Connect the app Netlify project to this GitHub repo + verify env vars
 
-The plan keeps Netlify publishing the prototype until Task 67 (cutover). This task verifies nothing is currently broken.
+**Amendment 2026-05-11:** Originally this task only confirmed the existing prototype Netlify project was still serving the prototype. With the two-Netlify-project structure adopted on 2026-05-11, this task now ALSO wires the app Netlify project to this repo and verifies the per-context env vars that were seeded during Sub-project 0 kickoff prep.
 
 **Files:**
-- N/A — verification only
+- N/A — Netlify Dashboard click-through
 
-- [ ] **Step 1: Visit the live URL**
+- [ ] **Step 1: Verify the prototype Netlify project is unchanged**
 
-  `https://impact-internship-portal.netlify.app` should still serve the prototype.
+  - `https://impact-internship-portal.netlify.app` should still serve the prototype.
+  - Dashboard → `impact-internship-portal` (ID `65497097-8b5c-471e-a0c9-dc7ddea0fb2c`) → `Site configuration → Build & deploy`:
+    - Connected to `Rapideo/impact-prototype` (now public)
+    - Publish directory: `Prototypes/PROTOTYPE/`
+    - Build command: (empty)
+  - No changes here. The prototype project stays as-is indefinitely.
 
-- [ ] **Step 2: Verify Netlify build settings**
+- [ ] **Step 2: Connect the app Netlify project to this GitHub repo**
 
-  Dashboard → `impact-internship-portal` → `Site configuration → Build & deploy`:
-  - Publish directory: `Prototypes/PROTOTYPE`
-  - Build command: (empty)
+  Dashboard → `impact-portal-app` (ID `6e071577-7adb-4cae-82d6-b2b2b66a47aa`) → `Site configuration → Build & deploy → Continuous deployment → Link repository`.
 
-  No changes yet.
+  - Repository: `Rapideo/impact-internship-portal`
+  - Production branch: `main`
+  - Build command + publish directory: leave empty for now (filled in later in Phase L Task 58 once `package.json` + the RR v7 build pipeline exist)
+
+  After linking, Netlify will queue a build that will no-op (no build command) — that's fine.
+
+- [ ] **Step 3: Verify the per-context env vars on the app Netlify project**
+
+  Dashboard → `impact-portal-app` → `Site configuration → Environment variables`. These were seeded during Sub-project 0 kickoff prep; this step confirms they are correct.
+
+  For each of `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SESSION_SECRET`:
+  - **Production context** → `impact-prod` value
+  - **Deploy preview context** → `impact-dev` value
+  - **Branch deploy context** → `impact-dev` value
+
+  If any are missing, fill them from the credentials captured in Task 3.
+
+  No commit (Netlify-side configuration only).
 
 ### Task 6: Create GitHub remote (optional but recommended)
 
@@ -4433,7 +4467,9 @@ The intern composite-key lookup is used heavily in sub-project 4. Sub-project 1 
 
 ## Phase L: CI/CD
 
-### Task 57: Configure GitHub Actions
+### Task 57: Configure GitHub Actions (with `supabase start` for the test DB)
+
+**Amendment 2026-05-11:** Originally, CI used fake env vars for the unit-test job and deferred a real CI database to sub-project 6. With the two-Supabase-project structure adopted on 2026-05-11, the **test environment is no longer a cloud project** — CI uses `supabase start` (the Supabase CLI's local Docker stack) to spin up an ephemeral Postgres + Auth per run. Integration + RLS tests run against that local stack; unit-only jobs continue to use fakes.
 
 **Files:**
 - Create: `.github/workflows/ci.yml`
@@ -4452,7 +4488,7 @@ The intern composite-key lookup is used heavily in sub-project 4. Sub-project 1 
   on:
     pull_request:
     push:
-      branches: [master]
+      branches: [main]
 
   jobs:
     lint-and-typecheck:
@@ -4479,8 +4515,7 @@ The intern composite-key lookup is used heavily in sub-project 4. Sub-project 1 
             cache: 'npm'
         - run: npm ci
         - run: npm test
-          # Note: identity.server.test.ts requires DATABASE_POOL_URL.
-          # Skip if secrets aren't available; sub-project 6 wires up a CI test DB.
+          # Pure-unit tests use fakes. Integration tests live in the test-integration job.
           env:
             SUPABASE_URL: 'https://example.supabase.co'
             SUPABASE_ANON_KEY: 'fake'
@@ -4490,6 +4525,49 @@ The intern composite-key lookup is used heavily in sub-project 4. Sub-project 1 
             RESEND_API_KEY: 'fake'
             RESEND_FROM: 'fake@example.com'
             APP_URL: 'http://localhost:5173'
+
+    test-integration:
+      name: Vitest (integration + RLS) on supabase start
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-node@v4
+          with:
+            node-version: '22'
+            cache: 'npm'
+        - name: Install Supabase CLI
+          uses: supabase/setup-cli@v1
+          with:
+            version: latest
+        - run: npm ci
+        - name: Start local Supabase stack (Postgres + Auth via Docker)
+          run: supabase start
+          # `supabase start` prints API URL, anon key, and service-role key for the
+          # ephemeral stack to stdout. Capture them into $GITHUB_ENV in the next step.
+        - name: Export local Supabase credentials to env
+          run: |
+            supabase status -o env >> $GITHUB_ENV
+            # `supabase status -o env` emits SUPABASE_URL, SUPABASE_ANON_KEY,
+            # SUPABASE_SERVICE_ROLE_KEY, and DB_URL for the running local stack.
+        - name: Apply migrations + seed
+          run: |
+            npm run db:migrate
+            npm run db:apply-policies
+            npm run db:seed
+          env:
+            DATABASE_URL: ${{ env.DB_URL }}
+            DATABASE_POOL_URL: ${{ env.DB_URL }}
+        - name: Run integration + RLS tests
+          run: npm run test:integration
+          env:
+            DATABASE_URL: ${{ env.DB_URL }}
+            DATABASE_POOL_URL: ${{ env.DB_URL }}
+            RESEND_API_KEY: 'fake'
+            RESEND_FROM: 'fake@example.com'
+            APP_URL: 'http://localhost:5173'
+        - name: Stop local Supabase stack
+          if: always()
+          run: supabase stop --no-backup
 
     e2e:
       name: Playwright
@@ -4507,7 +4585,7 @@ The intern composite-key lookup is used heavily in sub-project 4. Sub-project 1 
         - run: npm run test:e2e
   ```
 
-  > **Note on sub-project 1 CI scope:** the unit test job covers JWT-claim parsing (no DB needed). The `identity.server.test.ts` file requires DB access; it'll fail under CI's fake DATABASE_POOL_URL. Either (a) skip it via a `describe.skipIf` guard or (b) accept that this file fails CI until sub-project 6 sets up an ephemeral test DB. The plan defers the decision to sub-project 6.
+  > **Note on the test DB approach:** the `test-integration` job uses the Supabase CLI's `supabase start` to launch a local Docker-based Postgres + Auth stack inside the GitHub Actions runner. This replaces the originally planned cloud `impact-test` Supabase project (dropped because the free tier limits an org to 2 cloud projects). The local stack is fresh per CI run and torn down via `supabase stop` in an `always()` step. No GitHub Secrets need real Supabase credentials — the CLI synthesizes them at start-up.
 
 - [ ] **Step 2: Add a `describe.skipIf` guard to the identity test (option a)**
 
@@ -4531,7 +4609,9 @@ The intern composite-key lookup is used heavily in sub-project 4. Sub-project 1 
   git commit -m "Add GitHub Actions CI (lint, typecheck, unit tests)"
   ```
 
-### Task 58: Update netlify.toml to keep publishing the prototype
+### Task 58: Configure netlify.toml for the app Netlify project
+
+**Amendment 2026-05-11:** Originally this task pinned `netlify.toml` to `publish = "Prototypes/PROTOTYPE"` because Sub-project 1 shared a single Netlify project with the prototype. With the two-Netlify-project structure adopted on 2026-05-11, the prototype is served by its own Netlify project (watching `Rapideo/impact-prototype`) and the `netlify.toml` in *this* repo is consumed only by the **app** Netlify project (`impact-portal-app`). The app project should publish `build/client/` once the RR v7 build pipeline is in place; until then, an empty placeholder `netlify.toml` (or a no-build config) is sufficient.
 
 **Files:**
 - Modify: `netlify.toml` (or create if it doesn't exist)
@@ -4542,16 +4622,20 @@ The intern composite-key lookup is used heavily in sub-project 4. Sub-project 1 
   cat netlify.toml 2>/dev/null || echo "missing"
   ```
 
-- [ ] **Step 2: Write the explicit no-op build config**
+- [ ] **Step 2: Write the app build config**
 
   Replace (or create) `netlify.toml` with:
 
   ```toml
-  # Sub-project 1: keep publishing the prototype while the production app is built up.
-  # Sub-project 6 will switch this over.
+  # Consumed by the `impact-portal-app` Netlify project (ID 6e071577-...).
+  # The prototype lives in its own Netlify project (`impact-internship-portal`)
+  # watching the `Rapideo/impact-prototype` repo; this file does not affect it.
   [build]
-    publish = "Prototypes/PROTOTYPE"
-    command = ""
+    publish = "build/client"
+    command = "npm run build"
+
+  [build.environment]
+    NODE_VERSION = "22"
 
   [[headers]]
     for = "/*"
@@ -4561,21 +4645,21 @@ The intern composite-key lookup is used heavily in sub-project 4. Sub-project 1 
       Referrer-Policy = "strict-origin-when-cross-origin"
   ```
 
-  This explicitly tells Netlify: do nothing, just publish the prototype directory. When `package.json` was added at the repo root, Netlify might have auto-detected it; this config overrides that.
+  > If the RR v7 build doesn't yet produce a `build/client/` output at the time this task runs (build pipeline lands in Phase B), use `publish = "public"` with an empty `command` as a temporary placeholder so Netlify deploys succeed with a "site not built yet" page. Flip to the values above once `npm run build` works.
 
 - [ ] **Step 3: Trigger a Netlify deploy via CLI to confirm**
 
   ```bash
-  netlify deploy --build  # produces a draft URL
+  netlify deploy --build  # produces a draft URL on impact-portal-app.netlify.app
   ```
 
-  Then visit the draft URL — it should still show the prototype.
+  Then visit the draft URL — should render whatever the current build produces (a placeholder, or the app's landing once Phase B-G are complete).
 
 - [ ] **Step 4: Commit**
 
   ```bash
   git add netlify.toml
-  git commit -m "Pin netlify.toml to publish prototype dir during sub-project 1"
+  git commit -m "Add netlify.toml for the app Netlify project"
   ```
 
 ---
