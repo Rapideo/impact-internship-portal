@@ -41,3 +41,101 @@ jobs:
         run: |
           echo "CI stub passing. Real stages (lint, typecheck, vitest, playwright, build)"
           echo "are wired in during sub-project 1's Foundation phases."
+
+  lint-and-typecheck:
+    name: Lint & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - name: Generate React Router route types
+        run: npx react-router typegen
+      - run: npm run lint
+      - run: npm run typecheck
+
+  test-unit:
+    name: Vitest (unit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test
+        env:
+          SUPABASE_URL: 'https://example.supabase.co'
+          SUPABASE_ANON_KEY: 'fake'
+          SUPABASE_SERVICE_ROLE_KEY: 'fake'
+          DATABASE_URL: 'postgresql://fake'
+          DATABASE_POOL_URL: 'postgresql://fake'
+          RESEND_API_KEY: 'fake'
+          RESEND_FROM: 'fake@example.com'
+          APP_URL: 'http://localhost:5173'
+
+  test-integration:
+    name: Vitest (integration + RLS) on supabase start
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: npm ci
+      - name: Start local Supabase stack
+        run: supabase start
+      - name: Export local Supabase credentials to env
+        # `supabase status -o env` emits shell-style `KEY="value"` lines. $GITHUB_ENV
+        # treats the surrounding quotes as part of the value, so we strip them. We
+        # also alias supabase's names (DB_URL, API_URL, ANON_KEY, SERVICE_ROLE_KEY)
+        # to the names env.server.ts expects (DATABASE_URL, DATABASE_POOL_URL,
+        # SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY).
+        run: |
+          supabase status -o env | sed 's/="\(.*\)"$/=\1/' >> "$GITHUB_ENV"
+          eval "$(supabase status -o env)"
+          {
+            echo "DATABASE_URL=${DB_URL}"
+            echo "DATABASE_POOL_URL=${DB_URL}"
+            echo "SUPABASE_URL=${API_URL}"
+            echo "SUPABASE_ANON_KEY=${ANON_KEY}"
+            echo "SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}"
+            echo "RESEND_API_KEY=fake"
+            echo "RESEND_FROM=fake@example.com"
+            echo "APP_URL=http://localhost:5173"
+          } >> "$GITHUB_ENV"
+      - name: Apply migrations + policies + seed
+        run: |
+          npm run db:migrate
+          npm run db:apply-policies
+          npm run db:seed
+      - name: Run unit tests against live local stack
+        run: npm test
+      - name: Run RLS tests
+        run: npm run test:rls
+      - name: Stop local Supabase stack
+        if: always()
+        run: supabase stop --no-backup
+
+  e2e:
+    name: Playwright
+    runs-on: ubuntu-latest
+    if: ${{ false }}  # Gated to sub-project 6.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e

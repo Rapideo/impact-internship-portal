@@ -1,7 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { lookupInternByIdentity } from '~/lib/identity.server';
 
-describe('lookupInternByIdentity', () => {
+const SKIP_DB_TESTS =
+  !process.env.DATABASE_POOL_URL || process.env.DATABASE_POOL_URL.includes('fake');
+
+describe.skipIf(SKIP_DB_TESTS)('lookupInternByIdentity', () => {
   it('returns the intern when first initial + last name + cohort match (case-insensitive)', async () => {
     const intern = await lookupInternByIdentity({
       firstInitial: 'a',

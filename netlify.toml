@@ -1,0 +1,16 @@
+# Consumed by the `impact-portal-app` Netlify project (ID 6e071577-7adb-4cae-82d6-b2b2b66a47aa).
+# The prototype lives in its own Netlify project (`impact-internship-portal`)
+# watching the `Rapideo/impact-prototype` repo; this file does not affect it.
+[build]
+  publish = "build/client"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
