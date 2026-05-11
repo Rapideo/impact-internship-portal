@@ -16,3 +16,33 @@ desktop.ini
 
 # Local backup archives
 *Backup*.zip
+
+# ---- sub-project 0: Node + build + env ----
+# Node
+node_modules/
+npm-debug.log*
+.pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output (sub-project 1+)
+/build/
+/.react-router/
+/dist/
+
+# Env files (committed only as .env.example)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Test artifacts (sub-project 1+)
+/coverage/
+/playwright-report/
+/test-results/
+/playwright/.cache/
+
+# Editor (keep some vscode files committable for shared settings)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
