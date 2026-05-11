@@ -199,6 +199,22 @@ Note: Husky and commitlint are installed as part of sub-project 0. ESLint/Pretti
 - A pre-commit secret-scanning hook (`gitleaks` or similar) is **deferred to sub-project 6**. Until then, the discipline relies on `.gitignore` plus a one-time review of staged files.
 - The Supabase service role key never appears in any file outside `app/lib/db.service.server.ts` (the `.server.ts` suffix is a React Router convention that prevents bundling into client code).
 
+**Amendment 2026-05-11 (three-environment secret split):** The production rebuild uses **three independent Supabase projects** (`impact-dev`, `impact-test`, `impact-prod`) per §2.4 of the production rebuild design spec. The five environment-sensitive secrets (`DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SESSION_SECRET`) have **three values each**, deployed as follows:
+
+| Secret | `.env.local` (dev) | GitHub Secrets (test) | Netlify prod context | Netlify deploy-preview + branch-deploy contexts |
+|---|---|---|---|---|
+| `DATABASE_URL` | impact-dev | impact-test | impact-prod | impact-dev |
+| `SUPABASE_URL` | impact-dev | impact-test | impact-prod | impact-dev |
+| `SUPABASE_ANON_KEY` | impact-dev | impact-test | impact-prod | impact-dev |
+| `SUPABASE_SERVICE_ROLE_KEY` | impact-dev | impact-test | impact-prod | impact-dev |
+| `SESSION_SECRET` | unique-dev | unique-test | unique-prod | unique-dev |
+| `RESEND_API_KEY` | shared | shared | shared | shared |
+| `SENTRY_DSN` | env-tagged or per-env | env-tagged or per-env | env-tagged or per-env | env-tagged or per-env |
+
+Netlify supports per-deploy-context env var values natively (Site settings → Environment variables → "Different value for each deploy context"). PR deploy previews therefore point at `impact-dev`, never at `impact-prod`, eliminating the risk of a preview-deploy mutation hitting prod data.
+
+The current `.env.example` (sub-project 0) carries placeholders only. **Sub-project 1 expands** `.env.example` with comments noting which project each variable should reference, and the Netlify env var configuration UI gets all three sets seeded with real values when each Supabase project is created.
+
 ### 2.12 Issue tracking and milestones
 
 GitHub Issues replaces `docs/BACKLOG.md` for any new work that arises during or after sub-project 1.
