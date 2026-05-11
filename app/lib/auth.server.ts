@@ -1,4 +1,9 @@
-import { createServerClient, parseCookieHeader, serializeCookieHeader } from '@supabase/ssr';
+import {
+  createServerClient,
+  parseCookieHeader,
+  serializeCookieHeader,
+  type CookieOptions,
+} from '@supabase/ssr';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { env } from './env.server';
 
@@ -33,7 +38,7 @@ export function createSupabaseServerClient(request: Request, headers: Headers): 
       getAll() {
         return cookies;
       },
-      setAll(toSet) {
+      setAll(toSet: { name: string; value: string; options: CookieOptions }[]) {
         for (const { name, value, options } of toSet) {
           headers.append('Set-Cookie', serializeCookieHeader(name, value, options));
         }
@@ -60,9 +65,11 @@ export async function getAuthContext(
   // since Supabase already validated the session above).
   const tokenParts = session.access_token.split('.');
   if (tokenParts.length !== 3) return null;
+  const rawPayload = tokenParts[1];
+  if (!rawPayload) return null;
   let payload: unknown;
   try {
-    const base64 = tokenParts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const base64 = rawPayload.replace(/-/g, '+').replace(/_/g, '/');
     payload = JSON.parse(Buffer.from(base64, 'base64').toString('utf-8'));
   } catch {
     return null;
