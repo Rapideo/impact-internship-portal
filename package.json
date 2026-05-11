@@ -41,7 +41,22 @@
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "@react-router/dev": "^7.15.0",
+    "@types/node": "^22.19.18",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
     "husky": "^9.1.7",
-    "lint-staged": "^15.5.2"
+    "lint-staged": "^15.5.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vite": "^6.4.2"
+  },
+  "dependencies": {
+    "@react-router/node": "^7.15.0",
+    "@react-router/serve": "^7.15.0",
+    "isbot": "^5.1.40",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router": "^7.15.0"
   }
 }
