@@ -1,0 +1,43 @@
+name: ci
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sanity:
+    name: Sanity checks (stub)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Confirm required scaffolding files exist
+        run: |
+          test -f .github/PULL_REQUEST_TEMPLATE.md
+          test -f .github/CODEOWNERS
+          test -f .github/dependabot.yml
+          test -f .github/workflows/ci.yml
+          echo "All scaffolding files present."
+
+      - name: Confirm scaffolding has no TODO/FIXME/XXX markers
+        run: |
+          if grep -RIn --include="*.md" -E "\b(TODO|FIXME|XXX)\b" .github/; then
+            echo "Found TODO/FIXME/XXX markers in .github/ — fail to surface unfinished scaffolding."
+            exit 1
+          fi
+          echo "No TODO/FIXME/XXX markers in .github/."
+
+      - name: Stub for real CI stages
+        run: |
+          echo "CI stub passing. Real stages (lint, typecheck, vitest, playwright, build)"
+          echo "are wired in during sub-project 1's Foundation phases."
