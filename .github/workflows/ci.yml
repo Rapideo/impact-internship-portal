@@ -52,6 +52,8 @@ jobs:
           node-version: '22'
           cache: 'npm'
       - run: npm ci
+      - name: Generate React Router route types
+        run: npx react-router typegen
       - run: npm run lint
       - run: npm run typecheck
 
@@ -93,28 +95,27 @@ jobs:
       - name: Start local Supabase stack
         run: supabase start
       - name: Export local Supabase credentials to env
-        run: supabase status -o env >> $GITHUB_ENV
+        # `supabase status -o env` emits shell-style `KEY="value"` lines. $GITHUB_ENV
+        # treats the surrounding quotes as part of the value, so we strip them and
+        # also re-export DB_URL as DATABASE_URL / DATABASE_POOL_URL for our app.
+        run: |
+          supabase status -o env | sed 's/="\(.*\)"$/=\1/' >> "$GITHUB_ENV"
+          DB_URL_RAW=$(supabase status -o env | grep '^DB_URL=' | sed 's/^DB_URL="\(.*\)"$/\1/')
+          echo "DATABASE_URL=${DB_URL_RAW}" >> "$GITHUB_ENV"
+          echo "DATABASE_POOL_URL=${DB_URL_RAW}" >> "$GITHUB_ENV"
       - name: Apply migrations + policies + seed
         run: |
           npm run db:migrate
           npm run db:apply-policies
           npm run db:seed
-        env:
-          DATABASE_URL: ${{ env.DB_URL }}
-          DATABASE_POOL_URL: ${{ env.DB_URL }}
       - name: Run unit tests against live local stack
         run: npm test
         env:
-          DATABASE_URL: ${{ env.DB_URL }}
-          DATABASE_POOL_URL: ${{ env.DB_URL }}
           RESEND_API_KEY: 'fake'
           RESEND_FROM: 'fake@example.com'
           APP_URL: 'http://localhost:5173'
       - name: Run RLS tests
         run: npm run test:rls
-        env:
-          DATABASE_URL: ${{ env.DB_URL }}
-          DATABASE_POOL_URL: ${{ env.DB_URL }}
       - name: Stop local Supabase stack
         if: always()
         run: supabase stop --no-backup
