@@ -39,7 +39,7 @@ describe('RLS: employer_scope', () => {
       async (sql) => sql`SELECT id, name FROM public.employers`,
     );
     expect(rows).toHaveLength(1);
-    expect(rows[0].id).toBe(EMPLOYER_101_ID);
+    expect(rows[0]!.id).toBe(EMPLOYER_101_ID);
   });
 
   it('employer sees only their own cohorts', async () => {
@@ -49,7 +49,7 @@ describe('RLS: employer_scope', () => {
     );
     // Employer 101 has 1 cohort in the seed.
     expect(rows).toHaveLength(1);
-    expect(rows[0].employer_id).toBe(EMPLOYER_101_ID);
+    expect(rows[0]!.employer_id).toBe(EMPLOYER_101_ID);
   });
 
   it('employer sees only their own interns', async () => {
@@ -103,7 +103,7 @@ describe('RLS: employer_scope', () => {
     // Cleanup
     const cleanupSql = postgres(process.env.DATABASE_URL!, { max: 1 });
     try {
-      await cleanupSql`DELETE FROM public.assessment_submissions WHERE id = ${result[0].id}`;
+      await cleanupSql`DELETE FROM public.assessment_submissions WHERE id = ${result[0]!.id}`;
     } finally {
       await cleanupSql.end();
     }

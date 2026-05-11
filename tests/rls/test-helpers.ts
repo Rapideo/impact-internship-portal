@@ -24,12 +24,14 @@ export async function withClaims<T>(
 
   const sql = postgres(databaseUrl, { max: 1 });
   try {
-    return await sql.begin(async (tx) => {
+    // postgres.js's `sql.begin` unwraps Promise<T> arrays to T arrays in its
+    // return type; we cast back to T to keep the helper's signature predictable.
+    return (await sql.begin(async (tx) => {
       // `set_config(..., true)` = transaction-local, matching SET LOCAL semantics.
       await tx`SELECT set_config('request.jwt.claims', ${JSON.stringify(claims)}, true)`;
       await tx`SET LOCAL ROLE authenticated`;
       return await fn(tx as unknown as postgres.Sql);
-    });
+    })) as T;
   } finally {
     await sql.end();
   }

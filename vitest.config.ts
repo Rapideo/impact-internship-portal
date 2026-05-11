@@ -4,6 +4,10 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
+    // RLS tests hit a live DB; serialize all test files across projects so we
+    // don't have parallel transactions racing on the same fake test rows.
+    // (Unit tests are fast and unaffected.)
+    fileParallelism: false,
     projects: [
       {
         extends: true,
@@ -21,8 +25,6 @@ export default defineConfig({
           name: 'rls',
           environment: 'node',
           include: ['tests/rls/**/*.test.ts'],
-          // RLS tests hit a live DB; serialize them.
-          fileParallelism: false,
         },
       },
     ],
