@@ -14,10 +14,10 @@ CREATE TABLE IF NOT EXISTS "assessment_submissions" (
 	CONSTRAINT "submissions_phase_required" CHECK ((type = 'competency' AND phase IS NOT NULL) OR (type <> 'competency' AND phase IS NULL))
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "auth"."users" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"email" text
-);
+-- NOTE: The "auth"."users" table is managed by Supabase and already exists
+-- in the auth schema. drizzle-kit emitted a CREATE TABLE for it because the
+-- schema references it via pgSchema('auth').table(...). We strip that
+-- statement so migrations don't fail on `permission denied for schema auth`.
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "barriers" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
