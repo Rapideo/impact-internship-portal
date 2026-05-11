@@ -1,6 +1,6 @@
 {
   "$schema-comment": "Sub-project status seed. Updated on milestone-close PRs per spec §2.13. Statuses: not-started | in-progress | complete. Counts are taken from the implementation plans committed under docs/superpowers/plans/.",
-  "asOf": "2026-05-11",
+  "asOf": "2026-05-12",
   "subProjects": [
     {
       "id": 0,
@@ -13,10 +13,10 @@
     {
       "id": 1,
       "name": "Foundation",
-      "status": "not-started",
+      "status": "complete",
       "taskCount": 60,
-      "prCount": 0,
-      "summary": "RR v7 scaffold, Supabase project verification, Drizzle schema, RLS policies, dev seed, app Netlify wiring, login routing."
+      "prCount": 16,
+      "summary": "RR v7 scaffold, Drizzle schema (15 tables) + initial migration, 32 RLS policies + JWT custom-access-token hook, dev seed, login flow with role-aware admin/employer shells, admin CLI, intern identity lookup, full test pyramid (10 unit + 9 RLS + 8 e2e), real CI pipeline (supabase start for integration), Netlify build config."
     },
     {
       "id": 2,

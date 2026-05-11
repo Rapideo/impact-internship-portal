@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this project is
 
-The **IMPACT Internship Assessment Portal** is a web app for an Indiana-based internship program. The clickable 34-page prototype is **locked** (lives in a separate sibling repo, `Rapideo/impact-prototype`). The **production rebuild's infrastructure (Sub-project 0) is complete**: GitHub repo, branch protection, CI, hook chain, Husky/commitlint/lint-staged, Netlify wiring, GitHub Pages dashboard, methodology playbook. The remaining 6 sub-projects (Foundation through Polish & Launch — 256 application-level tasks) are planned and ready to execute. Sub-project 1 (Foundation) is the next thing to start.
+The **IMPACT Internship Assessment Portal** is a web app for an Indiana-based internship program. The clickable 34-page prototype is **locked** (lives in a separate sibling repo, `Rapideo/impact-prototype`). The **production rebuild's infrastructure (Sub-project 0) is complete** and **Sub-project 1 (Foundation) is complete** as of 2026-05-11: React Router v7 scaffold, Drizzle schema for all 15 public tables migrated to impact-dev, 32 RLS policies + JWT custom-access-token hook applied, dev seed populated, login flow working end-to-end with role-aware admin/employer shells, admin CLI bootstrap, intern composite-key lookup, full test pyramid (10 unit + 9 RLS + 8 e2e), real CI pipeline (`supabase start` for integration), Netlify build config. The remaining 5 sub-projects (Admin Core through Polish & Launch — ~196 application-level tasks) are planned and ready to execute. Sub-project 2 (Admin Core) is the next thing to start.
 
 The app tracks:
 - Intake / Entry Assessment (captured on the intern record at creation)
@@ -188,3 +188,48 @@ This is a git repository on branch `main` (renamed from `master` on 2026-05-11).
 - **Secrets:** `.env.local` (gitignored) for local dev with impact-dev values; Netlify env vars set per-deploy-context for prod vs dev routing; GitHub Secrets are placeholder-only (CI uses `supabase start`).
 
 **Workflow spec:** `docs/superpowers/specs/2026-05-11-development-workflow-design.md` is the source of truth for the workflow above. The corresponding implementation plan is `docs/superpowers/plans/2026-05-11-sub-project-0-project-infrastructure.md` (complete).
+
+## Production app (Sub-project 1 complete)
+
+Sub-project 1 (Foundation) shipped as 16 PRs between 2026-05-11 and 2026-05-12. The app at `app/` is now a runnable React Router v7 server that authenticates against Supabase, scopes data via RLS, and routes admins/employers to placeholder shells.
+
+### Stack
+
+React Router v7 (framework mode, config-based routing) + TypeScript 5.7 + Vite 6 + Vitest 3 + Playwright + ESLint 9 + Prettier 3 + Supabase Postgres (Auth + RLS) + Drizzle ORM 0.36 + postgres-js + Resend (email helper, dead code until Sub-project 6) + Netlify (`impact-portal-app` project).
+
+### Local dev
+
+```bash
+npm install
+# .env.local already has impact-dev credentials populated (gitignored)
+npm run db:migrate          # apply schema (idempotent — already applied to impact-dev)
+npm run db:apply-policies   # apply RLS policies (idempotent — uses DROP IF EXISTS)
+npm run db:seed             # wipe + re-seed dev data (TRUNCATE wrapped in BEGIN/COMMIT; refuses to run against impact-prod ref)
+npm run admin:create -- --email=admin@example.com --password=DevPassword123!
+npm run dev                 # http://localhost:5173
+```
+
+### Three roles
+
+- **Anonymous intern** — composite-key identity (first initial + last name + cohort), no Supabase Auth account. Lookup helper at `app/lib/identity.server.ts:lookupInternByIdentity`. Used in Sub-project 4.
+- **Employer** — Supabase Auth, JWT carries `role='employer'` + `employer_id` claims via the `public.custom_access_token_hook` function (SECURITY DEFINER, registered in `supabase/config.toml`). RLS policies scope every employer query to their own `employer_id`.
+- **Admin** — Supabase Auth, JWT carries `role='admin'`. RLS policies grant admin full access to every table.
+
+### Working in the new app
+
+- **Routes** are listed explicitly in `app/routes.ts` (config-based, NOT file-system routing). Three top-level layouts: `_public.tsx` (login + auth flow), `admin.tsx` (auth-guarded admin shell), `employer.tsx` (auth-guarded employer shell).
+- **Server-only modules** end with `.server.ts`. Files in `app/lib/*.server.ts` and under `db/` cannot be imported from client components — Vite enforces this at build time.
+- **Auth** is in `app/lib/auth.server.ts`. Use `getAuthContext(request, headers)` in loaders to read the signature-verified JWT claims (via Supabase `getClaims()` — NOT `getSession()`, which doesn't verify in cookie-storage mode). The login action re-uses its in-memory client after `signInWithPassword` instead of building a new one — required because the new auth cookies aren't yet on the request.
+- **Drizzle schema** is `db/schema.ts`. Generate migrations via `npm run db:generate`; apply via `npm run db:migrate`. The initial migration filtered out drizzle-kit's `CREATE TABLE auth.users` statement (Supabase rejects schema writes to `auth`); FKs to `auth.users` still resolve correctly against Supabase's managed table.
+- **RLS policies** live in `db/policies/*.sql` and apply via `npm run db:apply-policies`. Raw SQL because policy syntax reads more clearly than a Drizzle-generated equivalent. Every `CREATE POLICY` is preceded by `DROP POLICY IF EXISTS` so the harness is idempotent.
+- **Tests:**
+  - `npm test` — Vitest unit project (10 tests: auth decoder, identity lookup against live DB, sanity). Identity tests gate on `DATABASE_POOL_URL` being non-fake.
+  - `npm run test:rls` — Vitest rls project (9 tests). Connects to impact-dev with simulated JWT claims via `request.jwt.claims` inside an explicit transaction (without `BEGIN`/`COMMIT`, `SET LOCAL ROLE authenticated` is a no-op and tests would silently pass against the BYPASSRLS service-role connection).
+  - `npm run test:e2e` — Playwright auth flow (8 tests, Chromium). Reads `.env.test` for the admin + employer test creds.
+- **CI** (`.github/workflows/ci.yml`) runs five jobs: `Sanity checks (stub)` (required), `Lint & Typecheck`, `Vitest (unit)`, `Vitest (integration + RLS) on supabase start`, and a gated `Playwright` job (enabled in Sub-project 6). The integration job boots a local Docker Postgres via `supabase start`, applies migrations + policies + seed, and runs unit + RLS tests against it.
+- **`supabase/config.toml`** registers the `custom_access_token_hook`. `supabase start` reads this file too, so the same JWT-hook wiring works in CI as in impact-dev.
+
+### Pending follow-ups from code reviews
+
+- Lazy-evaluate `app/lib/env.server.ts` — currently throws at module load if any of the 8 required env vars is missing. Workable today because `.env.local` is fully populated, but bumps a contributor's first-import experience.
+- Add range CHECK on `program_info.fiscal_year_start_month` (1-12). Currently any integer accepted.
