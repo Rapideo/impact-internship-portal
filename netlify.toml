@@ -1,9 +1,0 @@
-# Netlify configuration for the IMPACT Internship Assessment Portal prototype.
-#
-# The prototype is a static HTML/CSS/JS site living under Prototypes/PROTOTYPE/.
-# No build step is needed — Netlify just publishes the directory as-is.
-# Site root (https://<sitename>.netlify.app/) maps to Prototypes/PROTOTYPE/index.html.
-# Unmatched routes auto-serve Prototypes/PROTOTYPE/404.html via Netlify's default fallback.
-
-[build]
-  publish = "Prototypes/PROTOTYPE"
