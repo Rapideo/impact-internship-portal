@@ -1,0 +1,6 @@
+# CODEOWNERS — single owner for now (Matt). Production-rebuild planning is
+# solo until a second contributor joins. Branch protection does not require
+# code-owner review at this stage (spec §8); this file exists for clarity
+# and as a hook for later enforcement.
+
+* @Rapideo
