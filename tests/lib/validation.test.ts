@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   parseFormFields,
+  parseInlineRows,
   requireString,
   optionalString,
   requireEmail,
@@ -107,5 +108,40 @@ describe('optionalString', () => {
     fd.set('n', '  hi  ');
     const { values } = parseFormFields(fd, { n: optionalString('N') });
     expect(values.n).toBe('hi');
+  });
+});
+
+describe('parseInlineRows', () => {
+  it('parses ordered rows from form data', () => {
+    const fd = new FormData();
+    fd.set('phases[0].id', 'p1');
+    fd.set('phases[0].label', 'Phase 1');
+    fd.set('phases[1].id', '');
+    fd.set('phases[1].label', 'Phase 2');
+    const { rows, errors } = parseInlineRows(fd, 'phases');
+    expect(rows).toEqual([
+      { id: 'p1', label: 'Phase 1' },
+      { id: null, label: 'Phase 2' },
+    ]);
+    expect(errors).toEqual([]);
+  });
+
+  it('errors on empty label + duplicates', () => {
+    const fd = new FormData();
+    fd.set('phases[0].id', '');
+    fd.set('phases[0].label', '');
+    fd.set('phases[1].id', '');
+    fd.set('phases[1].label', 'Phase 1');
+    fd.set('phases[2].id', '');
+    fd.set('phases[2].label', 'phase 1');
+    const { errors, errorIndices } = parseInlineRows(fd, 'phases');
+    expect(errors.length).toBeGreaterThanOrEqual(2);
+    expect(errorIndices).toEqual(expect.arrayContaining([0, 1, 2]));
+  });
+
+  it('errors when zero rows', () => {
+    const fd = new FormData();
+    const { errors } = parseInlineRows(fd, 'phases');
+    expect(errors).toEqual([{ field: 'phases', message: 'At least one row is required.' }]);
   });
 });

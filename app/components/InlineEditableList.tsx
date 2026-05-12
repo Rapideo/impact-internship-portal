@@ -1,0 +1,101 @@
+import { useState } from 'react';
+
+export interface InlineRow {
+  id: string;
+  label: string;
+}
+
+export function InlineEditableList({
+  initial,
+  addLabel,
+  name,
+  errorIndices,
+}: {
+  initial: InlineRow[];
+  addLabel: string;
+  /** Form field name root; rows are submitted as `${name}[<i>].id` and `${name}[<i>].label`. */
+  name: string;
+  /** Indices to render with .input--error (server-validation feedback) */
+  errorIndices?: number[];
+}) {
+  const [rows, setRows] = useState<InlineRow[]>(() =>
+    initial.map((r) => ({ id: r.id, label: r.label })),
+  );
+  const errSet = new Set(errorIndices ?? []);
+
+  function update(i: number, label: string) {
+    setRows((rs) => rs.map((r, j) => (j === i ? { ...r, label } : r)));
+  }
+  function add() {
+    setRows((rs) => [...rs, { id: '', label: '' }]);
+  }
+  function remove(i: number) {
+    setRows((rs) => rs.filter((_, j) => j !== i));
+  }
+  function move(i: number, dir: -1 | 1) {
+    setRows((rs) => {
+      const j = i + dir;
+      if (j < 0 || j >= rs.length) return rs;
+      const copy = rs.slice();
+      const tmp = copy[i]!;
+      copy[i] = copy[j]!;
+      copy[j] = tmp;
+      return copy;
+    });
+  }
+
+  return (
+    <>
+      <div className="settings-list" role="list">
+        {rows.map((row, i) => (
+          <div className="settings-list__row" role="listitem" key={`${row.id}-${i}`}>
+            <input type="hidden" name={`${name}[${i}].id`} value={row.id} />
+            <div className="settings-list__cell settings-list__cell--handle">
+              <button
+                type="button"
+                className="settings-list__handle-btn"
+                aria-label="Move up"
+                disabled={i === 0}
+                onClick={() => move(i, -1)}
+              >
+                {'↑'}
+              </button>{' '}
+              <button
+                type="button"
+                className="settings-list__handle-btn"
+                aria-label="Move down"
+                disabled={i === rows.length - 1}
+                onClick={() => move(i, 1)}
+              >
+                {'↓'}
+              </button>
+            </div>
+            <div className="settings-list__cell settings-list__cell--label">
+              <input
+                type="text"
+                className={`settings-list__label-input${errSet.has(i) ? ' input--error' : ''}`}
+                name={`${name}[${i}].label`}
+                value={row.label}
+                placeholder="Label"
+                onChange={(e) => update(i, e.target.value)}
+              />
+            </div>
+            <div className="settings-list__cell settings-list__cell--remove">
+              <button
+                type="button"
+                className="settings-list__remove-btn"
+                aria-label="Remove"
+                onClick={() => remove(i)}
+              >
+                {'×'}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button type="button" className="settings-list__add" onClick={add}>
+        {addLabel}
+      </button>
+    </>
+  );
+}
