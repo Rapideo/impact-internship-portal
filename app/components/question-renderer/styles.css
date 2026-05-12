@@ -1,0 +1,296 @@
+/* Question renderer styles — lifted verbatim from Prototypes/PROTOTYPE/styles.css
+   ============================================================
+   - .rubric-section-head*       (lines 1348-1388 of prototype)
+   - .assessment-question*       (lines 2626-2692 of prototype)
+   - .assessment-options         (lines 3160-3199 of prototype)
+   - .assessment-radio/.assessment-check (lines 3167-3193)
+   - .assessment-other-text      (lines 3195-3199)
+   - .assessment-likert*         (lines 3201-3245)
+   - .assessment-rubric*         (lines 3257-3298)
+   Token vars (--rule, --ink, --navy, --muted, --canvas-alt, --cyan,
+   --radius-md, --radius-sm, --font-mono, --font-display, --font-body) are
+   defined in app/styles/tokens.css.
+*/
+
+/* Section divider between Professional and Role-Specific rubric blocks */
+.rubric-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 14px 0 16px;
+  border-bottom: 1px solid var(--ink);
+  margin: 8px 0 28px;
+}
+
+.rubric-section-head--spaced {
+  margin-top: 56px;
+}
+
+.rubric-section-head__label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.rubric-section-head__title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--ink);
+}
+
+.rubric-section-head__aside {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: right;
+  max-width: 280px;
+}
+
+/* ---------- Free-form question cards (Personal Goals / Midpoint) ---------- */
+
+.assessment-question {
+  border: 1px solid var(--rule);
+  background: #fff;
+  border-radius: var(--radius-md);
+  padding: 24px 28px;
+  margin-bottom: 16px;
+}
+
+.assessment-question__head {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+  align-items: start;
+}
+
+.assessment-question__num {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--navy);
+  line-height: 1;
+  padding-top: 2px;
+}
+
+.assessment-question__label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.assessment-question__text {
+  margin: 0 0 6px;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.assessment-question__hint {
+  font-size: 12.5px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.assessment-question__input {
+  width: 100%;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: #fff;
+  resize: vertical;
+  min-height: 100px;
+  box-sizing: border-box;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+.assessment-question__input:focus {
+  outline: none;
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(0, 166, 246, 0.18);
+}
+
+/* ============================================================
+   QUESTION RENDERER (sub-project 3, phase B)
+   Output by <QuestionRenderer>. Mirrors the existing
+   .assessment-question* shape introduced by personal-goals.html.
+   ============================================================ */
+
+.assessment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.assessment-radio,
+.assessment-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.assessment-radio:hover,
+.assessment-check:hover {
+  background: var(--canvas-alt, #f5f7fa);
+}
+
+.assessment-radio input[type='radio']:checked + span,
+.assessment-check input[type='checkbox']:checked + span {
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.assessment-radio input[type='radio'],
+.assessment-check input[type='checkbox'] {
+  accent-color: var(--navy);
+}
+
+.assessment-other-text {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 14px;
+}
+
+/* Likert N-segment row */
+.assessment-likert {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 16px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.assessment-likert__anchor {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.assessment-likert__segments {
+  display: flex;
+  gap: 0;
+}
+
+.assessment-likert__seg {
+  flex: 1;
+  text-align: center;
+  padding: 12px 8px;
+  border: 1px solid var(--rule);
+  border-right: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--ink);
+  background: #fff;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.assessment-likert__seg:first-of-type {
+  border-top-left-radius: var(--radius-md);
+  border-bottom-left-radius: var(--radius-md);
+}
+.assessment-likert__seg:last-of-type {
+  border-right: 1px solid var(--rule);
+  border-top-right-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+}
+
+.assessment-likert__seg input[type='radio'] {
+  display: none;
+}
+
+.assessment-likert__seg:has(input[type='radio']:checked) {
+  background: var(--navy);
+  color: #fff;
+  border-color: var(--navy);
+}
+
+/* Competency rubric row (renderer-driven, namespaced to avoid collision with
+   the .rubric-row / .rubric-pill rules used by self-assessment-detail.html) */
+
+.assessment-rubric-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.assessment-rubric-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.assessment-rubric-pill {
+  flex: 1;
+  text-align: center;
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink);
+  background: #fff;
+}
+
+.assessment-rubric-pill input[type='radio'] {
+  display: none;
+}
+
+.assessment-rubric-pill:has(input[type='radio']:checked) {
+  background: var(--navy);
+  color: #fff;
+  border-color: var(--navy);
+}
+
+.assessment-rubric-notes {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 8px 10px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+}
+
+/* Per-question error highlight applied by <QuestionShell> when `error` is set */
+.assessment-question--has-error .assessment-question__input,
+.assessment-question--has-error .assessment-options,
+.assessment-question--has-error .assessment-likert,
+.assessment-question--has-error .assessment-rubric-row {
+  box-shadow: 0 0 0 2px var(--danger, #d4351c);
+  border-radius: 4px;
+}
+.assessment-question__error {
+  color: var(--danger, #d4351c);
+  font-size: 13px;
+  margin-top: 6px;
+}
