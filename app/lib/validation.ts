@@ -22,8 +22,9 @@ export function parseFormFields<S extends Record<string, Validator<unknown>>>(
   const values = {} as { [K in keyof S]: unknown };
   const errors: FieldError[] = [];
   for (const key in schema) {
+    const validator = schema[key]!;
     const raw = String(formData.get(key) ?? '');
-    const out = schema[key](raw, key);
+    const out = validator(raw, key);
     if ('error' in out) {
       values[key] = null;
       errors.push({ field: key, message: out.error });

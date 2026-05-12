@@ -21,8 +21,8 @@ describe('parseFormFields', () => {
     });
     expect(values).toEqual({ name: null, email: null });
     const errMap: Record<string, FieldError> = Object.fromEntries(errors.map((e) => [e.field, e]));
-    expect(errMap.name.message).toMatch(/required/i);
-    expect(errMap.email.message).toMatch(/email/i);
+    expect(errMap.name!.message).toMatch(/required/i);
+    expect(errMap.email!.message).toMatch(/email/i);
   });
 
   it('returns no errors for valid input', () => {

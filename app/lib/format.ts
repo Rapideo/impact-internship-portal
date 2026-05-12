@@ -6,7 +6,9 @@ export function formatDate(iso: string | null | undefined): string {
   if (!iso) return '—';
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
   if (!m) return iso;
-  const [, y, mo, d] = m;
+  const y = m[1]!;
+  const mo = m[2]!;
+  const d = m[3]!;
   return `${mo}.${d}.${y}`;
 }
 
@@ -32,7 +34,9 @@ export function formatDateLong(iso: string | null | undefined): string {
   if (!iso) return '—';
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
   if (!m) return iso;
-  const [, y, mo, d] = m;
+  const y = m[1]!;
+  const mo = m[2]!;
+  const d = m[3]!;
   return `${MONTH_NAMES[parseInt(mo, 10) - 1]} ${parseInt(d, 10)}, ${y}`;
 }
 
