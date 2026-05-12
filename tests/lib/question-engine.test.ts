@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isAnswered, validateAnswers } from '../../app/lib/question-engine';
+import { isAnswered, validateAnswers, serializeAnswers } from '../../app/lib/question-engine';
 import type { Question } from '../../app/lib/question-types';
 
 const textareaQ: Question = {
@@ -163,5 +163,49 @@ describe('validateAnswers', () => {
   it('reports all errors, not just the first', () => {
     const r = validateAnswers([textareaQ, radioQ], { q1: '', q3: 'banana' });
     expect(Object.keys(r.errors).sort()).toEqual(['q1', 'q3']);
+  });
+});
+
+describe('serializeAnswers', () => {
+  it('drops keys for questions not in the set', () => {
+    const out = serializeAnswers([textareaQ], { q1: 'hi', orphan: 'x' });
+    expect(out).toEqual({ q1: 'hi' });
+  });
+  it('coerces undefined to null for unanswered questions', () => {
+    const out = serializeAnswers([textareaQ, shortQ], { q1: 'hi' });
+    expect(out).toEqual({ q1: 'hi', q2: null });
+  });
+  it('preserves radio __other shape verbatim', () => {
+    const out = serializeAnswers([radioQ], {
+      q3: { value: '__other', otherText: 'reason' },
+    });
+    expect(out).toEqual({ q3: { value: '__other', otherText: 'reason' } });
+  });
+  it('preserves checkbox other-with-text shape verbatim', () => {
+    const out = serializeAnswers([checkQ], {
+      q4: { values: ['a'], otherText: 'extra' },
+    });
+    expect(out).toEqual({ q4: { values: ['a'], otherText: 'extra' } });
+  });
+  it('preserves competency-rubric-row shape verbatim', () => {
+    const out = serializeAnswers([rubricQ], {
+      q6: { rating: 'ready', notes: 'great' },
+    });
+    expect(out).toEqual({ q6: { rating: 'ready', notes: 'great' } });
+  });
+  it('trims textarea answers', () => {
+    const out = serializeAnswers([textareaQ], { q1: '  hi  ' });
+    expect(out).toEqual({ q1: 'hi' });
+  });
+  it('result is JSON-roundtrippable', () => {
+    const out = serializeAnswers([textareaQ, radioQ, checkQ, likertQ, rubricQ], {
+      q1: 'hi',
+      q3: 'yes',
+      q4: ['a', 'b'],
+      q5: '4',
+      q6: { rating: 'developing', notes: 'note' },
+    });
+    const round = JSON.parse(JSON.stringify(out));
+    expect(round).toEqual(out);
   });
 });

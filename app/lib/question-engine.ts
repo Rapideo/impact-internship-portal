@@ -130,6 +130,65 @@ export function validateAnswers(
   return { ok: Object.keys(errors).length === 0, errors };
 }
 
-export function serializeAnswers(_questions: Question[], _answers: Answers): SerializedAnswers {
-  throw new Error('not yet implemented');
+export function serializeAnswers(questions: Question[], answers: Answers): SerializedAnswers {
+  const out: SerializedAnswers = {};
+  for (const q of questions) {
+    const a = answers[q.id];
+    if (a === undefined || a === null) {
+      out[q.id] = null;
+      continue;
+    }
+    switch (q.type) {
+      case 'textarea':
+      case 'short-text': {
+        out[q.id] = typeof a === 'string' ? a.trim() : null;
+        break;
+      }
+      case 'radio': {
+        if (isOtherWithText(a)) {
+          out[q.id] = {
+            value: '__other',
+            otherText: String(a.otherText ?? '').trim(),
+          };
+        } else if (typeof a === 'string') {
+          out[q.id] = a;
+        } else {
+          out[q.id] = null;
+        }
+        break;
+      }
+      case 'likert': {
+        out[q.id] = typeof a === 'string' ? a : null;
+        break;
+      }
+      case 'checkbox-group': {
+        if (Array.isArray(a)) {
+          out[q.id] = a.filter((v): v is string => typeof v === 'string');
+        } else if (typeof a === 'object') {
+          const obj = a as { values?: unknown[]; otherText?: unknown };
+          out[q.id] = {
+            values: Array.isArray(obj.values)
+              ? obj.values.filter((v): v is string => typeof v === 'string')
+              : [],
+            otherText: String(obj.otherText ?? '').trim(),
+          };
+        } else {
+          out[q.id] = null;
+        }
+        break;
+      }
+      case 'competency-rubric-row': {
+        if (isCompetencyAnswer(a)) {
+          out[q.id] = {
+            rating: a.rating ?? null,
+            notes: String(a.notes ?? '').trim(),
+          };
+        } else {
+          out[q.id] = null;
+        }
+        break;
+      }
+    }
+  }
+  return out;
 }
