@@ -21,6 +21,20 @@ import type {
  * authenticated roles; writes are admin-only. Callers must validate the
  * auth context at the route boundary — these functions don't enforce auth
  * themselves.
+ *
+ * Public surface (route loaders/actions, editor components, tests):
+ *   Read:
+ *     - loadQuestionSet(setId)
+ *     - listStandardSets()
+ *     - listCohortCompetencySets()
+ *     - listInternCompetencySets()
+ *     - stitchedCompetencyQuestions(internId)
+ *   Write:
+ *     - saveQuestionSet(input)  // atomic, transactional
+ *     - deleteQuestionSet(setId)
+ *   Types/errors:
+ *     - SaveQuestionSetInput
+ *     - QuestionSetSaveError
  */
 
 export async function loadQuestionSet(setId: string): Promise<QuestionSet | null> {
