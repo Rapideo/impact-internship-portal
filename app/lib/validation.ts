@@ -138,3 +138,64 @@ export function requireSingleCharUpper(label: string): Validator<string> {
 export function errorsByField(errors: FieldError[]): Record<string, string> {
   return Object.fromEntries(errors.map((e) => [e.field, e.message]));
 }
+
+export interface ParsedInlineRow {
+  id: string | null;
+  label: string;
+}
+
+/**
+ * Parse rows posted by <InlineEditableList> (fields named `${name}[<i>].id`
+ * and `${name}[<i>].label`). Returns rows in their submitted order plus
+ * an array of FieldError messages — one per invalid row, indexed via
+ * `errorIndices` on the component.
+ *
+ * Rules:
+ * - At least one row.
+ * - No empty labels (after trim).
+ * - No duplicate labels (case-insensitive).
+ */
+export function parseInlineRows(
+  formData: FormData,
+  name: string,
+): { rows: ParsedInlineRow[]; errors: FieldError[]; errorIndices: number[] } {
+  const indices = new Set<number>();
+  const keyRe = new RegExp(
+    `^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\[(\\d+)\\]\\.(id|label)$`,
+  );
+  for (const key of formData.keys()) {
+    const m = keyRe.exec(key);
+    if (m) indices.add(parseInt(m[1]!, 10));
+  }
+  const ordered = Array.from(indices).sort((a, b) => a - b);
+  const rows: ParsedInlineRow[] = ordered.map((i) => ({
+    id: String(formData.get(`${name}[${i}].id`) ?? '').trim() || null,
+    label: String(formData.get(`${name}[${i}].label`) ?? '').trim(),
+  }));
+
+  const errors: FieldError[] = [];
+  const errorIndices: number[] = [];
+  if (rows.length === 0) {
+    errors.push({ field: name, message: 'At least one row is required.' });
+    return { rows, errors, errorIndices };
+  }
+  rows.forEach((r, i) => {
+    if (!r.label) {
+      errorIndices.push(i);
+      errors.push({ field: `${name}[${i}].label`, message: 'Label is required.' });
+    }
+  });
+  const seen = new Map<string, number>();
+  rows.forEach((r, i) => {
+    if (!r.label) return;
+    const key = r.label.toLowerCase();
+    if (seen.has(key)) {
+      errorIndices.push(i);
+      errorIndices.push(seen.get(key)!);
+      errors.push({ field: `${name}[${i}].label`, message: 'Duplicate label.' });
+    } else {
+      seen.set(key, i);
+    }
+  });
+  return { rows, errors, errorIndices: Array.from(new Set(errorIndices)) };
+}
