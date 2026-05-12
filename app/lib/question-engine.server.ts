@@ -87,3 +87,146 @@ export async function listInternCompetencySets(): Promise<QuestionSet[]> {
   }
   return out;
 }
+
+/* ============================================================ */
+/* Atomic save (transactional)                                  */
+/* ============================================================ */
+
+export interface SaveQuestionSetInput {
+  setId: string;
+  // Optional override fields. `name`/`kind`/`cohortId`/`internId` are only
+  // honored when CREATING a new set; updates leave them as-is unless `name`
+  // is supplied (renaming via the editor).
+  name?: string;
+  kind?: QuestionSetKind;
+  cohortId?: string | null;
+  internId?: string | null;
+  minRequired: number | null;
+  allowMultiple: boolean;
+  questions: Question[];
+}
+
+export class QuestionSetSaveError extends Error {
+  constructor(public reason: string) {
+    super(reason);
+    this.name = 'QuestionSetSaveError';
+  }
+}
+
+function validateInput(input: SaveQuestionSetInput): void {
+  if (!input.setId) throw new QuestionSetSaveError('setId is required');
+  if (input.questions.length === 0) {
+    throw new QuestionSetSaveError('At least one question is required');
+  }
+  if (input.minRequired !== null && input.minRequired < 0) {
+    throw new QuestionSetSaveError('minRequired must be non-negative');
+  }
+  if (input.minRequired !== null && input.minRequired > input.questions.length) {
+    throw new QuestionSetSaveError('minRequired cannot exceed the number of questions');
+  }
+  const seen = new Set<string>();
+  input.questions.forEach((q, i) => {
+    if (!q.id) throw new QuestionSetSaveError(`Question ${i + 1} has no id`);
+    if (seen.has(q.id)) throw new QuestionSetSaveError(`Duplicate question id: ${q.id}`);
+    seen.add(q.id);
+    if (!q.label || !q.label.trim()) {
+      throw new QuestionSetSaveError(`Question ${i + 1} has an empty label`);
+    }
+    if (q.type === 'radio' || q.type === 'checkbox-group') {
+      const cfg = q.config as { options?: { value: string; label: string }[] };
+      if (!Array.isArray(cfg.options) || cfg.options.length === 0) {
+        throw new QuestionSetSaveError(`Question ${i + 1} (${q.type}) has no options`);
+      }
+      cfg.options.forEach((o, oi) => {
+        if (!o.value || !o.value.trim()) {
+          throw new QuestionSetSaveError(`Question ${i + 1}, option ${oi + 1}: missing value`);
+        }
+        if (!o.label || !o.label.trim()) {
+          throw new QuestionSetSaveError(`Question ${i + 1}, option ${oi + 1}: missing label`);
+        }
+      });
+    }
+  });
+}
+
+/**
+ * Atomically save a question set + its questions.
+ *
+ * Strategy: delete-then-insert all child `questions` inside a transaction.
+ * This (a) drops any deleted rows; (b) re-indexes `sort_order` contiguously
+ * from 1; (c) updates `last_edited_at` in the same atomic step. The questions
+ * FK has `ON DELETE CASCADE` from `question_sets`, so no orphan rows.
+ *
+ * Callers must enforce admin auth before calling this — RLS will reject the
+ * write if the request doesn't carry an admin role JWT, but the route guard
+ * gives a friendlier error.
+ */
+export async function saveQuestionSet(input: SaveQuestionSetInput): Promise<QuestionSet> {
+  validateInput(input);
+
+  await db.transaction(async (tx) => {
+    const existing = await tx
+      .select()
+      .from(schema.questionSets)
+      .where(eq(schema.questionSets.id, input.setId));
+
+    if (existing.length === 0) {
+      if (!input.kind) {
+        throw new QuestionSetSaveError(
+          `Cannot create question set ${input.setId}: kind is required`,
+        );
+      }
+      await tx.insert(schema.questionSets).values({
+        id: input.setId,
+        kind: input.kind,
+        name: input.name ?? input.setId,
+        cohortId: input.cohortId ?? null,
+        internId: input.internId ?? null,
+        minRequired: input.minRequired,
+        allowMultiple: input.allowMultiple,
+        lastEditedAt: new Date(),
+      });
+    } else {
+      const current = existing[0]!;
+      await tx
+        .update(schema.questionSets)
+        .set({
+          name: input.name ?? current.name,
+          cohortId: input.cohortId ?? current.cohortId,
+          internId: input.internId ?? current.internId,
+          minRequired: input.minRequired,
+          allowMultiple: input.allowMultiple,
+          lastEditedAt: new Date(),
+        })
+        .where(eq(schema.questionSets.id, input.setId));
+    }
+
+    // Atomically replace questions: delete-then-insert in the same tx.
+    await tx.delete(schema.questions).where(eq(schema.questions.questionSetId, input.setId));
+
+    await tx.insert(schema.questions).values(
+      input.questions.map((q, i) => ({
+        id: q.id,
+        questionSetId: input.setId,
+        type: q.type,
+        label: q.label.trim(),
+        helperText: q.helperText ?? null,
+        required: q.required,
+        sortOrder: i + 1, // re-index contiguous
+        config: q.config as Record<string, unknown>,
+      })),
+    );
+  });
+
+  const loaded = await loadQuestionSet(input.setId);
+  if (!loaded) throw new QuestionSetSaveError(`Re-load failed for ${input.setId}`);
+  return loaded;
+}
+
+/**
+ * Delete a question set + cascade its questions. FK `ON DELETE CASCADE`
+ * on `questions.question_set_id` makes this a single statement.
+ */
+export async function deleteQuestionSet(setId: string): Promise<void> {
+  await db.delete(schema.questionSets).where(eq(schema.questionSets.id, setId));
+}
