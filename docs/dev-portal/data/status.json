@@ -21,10 +21,10 @@
     {
       "id": 2,
       "name": "Admin Core",
-      "status": "not-started",
+      "status": "complete",
       "taskCount": 37,
-      "prCount": 0,
-      "summary": "Admin shell, Settings (Employers / Cohorts / Roles / Phases / Barriers / Program Info), Interns CRUD."
+      "prCount": 11,
+      "summary": "Admin shell with brand-correct nav/footer/toasts/modals/settings rail, full CRUD on Employers/Cohorts/Roles with parent-child URLs, inline-editable Phases + Barriers lists with diff-based saves, singleton Program Info form, Intern records (create + edit) with entry assessment + 90/180-day outcomes, Admin Home KPIs + recent-activity, branded 404, and one Playwright admin CRUD smoke covering the critical path."
     },
     {
       "id": 3,

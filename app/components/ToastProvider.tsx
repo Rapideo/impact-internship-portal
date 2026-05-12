@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -49,8 +50,16 @@ export function ToastProvider({
     // No setup beyond timers above; placeholder for future global listeners.
   }, []);
 
+  // Memoise the context value so consumers whose effects depend on the toast
+  // API (e.g. `useEffect(..., [toast])` to fire one-shot toasts off search
+  // params) don't see a fresh identity on every render. Without this, those
+  // effects re-run on every ToastProvider re-render and can pile up dozens
+  // of duplicate toasts in a short window (caught by the admin-crud Playwright
+  // smoke when the dismiss timer couldn't keep up with the re-fire rate).
+  const value = useMemo(() => ({ show }), [show]);
+
   return (
-    <ToastCtx.Provider value={{ show }}>
+    <ToastCtx.Provider value={value}>
       {children}
       <div className="toast-stack" aria-live="polite">
         {items.map((t) => (
