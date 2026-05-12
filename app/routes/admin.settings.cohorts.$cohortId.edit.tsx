@@ -1,4 +1,235 @@
-// Skeleton stub — real implementation lands in Sub-project 2 Phase G (Task 26).
-export default function AdminSettingsCohortEdit() {
-  return null;
+import {
+  data,
+  Form,
+  Link,
+  redirect,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from 'react-router';
+import type { Route } from './+types/admin.settings.cohorts.$cohortId.edit';
+import { requireAdmin } from '~/lib/admin-guard.server';
+import { db } from '~/lib/db.server';
+import {
+  getCohortOrNull,
+  getEmployerOrNull,
+  listRolesForEmployerWithCohortCount,
+  listPhases,
+  listPhasesForCohort,
+} from '~/lib/admin-queries.server';
+import { cohorts as cohortsTbl, cohortPhases } from '../../db/schema';
+import { eq } from 'drizzle-orm';
+import {
+  parseFormFields,
+  requireString,
+  requireDate,
+  optionalString,
+  optionalUuid,
+  errorsByField,
+} from '~/lib/validation';
+import { PageHead } from '~/components/PageHead';
+import { SettingsShell } from '~/components/SettingsShell';
+import { IdentityCard } from '~/components/IdentityCard';
+import { ActionBar } from '~/components/ActionBar';
+import { PhaseMultiSelect } from '~/components/PhaseMultiSelect';
+
+export const meta: Route.MetaFunction = () => [{ title: 'Edit Cohort — IMPACT Admin' }];
+
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const { headers } = await requireAdmin(request);
+  const cohort = await getCohortOrNull(db, params.cohortId!);
+  if (!cohort) throw new Response('Not Found', { status: 404 });
+  const employer = await getEmployerOrNull(db, cohort.employerId);
+  const [roles, phases, cohortPhaseRows] = await Promise.all([
+    employer
+      ? listRolesForEmployerWithCohortCount(db, employer.id)
+      : Promise.resolve([] as Awaited<ReturnType<typeof listRolesForEmployerWithCohortCount>>),
+    listPhases(db),
+    listPhasesForCohort(db, cohort.id),
+  ]);
+  return data(
+    {
+      cohort,
+      employer,
+      roles,
+      phases,
+      selectedPhaseIds: cohortPhaseRows.map((p) => p.id),
+    },
+    { headers },
+  );
+}
+
+export async function action({ request, params }: Route.ActionArgs) {
+  const { headers } = await requireAdmin(request);
+  const fd = await request.formData();
+  const { values, errors } = parseFormFields(fd, {
+    name: requireString('Name'),
+    roleId: optionalUuid('Role'),
+    startDate: requireDate('Start Date'),
+    endDate: requireDate('End Date'),
+    description: optionalString('Description'),
+  });
+  const phaseIds = fd
+    .getAll('phaseIds')
+    .map((v) => String(v))
+    .filter(Boolean);
+  if (phaseIds.length === 0) {
+    errors.push({ field: 'phaseIds', message: 'Pick at least one phase for this cohort.' });
+  }
+  if (errors.length > 0) {
+    return data({ errors, values, phaseIds }, { headers, status: 400 });
+  }
+  await db.transaction(async (tx) => {
+    await tx
+      .update(cohortsTbl)
+      .set({
+        name: values.name,
+        roleId: values.roleId,
+        startDate: values.startDate,
+        endDate: values.endDate,
+        description: values.description,
+        updatedAt: new Date(),
+      })
+      .where(eq(cohortsTbl.id, params.cohortId!));
+    await tx.delete(cohortPhases).where(eq(cohortPhases.cohortId, params.cohortId!));
+    await tx.insert(cohortPhases).values(
+      phaseIds.map((pid, idx) => ({
+        cohortId: params.cohortId!,
+        phaseId: pid,
+        sortOrder: idx + 1,
+      })),
+    );
+  });
+  throw redirect(`/admin/settings/cohorts/${params.cohortId}?updated=1`, { headers });
+}
+
+export default function EditCohort() {
+  const { cohort, employer, roles, phases, selectedPhaseIds } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const nav = useNavigation();
+  const errs = errorsByField(actionData?.errors ?? []);
+  const v = (actionData?.values ?? cohort) as {
+    name?: string;
+    roleId?: string | null;
+    startDate?: string | null;
+    endDate?: string | null;
+    description?: string | null;
+  };
+  const phaseIds = (actionData?.phaseIds ?? selectedPhaseIds) as string[];
+  return (
+    <>
+      <PageHead
+        breadcrumb={
+          <>
+            <Link
+              to="/admin/settings/employers"
+              style={{ color: 'inherit', textDecoration: 'none' }}
+            >
+              ADMIN / SETTINGS / EMPLOYERS
+            </Link>
+            {' / '}
+            {employer ? (
+              <Link
+                to={`/admin/settings/employers/${employer.id}`}
+                style={{ color: 'inherit', textDecoration: 'none' }}
+              >
+                {employer.name.toUpperCase()}
+              </Link>
+            ) : (
+              'EMPLOYER'
+            )}
+            {' / EDIT COHORT'}
+          </>
+        }
+        title="EDIT COHORT."
+        sub="Update the cohort's identity, role, dates, and phases."
+      />
+      <SettingsShell active="employers">
+        <Form method="post">
+          <IdentityCard title="Cohort Record" subnote="EDIT COHORT · UPDATE IDENTITY AND PHASES">
+            <div className="id-grid id-grid--4">
+              <div className={`field${errs.name ? ' field--error' : ''}`}>
+                <label htmlFor="co-name">Name</label>
+                <input
+                  className="input"
+                  type="text"
+                  id="co-name"
+                  name="name"
+                  defaultValue={v.name ?? ''}
+                />
+                {errs.name ? <span className="field__error">{errs.name}</span> : null}
+              </div>
+              <div className="field">
+                <label htmlFor="co-role">Role</label>
+                <select className="select" id="co-role" name="roleId" defaultValue={v.roleId ?? ''}>
+                  <option value="">Select role…</option>
+                  {roles.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className={`field${errs.startDate ? ' field--error' : ''}`}>
+                <label htmlFor="co-start">Start Date</label>
+                <input
+                  className="input"
+                  type="date"
+                  id="co-start"
+                  name="startDate"
+                  defaultValue={v.startDate ?? ''}
+                />
+                {errs.startDate ? <span className="field__error">{errs.startDate}</span> : null}
+              </div>
+              <div className={`field${errs.endDate ? ' field--error' : ''}`}>
+                <label htmlFor="co-end">End Date</label>
+                <input
+                  className="input"
+                  type="date"
+                  id="co-end"
+                  name="endDate"
+                  defaultValue={v.endDate ?? ''}
+                />
+                {errs.endDate ? <span className="field__error">{errs.endDate}</span> : null}
+              </div>
+            </div>
+            <div style={{ paddingTop: 22, marginTop: 22, borderTop: '1px solid var(--rule)' }}>
+              <div className="field">
+                <label htmlFor="co-desc">Description</label>
+                <textarea
+                  className="textarea"
+                  id="co-desc"
+                  name="description"
+                  rows={3}
+                  defaultValue={v.description ?? ''}
+                />
+              </div>
+            </div>
+          </IdentityCard>
+          <div className="detail-header" style={{ marginTop: 32 }}>
+            <h2 className="detail-header__title">Phases</h2>
+          </div>
+          <PhaseMultiSelect phases={phases} selectedIds={phaseIds} error={errs.phaseIds} />
+          <ActionBar status="COHORT RECORD · EDIT">
+            <Link to={`/admin/settings/cohorts/${cohort.id}`} className="btn btn--outline">
+              Cancel
+            </Link>
+            <button
+              type="submit"
+              className="btn btn--primary"
+              disabled={nav.state === 'submitting'}
+            >
+              {nav.state === 'submitting' ? (
+                'Saving…'
+              ) : (
+                <>
+                  Save Cohort <span className="btn__arrow">&rarr;</span>
+                </>
+              )}
+            </button>
+          </ActionBar>
+        </Form>
+      </SettingsShell>
+    </>
+  );
 }
