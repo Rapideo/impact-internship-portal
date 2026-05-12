@@ -1,7 +1,14 @@
 import { eq, asc } from 'drizzle-orm';
 import { db } from './db.server';
 import * as schema from '../../db/schema';
-import type { Question, QuestionSet, QuestionSetKind } from './question-types';
+import type {
+  Question,
+  QuestionSet,
+  QuestionSetKind,
+  SectionBoundary,
+  StitchedCompetencySet,
+  StitchedQuestion,
+} from './question-types';
 
 /**
  * Server-side data layer for the question engine.
@@ -229,4 +236,77 @@ export async function saveQuestionSet(input: SaveQuestionSetInput): Promise<Ques
  */
 export async function deleteQuestionSet(setId: string): Promise<void> {
   await db.delete(schema.questionSets).where(eq(schema.questionSets.id, setId));
+}
+
+/* ============================================================ */
+/* Stitched competency assembly                                  */
+/* ============================================================ */
+
+/**
+ * Assemble the 3-tier competency rubric for an intern:
+ *   core (program-wide) -> cohort -> intern-specific
+ *
+ * Concatenates questions in tier order, tags each with its `tier`, and
+ * emits `SectionBoundary` markers (positioned via `afterIndex`) so the
+ * renderer can draw section headers. Tiers with zero questions are
+ * omitted (both questions AND their boundary).
+ *
+ * Used by:
+ *  - the assessment-form renderer for the competency rubric (sub-project 4)
+ *  - the admin competency-detail route (sub-project 3 Phase F) to preview
+ *    the stitched output before saving cohort/intern overrides.
+ */
+export async function stitchedCompetencyQuestions(
+  internId: string,
+): Promise<StitchedCompetencySet> {
+  const internRow = await db
+    .select({
+      cohortId: schema.interns.cohortId,
+    })
+    .from(schema.interns)
+    .where(eq(schema.interns.id, internId));
+  const intern = internRow[0];
+  if (!intern) {
+    throw new Error(`Intern not found: ${internId}`);
+  }
+  const cohortId = intern.cohortId;
+
+  let cohortName: string | null = null;
+  if (cohortId) {
+    const cohortRow = await db
+      .select({ name: schema.cohorts.name })
+      .from(schema.cohorts)
+      .where(eq(schema.cohorts.id, cohortId));
+    cohortName = cohortRow[0]?.name ?? null;
+  }
+
+  const coreSet = await loadQuestionSet('competency-core');
+  const cohortSet = cohortId ? await loadQuestionSet(`competency-cohort-${cohortId}`) : null;
+  const internSet = await loadQuestionSet(`competency-intern-${internId}`);
+
+  const tagged: StitchedQuestion[] = [];
+  const boundaries: SectionBoundary[] = [];
+
+  if (coreSet && coreSet.questions.length > 0) {
+    boundaries.push({ afterIndex: tagged.length - 1, label: 'Professional Competencies' });
+    for (const q of coreSet.questions) tagged.push({ ...q, tier: 'core' } as StitchedQuestion);
+  }
+  if (cohortSet && cohortSet.questions.length > 0) {
+    boundaries.push({
+      afterIndex: tagged.length - 1,
+      label: 'Role-Specific',
+      ...(cohortName ? { subLabel: cohortName } : {}),
+    });
+    for (const q of cohortSet.questions) tagged.push({ ...q, tier: 'cohort' } as StitchedQuestion);
+  }
+  if (internSet && internSet.questions.length > 0) {
+    boundaries.push({ afterIndex: tagged.length - 1, label: 'Intern-Specific' });
+    for (const q of internSet.questions) tagged.push({ ...q, tier: 'intern' } as StitchedQuestion);
+  }
+
+  return {
+    internId,
+    questions: tagged,
+    sectionBoundaries: boundaries,
+  };
 }
