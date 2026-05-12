@@ -1,49 +1,37 @@
-import { Outlet, redirect, Form } from 'react-router';
+import { Outlet, useLoaderData, useLocation } from 'react-router';
 import type { Route } from './+types/admin';
-import { getAuthContext } from '~/lib/auth.server';
+import { requireAdmin } from '~/lib/admin-guard.server';
+import { createSupabaseServerClient } from '~/lib/auth.server';
+import { AdminNav } from '~/components/AdminNav';
+import { AdminFooter } from '~/components/AdminFooter';
+import { ToastProvider } from '~/components/ToastProvider';
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const headers = new Headers();
-  const auth = await getAuthContext(request, headers);
-  if (!auth) {
-    throw redirect('/login', { headers });
-  }
-  if (auth.role !== 'admin') {
-    throw redirect('/employer', { headers });
-  }
-  return { auth };
+  const { auth, headers } = await requireAdmin(request);
+  const supabase = createSupabaseServerClient(request, headers);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const email = user?.email ?? 'admin@impact';
+  return Response.json({ auth, email }, { headers });
+}
+
+function activeTab(pathname: string): 'home' | 'interns' | 'assessments' | 'reports' | 'settings' {
+  if (pathname.startsWith('/admin/interns')) return 'interns';
+  if (pathname.startsWith('/admin/assessments')) return 'assessments';
+  if (pathname.startsWith('/admin/reports')) return 'reports';
+  if (pathname.startsWith('/admin/settings')) return 'settings';
+  return 'home';
 }
 
 export default function AdminLayout() {
+  const { email } = useLoaderData<typeof loader>();
+  const { pathname } = useLocation();
   return (
-    <div>
-      <header
-        style={{
-          background: 'var(--navy-deep)',
-          color: 'white',
-          padding: '1rem 1.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-        }}
-      >
-        <strong>IMPACT · Admin</strong>
-        <Form method="post" action="/sign-out">
-          <button
-            type="submit"
-            style={{
-              background: 'transparent',
-              color: 'white',
-              border: '1px solid rgba(255,255,255,0.4)',
-              padding: '0.4rem 0.8rem',
-              borderRadius: 'var(--radius-md)',
-              cursor: 'pointer',
-            }}
-          >
-            Sign Out
-          </button>
-        </Form>
-      </header>
+    <ToastProvider>
+      <AdminNav active={activeTab(pathname)} userEmail={email} />
       <Outlet />
-    </div>
+      <AdminFooter />
+    </ToastProvider>
   );
 }
