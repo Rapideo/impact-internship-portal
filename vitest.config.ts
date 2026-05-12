@@ -15,8 +15,17 @@ export default defineConfig({
           name: 'unit',
           environment: 'node',
           include: ['tests/**/*.{test,spec}.{ts,tsx}'],
-          exclude: ['tests/e2e/**', 'tests/rls/**', 'node_modules/**'],
+          exclude: ['tests/e2e/**', 'tests/rls/**', 'tests/components/**', 'node_modules/**'],
           setupFiles: ['./tests/setup.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'dom',
+          environment: 'jsdom',
+          include: ['tests/components/**/*.{test,spec}.{ts,tsx}'],
+          setupFiles: ['./tests/setup.ts', './tests/setup.dom.ts'],
         },
       },
       {
