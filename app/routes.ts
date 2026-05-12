@@ -45,7 +45,20 @@ export default [
     route('admin/settings/phases', 'routes/admin.settings.phases.tsx'),
     route('admin/settings/barriers', 'routes/admin.settings.barriers.tsx'),
     route('admin/settings/program-info', 'routes/admin.settings.program-info.tsx'),
-    route('admin/settings/questions', 'routes/admin.settings.questions.tsx'),
+    route('admin/settings/questions', 'routes/admin.settings.questions._index.tsx'),
+    route(
+      'admin/settings/questions/competency',
+      'routes/admin.settings.questions.competency._index.tsx',
+    ),
+    route(
+      'admin/settings/questions/competency/cohort/:cohortId',
+      'routes/admin.settings.questions.competency.cohort.$cohortId.tsx',
+    ),
+    route(
+      'admin/settings/questions/competency/intern/:internId',
+      'routes/admin.settings.questions.competency.intern.$internId.tsx',
+    ),
+    route('admin/settings/questions/:setId', 'routes/admin.settings.questions.$setId.tsx'),
   ]),
   layout('routes/employer.tsx', [route('employer', 'routes/employer._index.tsx')]),
   route('*', 'routes/$.tsx'),
