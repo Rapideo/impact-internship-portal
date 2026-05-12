@@ -233,3 +233,13 @@ npm run dev                 # http://localhost:5173
 
 - Lazy-evaluate `app/lib/env.server.ts` — currently throws at module load if any of the 8 required env vars is missing. Workable today because `.env.local` is fully populated, but bumps a contributor's first-import experience.
 - Add range CHECK on `program_info.fiscal_year_start_month` (1-12). Currently any integer accepted.
+
+## Production app — sub-project 2 complete
+
+Admin core is live. Routes under `/admin/*` are real: home dashboard, interns list + record (create + edit), and all Settings pages (Employers, Cohorts, Roles, Phases, Barriers, Program Info). Auth requires admin role; non-admins land at `/employer` (sub-project 5). A Playwright smoke (`tests/e2e/admin-crud.spec.ts`) walks login → create employer → cohort → intern → edit intern → list, gated off in CI alongside the rest of `test:e2e` until sub-project 6.
+
+Sub-projects 3 (question engine), 4 (assessment forms), 5 (employer shell), and 6 (polish + launch) remain — see their plans under `docs/superpowers/plans/`.
+
+### Sub-project 2 follow-ups surfaced during smoke
+
+- `app/routes/admin.interns.new.tsx` first-name field shows "Only the first initial is saved to the record" but the validator (`requireSingleCharUpper`) rejects multi-character input. Either the hint should say "Enter the intern's first initial (one letter)." or the action should accept full names and slice down to `firstName.trim()[0]` itself. Test currently feeds a single letter to match the validator.
