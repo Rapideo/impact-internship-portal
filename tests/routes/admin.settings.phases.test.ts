@@ -16,7 +16,7 @@ describe('phases action validation', () => {
       body: fd,
     });
     const res = await action({ request: req, params: {}, context: {} } as never);
-    const body = await (res as Response).json();
+    const body = (res as { data: { errors: Array<{ field: string; message: string }> } }).data;
     expect(body.errors.length).toBeGreaterThan(0);
   });
 
@@ -35,7 +35,7 @@ describe('phases action validation', () => {
       body: fd,
     });
     const res = await action({ request: req, params: {}, context: {} } as never);
-    const body = await (res as Response).json();
-    expect(body.errors.some((e: { message: string }) => /Duplicate/i.test(e.message))).toBe(true);
+    const body = (res as { data: { errors: Array<{ field: string; message: string }> } }).data;
+    expect(body.errors.some((e) => /Duplicate/i.test(e.message))).toBe(true);
   });
 });

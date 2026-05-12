@@ -1,4 +1,12 @@
-import { Form, Link, redirect, useActionData, useLoaderData, useNavigation } from 'react-router';
+import {
+  data,
+  Form,
+  Link,
+  redirect,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from 'react-router';
 import { useEffect } from 'react';
 import type { Route } from './+types/admin.settings.barriers';
 import { requireAdmin } from '~/lib/admin-guard.server';
@@ -18,7 +26,7 @@ export const meta: Route.MetaFunction = () => [{ title: 'Barriers â€” Settings â
 export async function loader({ request }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);
   const rows = await listBarriers(db);
-  return Response.json({ rows: rows.map((r) => ({ id: r.id, label: r.label })) }, { headers });
+  return data({ rows: rows.map((r) => ({ id: r.id, label: r.label })) }, { headers });
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -26,7 +34,7 @@ export async function action({ request }: Route.ActionArgs) {
   const fd = await request.formData();
   const { rows, errors, errorIndices } = parseInlineRows(fd, 'barriers');
   if (errors.length > 0) {
-    return Response.json({ errors, errorIndices, rows }, { headers, status: 400 });
+    return data({ errors, errorIndices, rows }, { headers, status: 400 });
   }
   await db.transaction(async (tx) => {
     const keptIds = rows.map((r) => r.id).filter((id): id is string => !!id);
