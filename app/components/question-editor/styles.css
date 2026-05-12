@@ -1,0 +1,205 @@
+/* Question editor styles
+   ============================================================
+   The accordion editor used by admin Assessments routes:
+   - .qs-editor-card                   set-config + questions container cards
+   - .qs-question-row                  one accordion row per question
+   - .qs-question-row__head            collapsed-row header (clickable)
+   - .qs-question-row__body            expanded-row body (config forms)
+   - .qs-type-picker                   inline "Add Question" type chooser
+   - .qs-options-list / .qs-options-row option rows shared with OptionsListEditor
+
+   Tokens (--rule, --ink, --navy, --muted, --canvas-alt, --gold, --gold-soft,
+   --radius-md, --radius-sm) come from app/styles/tokens.css.
+*/
+
+/* Card wrappers */
+.qs-editor-card {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.qs-editor-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.qs-editor-card__title {
+  font-family: var(--font-display, 'IBM Plex Serif', serif);
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--ink);
+}
+
+/* Accordion row */
+.qs-question-row {
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: #fff;
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+
+.qs-question-row--expanded {
+  border-color: var(--navy);
+  box-shadow: 0 1px 4px rgba(21, 58, 152, 0.08);
+}
+
+.qs-question-row__head {
+  display: grid;
+  grid-template-columns: 40px 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+  cursor: pointer;
+  user-select: none;
+  background: var(--canvas-alt);
+}
+
+.qs-question-row__head:hover {
+  background: #eef1f7;
+}
+
+.qs-question-row__head:focus-visible {
+  outline: 2px solid var(--navy);
+  outline-offset: -2px;
+}
+
+.qs-question-row--expanded .qs-question-row__head {
+  background: #fff;
+  border-bottom: 1px solid var(--rule);
+}
+
+.qs-question-row__num {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+
+.qs-question-row__label {
+  font-size: 14px;
+  color: var(--ink);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qs-question-row__type {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--navy);
+  background: var(--gold-soft);
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.qs-question-row__controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qs-question-row__body {
+  padding: 16px 14px 18px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.qs-question-row__body .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.qs-question-row__body .field > label {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.qs-question-row__body .input,
+.qs-question-row__body .textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.qs-question-row__body .input:focus,
+.qs-question-row__body .textarea:focus {
+  outline: 2px solid var(--navy);
+  outline-offset: -1px;
+}
+
+/* Type picker (inline "Add Question") */
+.qs-type-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--canvas-alt);
+  border: 1px dashed var(--rule);
+  border-radius: 8px;
+}
+
+.qs-type-picker__btn {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--navy);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.qs-type-picker__btn:hover {
+  border-color: var(--navy);
+  background: var(--gold-soft);
+}
+
+/* Options list (shared with OptionsListEditor) */
+.qs-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.qs-options-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto auto auto;
+  gap: 6px;
+  align-items: center;
+  padding: 6px;
+  background: var(--canvas-alt);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+
+.qs-options-row .input {
+  padding: 6px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  font-size: 13px;
+}
