@@ -863,3 +863,102 @@
   margin: 8px 0 0;
   line-height: 1.5;
 }
+
+/* Identity-confirmed chip (SP4 Phase B — used by intern self-assessment
+ * forms and the admin chooser hub). */
+.identity-confirmed {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--canvas-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--ink);
+}
+.identity-confirmed__check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+.identity-confirmed__label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.identity-confirmed__value {
+  font-weight: 600;
+  color: var(--navy-deep);
+}
+.identity-confirmed__divider {
+  color: var(--line);
+  font-weight: 400;
+}
+.identity-confirmed__switch {
+  margin-left: 8px;
+}
+
+/* Form-level banner (SP4 Phase B — surfaces set-level errors above the
+ * question stack, e.g. minRequired violations). */
+.form-banner {
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  font-size: 14px;
+  border: 1px solid var(--line);
+  background: var(--canvas-alt);
+  color: var(--ink);
+}
+.form-banner--danger {
+  border-color: #c8385a;
+  background: #fdecef;
+  color: #7a1d35;
+}
+
+/* Competency assessment form (SP4 Phase B — admin-side wrapper around
+ * AssessmentForm with a phase dropdown and meta strip). */
+.competency-form__phase {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 8px;
+  flex-wrap: wrap;
+}
+.competency-form__phase-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.competency-form__phase-select {
+  min-width: 220px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  font-size: 14px;
+  color: var(--ink);
+}
+.competency-form__phase-select:disabled {
+  background: var(--canvas-alt);
+  color: var(--ink-soft);
+  cursor: not-allowed;
+}
+.competency-form__phase-helper {
+  flex-basis: 100%;
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
