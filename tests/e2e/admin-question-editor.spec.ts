@@ -102,8 +102,11 @@ test.describe('Admin question editor', () => {
     await expect(page.getByText('Intern Questions', { exact: true })).toBeVisible();
 
     // The Core summary card shows a disabled <input> with the seeded core
-    // question count. SP3 Phase G seeded 7 core rubric rows.
-    await expect(page.locator('input[type="text"][value="7"]').first()).toBeVisible();
+    // question count. SP3 Phase G seeded 7 core rubric rows. React controls
+    // the value via the `value` prop, so [value="7"] CSS-attribute matching
+    // is unreliable — assert against the DOM property via toHaveValue.
+    const coreCard = page.locator('article.qs-editor-card').first();
+    await expect(coreCard.locator('input[type="text"]').first()).toHaveValue('7');
   });
 
   test('cohort competency tier: add 1 rubric row to Riverbend and save', async ({ page }) => {
