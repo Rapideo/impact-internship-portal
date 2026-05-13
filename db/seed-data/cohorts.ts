@@ -7,6 +7,13 @@ export interface SeedCohort {
   endDate: string | null;
   description: string | null;
   phaseLabels: string[];
+  /**
+   * Seed-time slug used to bind cohort-tier question sets to their cohort UUID.
+   * NOT a database column — `db/seed.ts` builds a slug→UUID map at insert time
+   * so `db/seed-data/question-sets.ts` can reference a cohort by stable slug
+   * rather than by hard-coding the UUID inside the question-set fixture.
+   */
+  slug: string | null;
 }
 
 export const SEED_COHORTS: SeedCohort[] = [
@@ -19,6 +26,7 @@ export const SEED_COHORTS: SeedCohort[] = [
     endDate: '2026-07-10',
     description: '26-week production-floor cohort; 4 phases.',
     phaseLabels: ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4'],
+    slug: null,
   },
   {
     id: '33333333-3333-3333-3333-333333333302',
@@ -29,6 +37,7 @@ export const SEED_COHORTS: SeedCohort[] = [
     endDate: '2026-06-19',
     description: 'CNA-track cohort with clinical shadowing.',
     phaseLabels: ['Phase 1', 'Phase 2', 'Phase 3'],
+    slug: 'northside-cna-2026',
   },
   {
     id: '33333333-3333-3333-3333-333333333303',
@@ -39,6 +48,7 @@ export const SEED_COHORTS: SeedCohort[] = [
     endDate: '2026-07-31',
     description: 'Warehouse operations + forklift certification.',
     phaseLabels: ['Phase 1', 'Phase 2', 'Phase 3'],
+    slug: null,
   },
   {
     id: '33333333-3333-3333-3333-333333333304',
@@ -49,6 +59,7 @@ export const SEED_COHORTS: SeedCohort[] = [
     endDate: '2026-08-28',
     description: 'Multi-property hospitality rotation.',
     phaseLabels: ['Phase 1', 'Phase 2'],
+    slug: null,
   },
   {
     id: '33333333-3333-3333-3333-333333333305',
@@ -59,6 +70,7 @@ export const SEED_COHORTS: SeedCohort[] = [
     endDate: '2026-08-14',
     description: 'Branch teller cohort with financial literacy overlay.',
     phaseLabels: ['Phase 1', 'Phase 2', 'Phase 3'],
+    slug: null,
   },
   {
     id: '33333333-3333-3333-3333-333333333306',
@@ -69,5 +81,6 @@ export const SEED_COHORTS: SeedCohort[] = [
     endDate: '2026-10-02',
     description: 'Seasonal landscape crew cohort.',
     phaseLabels: ['Phase 1', 'Phase 2', 'Phase 3'],
+    slug: null,
   },
 ];

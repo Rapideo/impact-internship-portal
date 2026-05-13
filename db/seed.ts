@@ -178,14 +178,43 @@ async function main() {
         })),
       );
 
+      // Build slug → UUID map so question-set fixtures can bind to a cohort
+      // via stable slug (e.g. 'northside-cna-2026') rather than hard-coding
+      // the cohort UUID inside the question-set seed file.
+      const slugToCohortUuid = new Map<string, string>();
+      for (const c of SEED_COHORTS) {
+        if (c.slug) slugToCohortUuid.set(c.slug, c.id);
+      }
+
       console.log('Seeding question_sets + questions...');
       for (const qset of SEED_QUESTION_SETS) {
+        let cohortId: string | null = qset.cohortId;
+        const internId: string | null = qset.internId;
+        if (qset.kind === 'competency-cohort') {
+          if (!qset.cohortId) {
+            console.warn(`Skipping ${qset.id}: competency-cohort set has no cohort slug`);
+            continue;
+          }
+          cohortId = slugToCohortUuid.get(qset.cohortId) ?? null;
+          if (!cohortId) {
+            console.warn(`Skipping ${qset.id}: cohort slug '${qset.cohortId}' has no UUID mapping`);
+            continue;
+          }
+        }
+        if (qset.kind === 'competency-intern') {
+          console.warn(
+            `Skipping intern-tier seed ${qset.id}: dev seed does not author per-intern tiers`,
+          );
+          continue;
+        }
+        const effectiveSetId =
+          qset.kind === 'competency-cohort' && cohortId ? `competency-cohort-${cohortId}` : qset.id;
         await db.insert(schema.questionSets).values({
-          id: qset.id,
+          id: effectiveSetId,
           kind: qset.kind,
           name: qset.name,
-          cohortId: qset.cohortId,
-          internId: qset.internId,
+          cohortId,
+          internId,
           minRequired: qset.minRequired,
           allowMultiple: qset.allowMultiple,
         });
@@ -193,7 +222,7 @@ async function main() {
           await db.insert(schema.questions).values(
             qset.questions.map((q) => ({
               id: q.id,
-              questionSetId: qset.id,
+              questionSetId: effectiveSetId,
               type: q.type,
               label: q.label,
               helperText: q.helperText,

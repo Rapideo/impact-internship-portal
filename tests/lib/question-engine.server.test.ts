@@ -10,24 +10,20 @@ import {
 const SKIP_DB_TESTS =
   !process.env.DATABASE_POOL_URL || process.env.DATABASE_POOL_URL.includes('fake');
 
-// Seed reference (from db/seed-data/question-sets.ts + interns.ts):
+// Seed reference (from db/seed-data/question-sets.ts + interns.ts, post Phase G):
 //   - 4 standard sets: personal-goals, midpoint-reflection,
-//     participant-feedback, exit-employer-survey (1 question each)
-//   - 1 competency-core set: competency-core (1 question: attendance/punctuality)
-//   - 1 competency-cohort set: competency-cohort-33333333-...-3301
-//     (cohort 01 = Riverbend Spring 2026 Production) with 1 question
+//     participant-feedback, exit-employer-survey
+//   - 1 competency-core set: competency-core
+//   - 1 competency-cohort set bound to the Northside CNA cohort
+//     (id 33333333-...-3302) carrying the 4 medical rubric rows
 //   - 0 competency-intern sets
 //
-//   - Intern 4401 (A.Whitaker) is in cohort 3301 -> gets core + cohort overlay
-//   - Interns 4402/4403 are in cohorts 3302/3303 -> core only
-//
-// Phase G of this sub-project will replace seed content with verbatim prototype
-// copy. These tests assert on STRUCTURE (count, ordering, tier, boundaries) so
-// they survive that swap.
+//   - Intern 4402 is in cohort 3302 (Northside) -> gets core + cohort overlay
+//   - Interns 4401/4403 are in cohorts 3301/3303 -> core only
 
-const COHORT_01 = '33333333-3333-3333-3333-333333333301';
-const INTERN_01 = '44444444-4444-4444-4444-444444444401'; // cohort 01
-const INTERN_02 = '44444444-4444-4444-4444-444444444402'; // cohort 02 (no cohort overlay)
+const COHORT_NORTHSIDE = '33333333-3333-3333-3333-333333333302';
+const INTERN_WITH_OVERLAY = '44444444-4444-4444-4444-444444444402'; // in Northside cohort
+const INTERN_NO_OVERLAY = '44444444-4444-4444-4444-444444444401'; // in Riverbend cohort
 
 describe.skipIf(SKIP_DB_TESTS)('question-engine.server (live DB)', () => {
   describe('loadQuestionSet', () => {
@@ -56,11 +52,11 @@ describe.skipIf(SKIP_DB_TESTS)('question-engine.server (live DB)', () => {
       expect(set!.internId).toBeNull();
     });
 
-    it('returns the cohort-01 competency set with its cohortId set', async () => {
-      const set = await loadQuestionSet(`competency-cohort-${COHORT_01}`);
+    it('returns the Northside cohort competency set with its cohortId set', async () => {
+      const set = await loadQuestionSet(`competency-cohort-${COHORT_NORTHSIDE}`);
       expect(set).not.toBeNull();
       expect(set!.kind).toBe('competency-cohort');
-      expect(set!.cohortId).toBe(COHORT_01);
+      expect(set!.cohortId).toBe(COHORT_NORTHSIDE);
     });
   });
 
@@ -81,12 +77,12 @@ describe.skipIf(SKIP_DB_TESTS)('question-engine.server (live DB)', () => {
   });
 
   describe('listCohortCompetencySets', () => {
-    it('returns the cohort-01 competency set', async () => {
+    it('returns the Northside cohort competency set', async () => {
       const sets = await listCohortCompetencySets();
       expect(sets.length).toBeGreaterThanOrEqual(1);
-      const cohort01 = sets.find((s) => s.cohortId === COHORT_01);
-      expect(cohort01).toBeDefined();
-      expect(cohort01!.kind).toBe('competency-cohort');
+      const northside = sets.find((s) => s.cohortId === COHORT_NORTHSIDE);
+      expect(northside).toBeDefined();
+      expect(northside!.kind).toBe('competency-cohort');
     });
   });
 
@@ -101,8 +97,8 @@ describe.skipIf(SKIP_DB_TESTS)('question-engine.server (live DB)', () => {
 
   describe('stitchedCompetencyQuestions', () => {
     it('stitches core + cohort for an intern with a cohort overlay', async () => {
-      const stitched = await stitchedCompetencyQuestions(INTERN_01);
-      expect(stitched.internId).toBe(INTERN_01);
+      const stitched = await stitchedCompetencyQuestions(INTERN_WITH_OVERLAY);
+      expect(stitched.internId).toBe(INTERN_WITH_OVERLAY);
       // Core questions come first, cohort questions second
       const tiers = stitched.questions.map((q) => q.tier);
       const firstCohortIdx = tiers.indexOf('cohort');
@@ -123,8 +119,8 @@ describe.skipIf(SKIP_DB_TESTS)('question-engine.server (live DB)', () => {
     });
 
     it('stitches core-only for an intern with no cohort overlay', async () => {
-      const stitched = await stitchedCompetencyQuestions(INTERN_02);
-      expect(stitched.internId).toBe(INTERN_02);
+      const stitched = await stitchedCompetencyQuestions(INTERN_NO_OVERLAY);
+      expect(stitched.internId).toBe(INTERN_NO_OVERLAY);
       // All questions are tier 'core', no cohort/intern boundary
       const tiers = stitched.questions.map((q) => q.tier);
       for (const t of tiers) expect(t).toBe('core');
