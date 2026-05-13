@@ -190,7 +190,11 @@ async function main() {
       for (const qset of SEED_QUESTION_SETS) {
         let cohortId: string | null = qset.cohortId;
         const internId: string | null = qset.internId;
-        if (qset.kind === 'competency-cohort' && qset.cohortId) {
+        if (qset.kind === 'competency-cohort') {
+          if (!qset.cohortId) {
+            console.warn(`Skipping ${qset.id}: competency-cohort set has no cohort slug`);
+            continue;
+          }
           cohortId = slugToCohortUuid.get(qset.cohortId) ?? null;
           if (!cohortId) {
             console.warn(`Skipping ${qset.id}: cohort slug '${qset.cohortId}' has no UUID mapping`);
