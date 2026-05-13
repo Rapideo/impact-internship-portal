@@ -2,7 +2,7 @@ import { config } from 'dotenv';
 config({ path: '.env.local' });
 config();
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import postgres from 'postgres';
 import { createClient } from '@supabase/supabase-js';
 
@@ -11,18 +11,35 @@ import { createClient } from '@supabase/supabase-js';
 // intern_id matters for the RLS contract this test exercises.
 const TEST_INTERN = '44444444-4444-4444-4444-444444444401';
 
+/**
+ * This suite exercises RLS as enforced at the **PostgREST / Supabase JWT
+ * layer** by issuing inserts through `@supabase/supabase-js` clients with
+ * (a) the anon key and (b) the service-role key. That is the production
+ * code path for anonymous intern submissions and admin reads — the very
+ * surface that needs to be airtight.
+ *
+ * It deliberately does NOT use the SP1 convention of `sql.begin(...) + SET
+ * LOCAL ROLE authenticated` from `tests/rls/test-helpers.ts:withClaims`.
+ * That helper exercises Postgres-layer RLS via direct connections, which
+ * is a different (and complementary) contract. Both are valid; this suite
+ * picks the higher-fidelity production-path test.
+ */
+async function cleanupTestRows(): Promise<void> {
+  const sql = postgres(process.env.DATABASE_URL!, { max: 1, prepare: false });
+  try {
+    await sql`DELETE FROM public.assessment_submissions WHERE intern_id = ${TEST_INTERN}`;
+  } finally {
+    await sql.end();
+  }
+}
+
 describe('RLS: anonymous submission requires service-role bypass', () => {
-  beforeEach(async () => {
-    // Clean prior test rows via the direct/service-role-equivalent connection.
-    // Uses DATABASE_URL (Supavisor session mode) — the connection's underlying
-    // postgres role bypasses RLS, so the DELETE is unconditional.
-    const sql = postgres(process.env.DATABASE_URL!, { max: 1, prepare: false });
-    try {
-      await sql`DELETE FROM public.assessment_submissions WHERE intern_id = ${TEST_INTERN}`;
-    } finally {
-      await sql.end();
-    }
-  });
+  beforeEach(cleanupTestRows);
+  // Belt-and-suspenders: also clean up after the suite so a mid-run crash
+  // (or a future test that exits early) doesn't leave dirty state for the
+  // next run. The service-role insert in the second test inserts a real
+  // row that beforeEach alone wouldn't catch if this is the last suite.
+  afterAll(cleanupTestRows);
 
   it('anon-key client (no JWT) cannot insert into assessment_submissions', async () => {
     const anon = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
