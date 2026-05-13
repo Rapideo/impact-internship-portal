@@ -863,3 +863,65 @@
   margin: 8px 0 0;
   line-height: 1.5;
 }
+
+/* Identity-confirmed chip (SP4 Phase B — used by intern self-assessment
+ * forms and the admin chooser hub). */
+.identity-confirmed {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--canvas-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--ink);
+}
+.identity-confirmed__check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+.identity-confirmed__label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.identity-confirmed__value {
+  font-weight: 600;
+  color: var(--navy-deep);
+}
+.identity-confirmed__divider {
+  color: var(--line);
+  font-weight: 400;
+}
+.identity-confirmed__switch {
+  margin-left: 8px;
+}
+
+/* Form-level banner (SP4 Phase B — surfaces set-level errors above the
+ * question stack, e.g. minRequired violations). */
+.form-banner {
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  font-size: 14px;
+  border: 1px solid var(--line);
+  background: var(--canvas-alt);
+  color: var(--ink);
+}
+.form-banner--danger {
+  border-color: #c8385a;
+  background: #fdecef;
+  color: #7a1d35;
+}
