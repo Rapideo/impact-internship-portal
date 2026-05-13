@@ -13,4 +13,5 @@ export const env = {
   RESEND_API_KEY: required('RESEND_API_KEY'),
   RESEND_FROM: required('RESEND_FROM'),
   APP_URL: required('APP_URL'),
+  SESSION_SECRET: required('SESSION_SECRET'),
 };
