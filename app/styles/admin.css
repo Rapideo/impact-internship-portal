@@ -925,3 +925,40 @@
   background: #fdecef;
   color: #7a1d35;
 }
+
+/* Competency assessment form (SP4 Phase B — admin-side wrapper around
+ * AssessmentForm with a phase dropdown and meta strip). */
+.competency-form__phase {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 8px;
+  flex-wrap: wrap;
+}
+.competency-form__phase-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.competency-form__phase-select {
+  min-width: 220px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  font-size: 14px;
+  color: var(--ink);
+}
+.competency-form__phase-select:disabled {
+  background: var(--canvas-alt);
+  color: var(--ink-soft);
+  cursor: not-allowed;
+}
+.competency-form__phase-helper {
+  flex-basis: 100%;
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
