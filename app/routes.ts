@@ -36,6 +36,7 @@ export default [
     ),
     route('admin/assessments/competency/:id', 'routes/admin.assessments.competency.$id.tsx'),
     route('admin/self-assessment-results', 'routes/admin.self-assessment-results.tsx'),
+    route('admin/self-assessment-detail', 'routes/admin.self-assessment-detail.tsx'),
     route('admin/reports', 'routes/admin.reports.tsx'),
     route('admin/settings', 'routes/admin.settings._index.tsx'),
     route('admin/settings/employers', 'routes/admin.settings.employers._index.tsx'),
