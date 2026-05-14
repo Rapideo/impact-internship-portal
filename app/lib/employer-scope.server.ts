@@ -96,6 +96,7 @@ export async function internInEmployerScope(
     .innerJoin(cohorts, eq(interns.cohortId, cohorts.id))
     .where(and(eq(interns.id, internId), isNull(interns.deletedAt)))
     .limit(1);
-  if (rows.length === 0) return false;
-  return rows[0].employerId === employerId;
+  const [first] = rows;
+  if (!first) return false;
+  return first.employerId === employerId;
 }
