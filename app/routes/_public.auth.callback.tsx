@@ -5,12 +5,14 @@ import type { Route } from './+types/_public.auth.callback';
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
-  const rawNext = url.searchParams.get('next') ?? '/';
+  const rawNext = url.searchParams.get('next');
   // Only same-origin relative paths are allowed — reject `//evil`, `https://...`,
   // and anything that doesn't start with a single `/`. Without this an attacker
   // could send a reset link with ?next=https://evil and use the legitimate code
   // exchange to land the user off-site with a fresh session cookie attached.
-  const next = /^\/(?!\/)/.test(rawNext) ? rawNext : '/';
+  // Default to /login (rather than /) when next is missing/invalid so the user
+  // lands on the branded sign-in page — typical only for malformed callbacks.
+  const next = rawNext && /^\/(?!\/)/.test(rawNext) ? rawNext : '/login';
 
   if (!code) {
     throw redirect('/login');

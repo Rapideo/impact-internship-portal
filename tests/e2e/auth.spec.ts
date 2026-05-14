@@ -71,7 +71,7 @@ test('signed-in admin can sign out', async ({ page }) => {
 });
 
 test('reset password request flow renders confirmation screen', async ({ page }) => {
-  await page.goto('/auth/reset-password-request');
+  await page.goto('/auth/forgot');
   await page.getByLabel('Email').fill(ADMIN_EMAIL);
   await page.getByRole('button', { name: /send reset link/i }).click();
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Check your email');
