@@ -97,6 +97,10 @@ export default [
     route('employer/competency/new', 'routes/employer.competency.new.tsx'),
     route('employer/competency/edit', 'routes/employer.competency.edit.tsx'),
     route('employer/competency/:id', 'routes/employer.competency.$id.tsx'),
+    route('employer/profile', 'routes/employer.profile.tsx'),
+    route('employer/roles', 'routes/employer.roles._index.tsx'),
+    route('employer/roles/new', 'routes/employer.roles.new.tsx'),
+    route('employer/roles/:roleId', 'routes/employer.roles.$roleId.tsx'),
   ]),
   route('*', 'routes/$.tsx'),
 ] satisfies RouteConfig;
