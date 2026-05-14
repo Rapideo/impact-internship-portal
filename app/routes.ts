@@ -25,6 +25,10 @@ export default [
     route('admin/interns/new', 'routes/admin.interns.new.tsx'),
     route('admin/interns/:internId', 'routes/admin.interns.$internId.tsx'),
     route('admin/assessments', 'routes/admin.assessments._index.tsx'),
+    route(
+      'admin/assessments/exit-employer-survey',
+      'routes/admin.assessments.exit-employer-survey.tsx',
+    ),
     route('admin/reports', 'routes/admin.reports.tsx'),
     route('admin/settings', 'routes/admin.settings._index.tsx'),
     route('admin/settings/employers', 'routes/admin.settings.employers._index.tsx'),
