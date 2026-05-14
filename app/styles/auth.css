@@ -1,0 +1,168 @@
+/* Branded auth pages — /auth/accept, /auth/reset, /auth/forgot.
+ * Mirrors Prototypes/PROTOTYPE/styles.css `.login*` rules, renamed to `.auth*`.
+ * Tokens come from app/styles/tokens.css. Hex literals in `.auth__alert--*`
+ * follow the same precedent as `.form-banner--*` in admin.css (no semantic
+ * danger/success token defined yet at the project level). */
+
+.auth {
+  min-height: calc(100vh - 80px);
+  padding: 64px 0;
+  background: var(--canvas);
+}
+
+.auth__inner {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 64px;
+  align-items: start;
+}
+
+@media (max-width: 880px) {
+  .auth__inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+.auth__intro .micro-label {
+  color: var(--navy);
+  letter-spacing: 0.12em;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+}
+
+.auth__title {
+  font-family: 'Archivo Black', sans-serif;
+  color: var(--navy-deep);
+  font-size: 56px;
+  line-height: 1;
+  margin: 16px 0 12px;
+}
+
+.auth__sub {
+  color: var(--ink-soft);
+  font-size: 16px;
+  line-height: 1.55;
+  max-width: 460px;
+}
+
+.auth__facts {
+  list-style: none;
+  margin: 32px 0 0;
+  display: grid;
+  gap: 10px;
+  border-top: 3px solid var(--gold);
+  border-left: 3px solid var(--gold);
+  padding: 16px 18px;
+  background: var(--white);
+}
+
+.auth__facts li {
+  font-size: 13px;
+  color: var(--navy-deep);
+}
+
+.auth__facts .mono {
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--cyan);
+  margin-right: 10px;
+}
+
+.auth__form-wrap {
+  background: var(--white);
+  padding: 32px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px -16px rgba(5, 16, 40, 0.18);
+}
+
+.auth__form-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 20px;
+}
+
+.auth__demo-note {
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+
+.auth__field {
+  display: block;
+  margin-bottom: 18px;
+}
+
+.auth__field-label {
+  display: block;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--navy-deep);
+  margin-bottom: 6px;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+/* Auth-context input sizing — `.input` (from admin.css) is shared and used at
+ * widths set by the admin tables. In the auth form-card we want full-width. */
+.auth__form-wrap .input {
+  width: 100%;
+}
+
+.auth__submit {
+  width: 100%;
+  margin-top: 8px;
+  padding: 14px 18px;
+  background: var(--navy);
+  color: var(--white);
+  border: 1px solid var(--navy);
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.auth__submit:hover {
+  background: var(--navy-deep);
+  border-color: var(--navy-deep);
+}
+
+.auth__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth__secondary {
+  display: block;
+  margin-top: 16px;
+  text-align: center;
+  color: var(--navy);
+  font-size: 14px;
+}
+
+.auth__secondary a {
+  color: var(--navy);
+  text-decoration: none;
+}
+
+.auth__secondary a:hover {
+  color: var(--cyan);
+}
+
+.auth__alert {
+  padding: 12px 14px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.auth__alert--danger {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #7f1d1d;
+}
+
+.auth__alert--success {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #166534;
+}

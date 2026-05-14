@@ -116,7 +116,7 @@ export default function Login() {
       </Form>
 
       <p style={{ marginTop: '1.5rem', fontSize: '0.875rem' }}>
-        <Link to="/auth/reset-password-request" style={{ color: 'var(--navy)' }}>
+        <Link to="/auth/forgot" style={{ color: 'var(--navy)' }}>
           Forgot password?
         </Link>
       </p>
