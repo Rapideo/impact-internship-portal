@@ -6,6 +6,7 @@ export default [
     route('login', 'routes/_public.login.tsx'),
     route('auth/reset-password-request', 'routes/_public.auth.reset-password-request.tsx'),
     route('auth/reset-password', 'routes/_public.auth.reset-password.tsx'),
+    route('auth/accept', 'routes/_public.auth.accept.tsx'),
     route('auth/callback', 'routes/_public.auth.callback.tsx'),
     route('sign-out', 'routes/sign-out.ts'),
 
