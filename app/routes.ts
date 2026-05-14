@@ -29,6 +29,7 @@ export default [
       'admin/assessments/exit-employer-survey',
       'routes/admin.assessments.exit-employer-survey.tsx',
     ),
+    route('admin/assessments/competency/new', 'routes/admin.assessments.competency.new.tsx'),
     route('admin/reports', 'routes/admin.reports.tsx'),
     route('admin/settings', 'routes/admin.settings._index.tsx'),
     route('admin/settings/employers', 'routes/admin.settings.employers._index.tsx'),
