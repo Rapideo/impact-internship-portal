@@ -243,3 +243,42 @@ Sub-projects 3 (question engine), 4 (assessment forms), 5 (employer shell), and 
 ### Sub-project 2 follow-ups surfaced during smoke
 
 - `app/routes/admin.interns.new.tsx` first-name field shows "Only the first initial is saved to the record" but the validator (`requireSingleCharUpper`) rejects multi-character input. Either the hint should say "Enter the intern's first initial (one letter)." or the action should accept full names and slice down to `firstName.trim()[0]` itself. Test currently feeds a single letter to match the validator.
+
+## Production app — sub-project 4 complete
+
+The assessment-forms surface is live. Three intern-facing self-assessments (Personal Goals, Midpoint Reflection, Participant Feedback) under `/intern/*`, plus the admin-completed Competency Assessment and Exit Employer Survey under `/admin/assessments/*`, plus the admin self-assessment results list and read-only viewer.
+
+### Intern identity (anonymous flow)
+
+- **Cookie:** `impact_intern_identity` — HMAC-signed via `SESSION_SECRET` (read lazily from `process.env`, intentionally NOT in `env.server.ts`'s eager required list so the CI fake-env block stays working). Helpers in `app/lib/intern-identity.server.ts`.
+- **Revalidation:** `getCurrentInternIdentity(request)` does NOT trust the signature alone. It re-resolves the `(firstInitial, lastName, cohortId)` triple against the live `interns` table on every read, and returns `null` if the resolved id no longer matches the cookie's `internId`. This catches soft-deletes, cohort moves, and last-name corrections without an explicit logout.
+- **Identity gate at `/intern/assessments`:** the confirm action **must** verify both the intern exists (via `lookupInternByIdentity`) AND that the chosen cohort belongs to the chosen employer before signing the cookie. The cookie's `employerId` is derived from the verified cohort row, not from raw form input — never trust form-supplied employerId for the cookie payload.
+
+### Anonymous submission path (do NOT generalize this)
+
+Intern submissions to `assessment_submissions` use `dbService` (the service-role Drizzle client in `app/lib/db.service.server.ts`) because the RLS policies deliberately block anon writes. The narrow contract is: action handler → revalidate identity via `getCurrentInternIdentity` → `dbService` insert via `insertAnonymousSubmission()`. **Never call `dbService` outside this path.** For admin writes the regular `db` client is correct — `db/policies/0002_admin_all.sql` covers admin reads + writes.
+
+Known carry-over: today both `db` and `dbService` connect via the same `DATABASE_POOL_URL` as the same BYPASSRLS user, so the separation is currently semantic. A future hardening (tracked as the DATABASE_SERVICE_URL split) will downgrade `DATABASE_POOL_URL` to a real `anon` role; `getOneShotSubmission` will need to migrate to `dbService` at the same time.
+
+### One-shot enforcement
+
+The three intern self-assessments are uniquely scoped per `(intern_id, type)` by a partial unique index on `assessment_submissions` (filtered on `deleted_at IS NULL` AND the three one-shot types). The application enforces this at two layers:
+
+1. **Loader-side guard:** each form route's loader calls `getOneShotSubmission(internId, type)`; if a row exists, it `throw redirect('/intern/confirmation?type=…')` before rendering.
+2. **Action-side race catch:** the action catches `AssessmentAlreadySubmittedError` (translated from PG `23505`) and redirects to `/intern/confirmation?type=…&already=1` to surface the softer "already submitted" copy.
+
+If you add a new one-shot type, both layers AND the DB partial index need updating together.
+
+### Form component reuse contract (for sub-project 5)
+
+`<AssessmentForm>` and `<CompetencyAssessmentForm>` in `app/components/forms/` both accept an `actionPath` prop. The intern flow points it at `/intern/...`; the admin flow points it at `/admin/assessments/...`. Sub-project 5's employer-self-service wrapper will mount the same components with `actionPath="/employer/..."`. The form bodies are agnostic of who's submitting.
+
+### Querystring validation
+
+Admin routes that read `?internId=` from the URL validate it against `UUID_RE` (exported from `app/lib/validation.ts`) before hitting the DB. A malformed UUID returns 400 instead of bubbling up as a Postgres `22P02 invalid input syntax` and surfacing as an unhandled 500. The pattern is one regex check at the top of each loader/action. Add it for any new admin route that takes `?internId=` from the URL.
+
+### Sub-project 4 follow-ups (not blocking SP5)
+
+- **#76** — `getOneShotSubmission` uses anon `db`; should be `dbService` for consistency with the write path. Time-bomb when `db` is properly RLS-gated.
+- **#77** — split `DATABASE_SERVICE_URL` from `DATABASE_POOL_URL`; downgrade pool client to real `anon` role.
+- **#69** — `db/seed.ts` should restore admin/employer1 profile rows after `TRUNCATE ... CASCADE` wipes them. Today they have to be re-upserted by hand after a dev seed.
