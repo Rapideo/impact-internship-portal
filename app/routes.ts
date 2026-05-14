@@ -93,6 +93,7 @@ export default [
     route('employer/cohorts/:cohortId', 'routes/employer.cohorts.$cohortId.tsx'),
     route('employer/interns', 'routes/employer.interns._index.tsx'),
     route('employer/interns/:internId', 'routes/employer.interns.$internId.tsx'),
+    route('employer/exit-survey', 'routes/employer.exit-survey.tsx'),
     route('employer/competency/new', 'routes/employer.competency.new.tsx'),
     route('employer/competency/edit', 'routes/employer.competency.edit.tsx'),
     route('employer/competency/:id', 'routes/employer.competency.$id.tsx'),
