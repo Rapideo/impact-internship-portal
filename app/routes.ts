@@ -8,6 +8,16 @@ export default [
     route('auth/reset-password', 'routes/_public.auth.reset-password.tsx'),
     route('auth/callback', 'routes/_public.auth.callback.tsx'),
     route('sign-out', 'routes/sign-out.ts'),
+
+    // Intern self-assessment flow (sub-project 4 Phase C)
+    layout('routes/_public.intern.tsx', [
+      route('intern/assessments', 'routes/_public.intern.assessments.tsx'),
+      route('intern/personal-goals', 'routes/_public.intern.personal-goals.tsx'),
+      route('intern/midpoint-reflection', 'routes/_public.intern.midpoint-reflection.tsx'),
+      route('intern/participant-feedback', 'routes/_public.intern.participant-feedback.tsx'),
+      route('intern/confirmation', 'routes/_public.intern.confirmation.tsx'),
+      route('intern/reset-identity', 'routes/_public.intern.reset-identity.ts'),
+    ]),
   ]),
   layout('routes/admin.tsx', [
     route('admin', 'routes/admin._index.tsx'),
