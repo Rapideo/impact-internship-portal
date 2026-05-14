@@ -34,7 +34,7 @@ export const meta: Route.MetaFunction = () => [
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);
-  const id = params.id!;
+  const id = params.id;
   const submission = await getSubmission(id);
   if (!submission || submission.type !== 'competency') {
     throw new Response('Not Found', { status: 404, headers });
@@ -67,7 +67,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export async function action({ request, params }: Route.ActionArgs) {
   const { headers } = await requireAdmin(request);
-  const id = params.id!;
+  const id = params.id;
   const submission = await getSubmission(id);
   if (!submission || submission.type !== 'competency') {
     throw new Response('Not Found', { status: 404, headers });
@@ -116,7 +116,6 @@ export async function action({ request, params }: Route.ActionArgs) {
       phase,
       answers: answers as Record<string, unknown>,
       submittedBy,
-      submittedAt: new Date(),
     })
     .where(eq(assessmentSubmissions.id, submission.id));
 

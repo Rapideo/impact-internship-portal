@@ -16,6 +16,7 @@ import { getCohortOrNull, getEmployerOrNull, getInternOrNull } from '~/lib/admin
 import { getOneShotSubmission, type SubmissionType } from '~/lib/assessment-submissions.server';
 import { loadQuestionSet } from '~/lib/question-engine.server';
 import type { SerializedAnswers } from '~/lib/question-types';
+import { UUID_RE } from '~/lib/validation';
 import { AssessmentForm } from '~/components/forms/AssessmentForm';
 import { PageHead } from '~/components/PageHead';
 import { MetaStrip } from '~/components/MetaStrip';
@@ -41,7 +42,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const typeParam = url.searchParams.get('type') ?? '';
   const internId = url.searchParams.get('internId');
-  if (!internId) throw new Response('internId required', { status: 400, headers });
+  if (!internId || !UUID_RE.test(internId)) {
+    throw new Response('internId required', { status: 400, headers });
+  }
   if (!isValidType(typeParam)) {
     throw new Response('Invalid type parameter', { status: 400, headers });
   }
@@ -89,7 +92,7 @@ export async function action({ request }: Route.ActionArgs) {
   const url = new URL(request.url);
   const typeParam = url.searchParams.get('type') ?? '';
   const internId = url.searchParams.get('internId');
-  if (!internId || !isValidType(typeParam)) {
+  if (!internId || !UUID_RE.test(internId) || !isValidType(typeParam)) {
     throw new Response('Bad request', { status: 400, headers });
   }
   const formData = await request.formData();

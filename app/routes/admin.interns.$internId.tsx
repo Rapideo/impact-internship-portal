@@ -185,7 +185,7 @@ function selfCard(
   return (
     <a
       className="record-link"
-      href={`/admin/assessments/self/${type}?internId=${internId}`}
+      href={`/admin/self-assessment-detail?type=${type}&internId=${internId}`}
       key={type}
     >
       <div className="record-link__head">

@@ -20,6 +20,7 @@ import {
 import { stitchedCompetencyQuestions } from '~/lib/question-engine.server';
 import { validateAnswers } from '~/lib/question-engine';
 import type { SerializedAnswers } from '~/lib/question-types';
+import { UUID_RE } from '~/lib/validation';
 import { insertOrUpdateSubmissionAsAdmin } from '~/lib/assessment-submissions.server';
 import { CompetencyAssessmentForm } from '~/components/forms/CompetencyAssessmentForm';
 import { PageHead } from '~/components/PageHead';
@@ -34,7 +35,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);
   const url = new URL(request.url);
   const internId = url.searchParams.get('internId');
-  if (!internId) throw new Response('Intern required', { status: 400, headers });
+  if (!internId || !UUID_RE.test(internId)) {
+    throw new Response('Intern required', { status: 400, headers });
+  }
 
   const intern = await getInternOrNull(db, internId);
   if (!intern) throw new Response('Intern not found', { status: 404, headers });
@@ -64,7 +67,9 @@ export async function action({ request }: Route.ActionArgs) {
   const { headers } = await requireAdmin(request);
   const url = new URL(request.url);
   const internId = url.searchParams.get('internId');
-  if (!internId) return data({ errors: { __form: 'Intern required.' } }, { status: 400, headers });
+  if (!internId || !UUID_RE.test(internId)) {
+    return data({ errors: { __form: 'Intern required.' } }, { status: 400, headers });
+  }
 
   const intern = await getInternOrNull(db, internId);
   if (!intern) return data({ errors: { __form: 'Intern not found.' } }, { status: 404, headers });

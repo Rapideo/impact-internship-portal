@@ -91,6 +91,7 @@ export default function SelfAssessmentResults() {
             <input
               type="text"
               className="input"
+              aria-label="Filter results"
               placeholder="Filter by intern, employer, cohort, or assessment type…"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}

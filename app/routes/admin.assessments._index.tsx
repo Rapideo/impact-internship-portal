@@ -9,7 +9,7 @@
 // Admin auth is enforced both by the parent `admin.tsx` layout and locally
 // via `requireAdmin` (defence-in-depth).
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { data, useLoaderData, useNavigate } from 'react-router';
 import type { Route } from './+types/admin.assessments._index';
 import { requireAdmin } from '~/lib/admin-guard.server';
@@ -49,6 +49,15 @@ export default function AdminAssessmentsHub() {
     setPicker({ target });
   };
   const close = () => setPicker(null);
+
+  useEffect(() => {
+    if (!picker) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [picker]);
 
   const onPick = (internId: string) => {
     if (!picker) return;
@@ -108,33 +117,17 @@ export default function AdminAssessmentsHub() {
       </section>
 
       {picker ? (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Select intern"
-          className="modal-backdrop"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.45)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-          }}
-          onClick={close}
-        >
+        <div className="modal" role="dialog" aria-modal="true" aria-label="Select intern">
+          <div className="modal__overlay" onClick={close} />
           <div
-            className="identity-card"
+            className="modal__card"
             style={{
+              maxWidth: 'min(640px, 92vw)',
               width: 'min(640px, 92vw)',
               maxHeight: '80vh',
               display: 'flex',
               flexDirection: 'column',
-              background: 'var(--white)',
-              padding: 20,
             }}
-            onClick={(e) => e.stopPropagation()}
           >
             <div
               style={{
@@ -155,6 +148,7 @@ export default function AdminAssessmentsHub() {
             <input
               type="text"
               className="input"
+              aria-label="Filter interns"
               placeholder="Filter by last name, cohort, or employer…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
