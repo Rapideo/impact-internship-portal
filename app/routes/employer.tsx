@@ -18,6 +18,7 @@ import { db } from '~/lib/db.server';
 import { employers } from '../../db/schema';
 import { EmployerNav } from '~/components/nav/EmployerNav';
 import { EmployerFooter } from '~/components/nav/EmployerFooter';
+import { ToastProvider } from '~/components/ToastProvider';
 
 export async function loader({ request }: Route.LoaderArgs) {
   const headers = new Headers();
@@ -56,12 +57,14 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function EmployerLayout() {
   const { employer, userEmail } = useLoaderData<typeof loader>();
   return (
-    <div className="employer-shell">
-      <EmployerNav employerName={employer.name} userEmail={userEmail} />
-      <main className="container" style={{ padding: '32px 16px 64px' }}>
-        <Outlet context={{ employer, userEmail }} />
-      </main>
-      <EmployerFooter />
-    </div>
+    <ToastProvider>
+      <div className="employer-shell">
+        <EmployerNav employerName={employer.name} userEmail={userEmail} />
+        <main className="container" style={{ padding: '32px 16px 64px' }}>
+          <Outlet context={{ employer, userEmail }} />
+        </main>
+        <EmployerFooter />
+      </div>
+    </ToastProvider>
   );
 }
