@@ -25,6 +25,18 @@ export default [
     route('admin/interns/new', 'routes/admin.interns.new.tsx'),
     route('admin/interns/:internId', 'routes/admin.interns.$internId.tsx'),
     route('admin/assessments', 'routes/admin.assessments._index.tsx'),
+    route(
+      'admin/assessments/exit-employer-survey',
+      'routes/admin.assessments.exit-employer-survey.tsx',
+    ),
+    route('admin/assessments/competency/new', 'routes/admin.assessments.competency.new.tsx'),
+    route(
+      'admin/assessments/competency/edit/:id',
+      'routes/admin.assessments.competency.edit.$id.tsx',
+    ),
+    route('admin/assessments/competency/:id', 'routes/admin.assessments.competency.$id.tsx'),
+    route('admin/self-assessment-results', 'routes/admin.self-assessment-results.tsx'),
+    route('admin/self-assessment-detail', 'routes/admin.self-assessment-detail.tsx'),
     route('admin/reports', 'routes/admin.reports.tsx'),
     route('admin/settings', 'routes/admin.settings._index.tsx'),
     route('admin/settings/employers', 'routes/admin.settings.employers._index.tsx'),
