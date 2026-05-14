@@ -4,7 +4,7 @@ export default [
   layout('routes/_public.tsx', [
     index('routes/_public._index.tsx'),
     route('login', 'routes/_public.login.tsx'),
-    route('auth/reset-password-request', 'routes/_public.auth.reset-password-request.tsx'),
+    route('auth/forgot', 'routes/_public.auth.forgot.tsx'),
     route('auth/reset', 'routes/_public.auth.reset.tsx'),
     route('auth/accept', 'routes/_public.auth.accept.tsx'),
     route('auth/callback', 'routes/_public.auth.callback.tsx'),
