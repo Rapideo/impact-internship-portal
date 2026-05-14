@@ -87,6 +87,12 @@ export default [
     ),
     route('admin/settings/questions/:setId', 'routes/admin.settings.questions.$setId.tsx'),
   ]),
-  layout('routes/employer.tsx', [route('employer', 'routes/employer._index.tsx')]),
+  layout('routes/employer.tsx', [
+    route('employer', 'routes/employer._index.tsx'),
+    route('employer/cohorts', 'routes/employer.cohorts._index.tsx'),
+    route('employer/cohorts/:cohortId', 'routes/employer.cohorts.$cohortId.tsx'),
+    route('employer/interns', 'routes/employer.interns._index.tsx'),
+    route('employer/interns/:internId', 'routes/employer.interns.$internId.tsx'),
+  ]),
   route('*', 'routes/$.tsx'),
 ] satisfies RouteConfig;
