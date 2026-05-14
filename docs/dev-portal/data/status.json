@@ -1,6 +1,6 @@
 {
   "$schema-comment": "Sub-project status seed. Updated on milestone-close PRs per spec §2.13. Statuses: not-started | in-progress | complete. Counts are taken from the implementation plans committed under docs/superpowers/plans/.",
-  "asOf": "2026-05-12",
+  "asOf": "2026-05-14",
   "subProjects": [
     {
       "id": 0,
@@ -16,7 +16,7 @@
       "status": "complete",
       "taskCount": 60,
       "prCount": 16,
-      "summary": "RR v7 scaffold, Drizzle schema (15 tables) + initial migration, 32 RLS policies + JWT custom-access-token hook, dev seed, login flow with role-aware admin/employer shells, admin CLI, intern identity lookup, full test pyramid (10 unit + 9 RLS + 8 e2e), real CI pipeline (supabase start for integration), Netlify build config."
+      "summary": "RR v7 scaffold, Drizzle schema (15 tables) + initial migration, 32 RLS policies + JWT custom-access-token hook, dev seed, login flow with role-aware admin/employer shells, admin CLI, intern identity lookup, full test pyramid, real CI pipeline (supabase start for integration), Netlify build config."
     },
     {
       "id": 2,
@@ -29,26 +29,26 @@
     {
       "id": 3,
       "name": "Question Engine",
-      "status": "not-started",
+      "status": "complete",
       "taskCount": 38,
-      "prCount": 0,
-      "summary": "6 question-type renderers, set editor, 3-tier competency stitching, verbatim seed content."
+      "prCount": 8,
+      "summary": "6 question-type renderers, set editor with accordion-collapse fix, 3-tier competency stitching (program-core + cohort overlay + intern overlay), verbatim seed content for all 5 forms, admin routes for set + cohort-tier + intern-tier editing, Playwright editor smoke."
     },
     {
       "id": 4,
       "name": "Assessment Forms",
-      "status": "not-started",
+      "status": "complete",
       "taskCount": 31,
-      "prCount": 0,
-      "summary": "All 5 assessment forms on the engine, intern identity gate, anonymous submission via service role."
+      "prCount": 6,
+      "summary": "All 5 assessment forms on the engine. Intern HMAC-signed identity cookie with revalidation. Anonymous submission via service-role bypass. One-shot enforcement at loader + action layers. Admin competency + exit-employer-survey + self-assessment-results viewer with soft-delete. UUID querystring validation pattern. CLAUDE.md handoff section."
     },
     {
       "id": 5,
       "name": "Employer Shell",
-      "status": "not-started",
+      "status": "complete",
       "taskCount": 38,
-      "prCount": 0,
-      "summary": "Employer login, scoped views, account provisioning, branded auth pages."
+      "prCount": 12,
+      "summary": "Branded auth pages (login/forgot/reset/accept/callback) with navy/cyan/gold tokens. Supabase magic-link invite flow with admin-side provisioning UI (invite/resend/cancel/revoke). Email template builders. Employer shell with nav/footer/KPI dashboard, scoped cohorts + interns lists + records, competency self-service (new/edit/detail), exit-employer-survey upsert, profile edit, roles CRUD. 5 new RLS tests + 4 employer-profile/roles RLS tests + 2 Playwright specs. Task 37 (admin-invite E2E) deferred to SP6."
     },
     {
       "id": 6,
@@ -56,7 +56,7 @@
       "status": "not-started",
       "taskCount": 52,
       "prCount": 0,
-      "summary": "Reports, branded emails, Sentry, e2e smoke, a11y, perf, launch. (Netlify cutover task is now obsolete — each repo has its own Netlify project.)"
+      "summary": "Visual fidelity to prototype, Resend wiring, Sentry, deferred Task 37 admin-invite E2E, fix _public.intern.assessments.tsx server-only import leak (build-blocker), a11y/perf, manual smoke, production deploy. (Netlify cutover task is obsolete — each repo has its own Netlify project.)"
     }
   ]
 }

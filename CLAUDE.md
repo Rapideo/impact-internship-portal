@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this project is
 
-The **IMPACT Internship Assessment Portal** is a web app for an Indiana-based internship program. The clickable 34-page prototype is **locked** (lives in a separate sibling repo, `Rapideo/impact-prototype`). The **production rebuild's infrastructure (Sub-project 0) is complete** and **Sub-project 1 (Foundation) is complete** as of 2026-05-11: React Router v7 scaffold, Drizzle schema for all 15 public tables migrated to impact-dev, 32 RLS policies + JWT custom-access-token hook applied, dev seed populated, login flow working end-to-end with role-aware admin/employer shells, admin CLI bootstrap, intern composite-key lookup, full test pyramid (10 unit + 9 RLS + 8 e2e), real CI pipeline (`supabase start` for integration), Netlify build config. The remaining 5 sub-projects (Admin Core through Polish & Launch — ~196 application-level tasks) are planned and ready to execute. Sub-project 2 (Admin Core) is the next thing to start.
+The **IMPACT Internship Assessment Portal** is a web app for an Indiana-based internship program. The clickable 34-page prototype is **locked** (lives in a separate sibling repo, `Rapideo/impact-prototype`). The production rebuild's **Sub-projects 0 through 5 are all complete** as of 2026-05-14: React Router v7 scaffold, Drizzle schema for all 15 public tables, 32+ RLS policies + JWT custom-access-token hook, dev seed, full admin CRUD (Employers/Cohorts/Roles/Phases/Barriers/Program Info/Interns), question-engine with 6 renderer types + editor + 3-tier competency stitching, all 5 assessment forms (intern self-submit anonymous flow + admin-completed Competency + Exit Employer Survey), employer shell with branded auth pages + dashboard + scoped cohorts/interns/competency/exit-survey/profile/roles flows. Test pyramid is 196 unit + 19 RLS + 10 e2e specs (CI Playwright still gated). **Only Sub-project 6 (Polish & Launch) remains** — visual fidelity, Resend wiring, carry-over cleanup (including the SP4-era build-break that has to land before first prod deploy), and the production cutover itself.
 
 The app tracks:
 - Intake / Entry Assessment (captured on the intern record at creation)
@@ -282,3 +282,94 @@ Admin routes that read `?internId=` from the URL validate it against `UUID_RE` (
 - **#76** — `getOneShotSubmission` uses anon `db`; should be `dbService` for consistency with the write path. Time-bomb when `db` is properly RLS-gated.
 - **#77** — split `DATABASE_SERVICE_URL` from `DATABASE_POOL_URL`; downgrade pool client to real `anon` role.
 - **#69** — `db/seed.ts` should restore admin/employer1 profile rows after `TRUNCATE ... CASCADE` wipes them. Today they have to be re-upserted by hand after a dev seed.
+
+## Production app — sub-project 5 complete
+
+The employer surface is live. Authenticated employers land on `/employer` (a branded shell with nav, KPI dashboard, footer) and can navigate scoped cohorts and interns, self-serve competency assessments and the Exit Employer Survey, edit their own profile + roles. Admin-side employer-account provisioning (invite / resend / cancel / revoke) sits on the existing employer detail page. Branded auth pages at `/auth/forgot`, `/auth/reset`, `/auth/accept`, `/auth/callback` use the Archivo Black / navy / cyan / gold token palette and the Supabase magic-link invite flow.
+
+12 PRs (#66–#77) shipped tonight, one per phase A through L.
+
+### Employer layout — single source of redirect truth
+
+`app/routes/employer.tsx` is the trust boundary for the entire `/employer/*` subtree. It enforces:
+
+1. Unauthenticated → `/login`.
+2. Wrong role (admin) → `/admin`.
+3. Authenticated employer with no `employerId` → `/login?error=no-employer` (the profiles check constraint should make this unreachable, but the runtime guard remains as defense in depth).
+4. Employer with an `employerId` that doesn't resolve to an `employers` row → `/login?error=employer-missing`.
+
+Child loaders/actions get `auth?.employerId` via `getAuthContext` and use a single thin `if (!auth?.employerId) throw redirect('/login', { headers })` guard for TypeScript narrowing — not the redirect ladder. **Do NOT duplicate the layout's role/employerId enforcement in every child route**; one trust boundary is enough.
+
+### Employer writes go through the authenticated supabase client
+
+Per-table RLS for the employer role:
+
+- `assessment_submissions` — `employer_write_submissions` (INSERT) and `employer_update_submissions` (UPDATE) policies enforce `type IN ('competency', 'exit-employer-survey')` AND intern-in-employer-scope.
+- `employers` — `employer_own_employer` (FOR ALL) policy restricts read/update to the signed-in user's own employer row.
+- `roles` — `employer_own_roles` (FOR ALL) policy restricts to roles where `employer_id = caller's employerId`.
+
+Routes that mutate these tables (competency new/edit, exit-survey, profile, roles CRUD) **must use `createSupabaseServerClient(request, headers)`**, not the service-role `db` client. Mirror the Phase H/I/J patterns. JS-level `internInEmployerScope()` runs first as defense-in-depth on submission writes.
+
+### Employer-scope helpers (`app/lib/employer-scope.server.ts`)
+
+Four functions read through the service-role `db` and return employer-scoped result sets. They do NOT enforce RLS themselves (the BYPASSRLS connection skips it); the caller passes `employerId` as the trust boundary:
+
+- `kpisForEmployer(employerId)` → `{ activeCohorts, activeInterns, assessmentsNeeded }` for the dashboard.
+- `cohortsForEmployer(employerId)` → list of cohorts for the cohorts page + dashboard.
+- `internsForEmployer(employerId)` → list of interns across all the employer's cohorts.
+- `internInEmployerScope(internId, employerId)` → boolean. **Single INNER JOIN query** (one round-trip), not the two-query version some plan drafts had. Use this as the precondition for every read/write of an intern-scoped resource in employer routes. Returns true if `interns.id == internId AND interns.cohort.employerId == employerId AND interns.deletedAt IS NULL`.
+
+`assessmentsNeeded` ("interns without a competency submission") is a placeholder business rule — real rule is pending program-staff input. OK for v1.
+
+### Branded auth pages — the AuthShell pattern
+
+The five auth routes (`_public.login.tsx`, `_public.auth.forgot.tsx`, `_public.auth.reset.tsx`, `_public.auth.accept.tsx`, `_public.auth.callback.tsx`) all wrap their content in `<AuthShell>` (`app/components/auth/AuthShell.tsx`) with the navy/cyan/gold tokens in `app/styles/auth.css`. The callback route's `?next=` parameter is open-redirect-protected with regex `/^\/(?!\/)/.test(rawNext)` — only allow same-origin paths that don't start with `//`. Don't loosen this without re-reviewing.
+
+`/auth/reset` calls SP1's `signOut()` after a successful reset (UX defense — invalidates the recovery session so the user has to log in fresh with the new password). Keep that behavior; don't strip it.
+
+### Email template builders (plain string, NOT JSX)
+
+`app/emails/_layout.tsx` exports `emailLayout()` and `escapeHtml()` helpers. Each template (`employer-invite.tsx`, `password-reset.tsx`) is a function returning `{ subject, html, text }` using template literals and inline hex colors. **Do not render these with React or JSX** — Supabase email templates need raw HTML strings, and clients won't render React anyway. Email-specific CSS rules must be inline (no class-name selectors).
+
+The Supabase dashboard paste flow is documented in `docs/deployment.md` (PowerShell + Bash render commands). Until SP6 wires `RESEND_API_KEY` in prod, `sendEmail` is wrapped in `try/catch` with `console.warn` (non-fatal) — failed sends don't break the invite flow.
+
+### Form component reuse — confirmed contract
+
+The Phase H/I/J implementations confirm the SP4 form-component reuse contract:
+
+- `<CompetencyAssessmentForm>` props: `internId`, `phases`, `questions`, `sectionBoundaries`, `initialAnswers`, `initialPhase`, `errors`, `setLevelError`, `actionPath`, `submitLabel`, `readOnly`, `meta` (a `{ internName, cohortName, employerName, roleName, startDate, endDate }` object). Mirror `app/routes/admin.assessments.competency.new.tsx` exactly.
+- `<AssessmentForm>` (used by exit-survey) takes `actionPath`, `questions`, `initialAnswers`, `errors`, `setLevelError`, `submitLabel`, `modalTitle`, `modalBody`, `readOnly`. There is **no separate `<ExitEmployerSurveyForm>`** — that name in plan drafts is fictional.
+- Both forms submit `answers` as a JSON-stringified blob in formData plus a separate `phase` field for competency. Action handlers parse with `JSON.parse(String(formData.get('answers') ?? '{}'))`. **Never** call `serializeAnswers(formData, questions)` — the real `serializeAnswers` signature takes already-parsed answers.
+
+### Toast provider must wrap layouts that use it
+
+The employer layout was initially missing `<ToastProvider>` — a latent crash because Phase H/I routes call `useToast()`. Phase L caught and fixed it. Lesson: **any layout whose child routes call `useToast()` must wrap the outlet in `<ToastProvider>`**. Admin layout does this; employer layout now does too. If you add a third role/layout, remember.
+
+### CSS class registry (avoid plan-doc traps)
+
+Plan docs frequently reference classes that don't exist. The real registry:
+
+- `.identity-card`, `.identity-card__head`, `.identity-card__title`, `.identity-card__sub`, `.identity-card__meta`, `.identity-card__link` — the generic content card. **Do NOT use `.card`, `.card__head`, `.card__title`, `.card__list`, `.card__empty`, `.card__meta`** — those plan classes were never defined.
+- `.assessments` is the table class used by admin self-assessment lists and employer cohorts/interns lists. **Do NOT use `.data-table`** — also non-existent in current CSS.
+- `.btn`, `.btn--primary`, `.btn--outline`, `.btn--sm`, `.btn--danger`, `.btn--ghost-danger` — exist in admin.css.
+- `.field`, `.field__label`, `.field__error`, `.field--error`, `.input` — form primitives.
+- `.auth__alert`, `.auth__alert--danger`, `.auth__alert--success` — added in SP5 Phase C for branded auth.
+- `.employer-chip`, `.employer-chip__name`, `.employer-chip__email`, `.employer-chip__logout` — top-right nav chip on the employer shell.
+- `.kpi-card`, `.kpi-card__label`, `.kpi-card__value`, `.kpi-card__sub`, `.kpi-card__delta` — admin.css defines the first four; `__sub` was added in Phase F for employer-dashboard reuse. Don't redefine in employer-shell.css; reuse admin.css.
+
+### Sub-project 5 follow-ups (carry into SP6)
+
+- **#84 [HIGH]** — `npm run build` fails on `main` because `_public.intern.assessments.tsx` pulls `~/lib/assessment-submissions.server` into a non-loader/action export. SP4 Phase C bug surfaced during SP5 verification. **Blocks first production deploy.** Likely fix: an `import type` somewhere is actually an `import`, or a default-export function references the server module. 5–10 min once we look at it carefully.
+- **#89** — `cohorts.role_id` and `interns.role_id` use `ON DELETE SET NULL` in the actual schema, but the spec/plan documents say `ON DELETE restrict`. Today an employer can delete a role and silently null out cohort/intern references. Decision: tighten the schema (with a migration + soft-delete UI for roles that have references) OR document SET NULL as the intentional design. The defensive 23503 handler in `employer.roles.$roleId.tsx` is dead code under current schema, kept for forward-compatibility if we tighten.
+- **Task 37 deferred** — admin invite → accept E2E (with a NODE_ENV-gated `/dev/invite-link` route) was skipped in Phase L pending a security review of the gate. SP6 should review and either build it (with belt-and-suspenders gating like `if (process.env.NODE_ENV === 'production') return 404` PLUS only mount under a separate `vite.config` env check) or replace with a different test strategy (direct Supabase admin API call from the test, no public route at all).
+- **Playwright still skipping in CI** — every PR check log shows `Playwright    skipping`. Specs exist and pass locally but no CI signal. SP6 needs to either un-gate the job or document why it's permanently local-only. The 10 specs on `main` today (`auth`, `admin-crud`, `admin-competency`, `admin-exit-employer-survey`, `admin-question-editor`, `intern-self-submit`, `employer-login`, `employer-competency`) are the floor of what CI should validate before launch.
+
+### Local development cheat-sheet (for SP6 onwards)
+
+- `npm run dev` — Vite + RR v7 dev server.
+- `npm run db:seed` — refreshes the database. **Then run** `npx tsx scripts/restore-dev-profiles.ts` to re-upsert admin + employer1 profile rows (the seed's TRUNCATE CASCADE wipes them; carry-over #69 tracks the fix). The script is uncommitted in working dir — keep it around until #69 lands.
+- `npm test -- --run` — vitest unit suite (196 tests today).
+- `npm run test:rls` — RLS integration suite, requires `supabase start`.
+- `npm run test:e2e` — Playwright suite.
+- `npm run lint && npm run typecheck` — green on main today; safe baseline to compare against.
+- **`npm run build` is BROKEN on `main`** — task #84 above. Don't depend on it for verification until that fix lands.
