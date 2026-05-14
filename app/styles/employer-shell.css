@@ -1,0 +1,58 @@
+/* Employer shell styles.
+ *
+ * The .kpi-card / .kpi-card__label / __value / __sub classes are intentionally
+ * NOT redefined here — they already live in admin.css (the source of truth) and
+ * are shared between the admin and employer shells. If the employer dashboard
+ * later needs a different accent, add a `.kpi-card--employer` modifier rather
+ * than duplicating the base rules.
+ *
+ * The rgba(255,255,255, …) values below are transparency variants of --white
+ * scoped to nav-chip elements rendered on the navy header. They are kept as
+ * literals (rather than new tokens) to avoid scope creep — see SP5 Phase E.
+ */
+
+.employer-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--white);
+  font-size: 13px;
+}
+.employer-chip__name {
+  font-weight: 600;
+  color: var(--gold);
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+.employer-chip__email {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+}
+.employer-chip__logout {
+  background: transparent;
+  color: var(--white);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+.employer-chip__logout:hover {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.employer-dashboard__kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 24px 0 32px;
+}
+@media (max-width: 760px) {
+  .employer-dashboard__kpis {
+    grid-template-columns: 1fr;
+  }
+}

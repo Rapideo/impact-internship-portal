@@ -11,6 +11,7 @@ import './styles/tokens.css';
 import './styles/global.css';
 import adminCss from './styles/admin.css?url';
 import authCss from './styles/auth.css?url';
+import employerShellCss from './styles/employer-shell.css?url';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -21,6 +22,7 @@ export const links: Route.LinksFunction = () => [
   },
   { rel: 'stylesheet', href: adminCss },
   { rel: 'stylesheet', href: authCss },
+  { rel: 'stylesheet', href: employerShellCss },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
