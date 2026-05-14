@@ -24,7 +24,7 @@ import type { Route } from './+types/employer.profile';
 import { createSupabaseServerClient, getAuthContext } from '~/lib/auth.server';
 import { db } from '~/lib/db.server';
 import { employers } from '../../db/schema';
-import { errorsByField, optionalString, parseFormFields, requireString } from '~/lib/validation';
+import { errorsByField, optionalString, parseFormFields } from '~/lib/validation';
 import { PageHead } from '~/components/PageHead';
 import { IdentityCard } from '~/components/IdentityCard';
 import { ActionBar } from '~/components/ActionBar';
@@ -51,7 +51,7 @@ export async function action({ request }: Route.ActionArgs) {
   }
   const fd = await request.formData();
   const { values, errors } = parseFormFields(fd, {
-    contactName: requireString('Contact name'),
+    contactName: optionalString('Contact name'),
     contactEmail: optionalString('Contact email'),
     phone: optionalString('Phone'),
     notes: optionalString('Notes'),
