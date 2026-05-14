@@ -74,6 +74,27 @@ describe('RLS: employer_scope', () => {
     expect(rows).toHaveLength(0);
   });
 
+  it("employer cannot read another employer's roles", async () => {
+    const rows = await withClaims(
+      EMPLOYER_CLAIMS(FAKE_EMPLOYER_USER_ID, EMPLOYER_101_ID),
+      async (sql) => sql`SELECT id FROM public.roles WHERE employer_id = ${OTHER_EMPLOYER_ID}`,
+    );
+    expect(rows).toHaveLength(0);
+  });
+
+  it("employer cannot read another employer's competency submissions", async () => {
+    const rows = await withClaims(
+      EMPLOYER_CLAIMS(FAKE_EMPLOYER_USER_ID, EMPLOYER_101_ID),
+      async (sql) => sql`
+        SELECT s.id FROM public.assessment_submissions s
+        JOIN public.interns i ON i.id = s.intern_id
+        JOIN public.cohorts c ON c.id = i.cohort_id
+        WHERE c.employer_id = ${OTHER_EMPLOYER_ID}
+      `,
+    );
+    expect(rows).toHaveLength(0);
+  });
+
   it('employer cannot insert a non-allowed submission type', async () => {
     const employerInternId = '44444444-4444-4444-4444-444444444401';
     await expect(
@@ -95,6 +116,42 @@ describe('RLS: employer_scope', () => {
       async (sql) => sql`
         INSERT INTO public.assessment_submissions (type, intern_id, phase, answers)
         VALUES ('competency', ${employerInternId}, 'Phase 1', '{}'::jsonb)
+        RETURNING id
+      `,
+    );
+    expect(result[0]?.id).toBeTruthy();
+
+    // Cleanup
+    const cleanupSql = postgres(process.env.DATABASE_URL!, { max: 1 });
+    try {
+      await cleanupSql`DELETE FROM public.assessment_submissions WHERE id = ${result[0]!.id}`;
+    } finally {
+      await cleanupSql.end();
+    }
+  });
+
+  it('employer cannot insert a competency for an intern outside their scope', async () => {
+    // Intern 402 belongs to cohort 02 / employer 102 — outside employer 101's scope.
+    const outOfScopeInternId = '44444444-4444-4444-4444-444444444402';
+    await expect(
+      withClaims(
+        EMPLOYER_CLAIMS(FAKE_EMPLOYER_USER_ID, EMPLOYER_101_ID),
+        async (sql) => sql`
+          INSERT INTO public.assessment_submissions (type, intern_id, phase, answers)
+          VALUES ('competency', ${outOfScopeInternId}, 'Phase 1', '{}'::jsonb)
+          RETURNING id
+        `,
+      ),
+    ).rejects.toThrow(); // RLS WITH CHECK denies because intern is not in employer's cohorts
+  });
+
+  it('employer can insert an exit-employer-survey submission for their own intern', async () => {
+    const employerInternId = '44444444-4444-4444-4444-444444444401';
+    const result = await withClaims(
+      EMPLOYER_CLAIMS(FAKE_EMPLOYER_USER_ID, EMPLOYER_101_ID),
+      async (sql) => sql`
+        INSERT INTO public.assessment_submissions (type, intern_id, answers)
+        VALUES ('exit-employer-survey', ${employerInternId}, '{}'::jsonb)
         RETURNING id
       `,
     );
