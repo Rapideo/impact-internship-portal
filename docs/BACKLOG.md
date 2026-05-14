@@ -69,11 +69,26 @@ Things explicitly chosen NOT to build right now, with the reason. Living documen
   - Editor type-picker + accordion lack keyboard a11y in `settings-question-set.html` — Esc doesn't dismiss the open type-picker; accordions toggle on click only (sub-project C item).
   - Sidebar rail markup convention drift — some pages hardcode `--active`, `settings-stub.html` toggled it via JS (sub-project A item; partially obsoleted by stub deletion but the inconsistency remains across the rest of the rail-using pages).
 
+## Production-rebuild carry-overs (SP4 + SP5)
+
+Tracked in the in-session task list (TaskList) — listed here for visibility outside the session.
+
+- **#48** — Lazy-evaluate `app/lib/env.server.ts` (SP1 carry-over). Today the module reads env vars at top-level, which means importing it in test setup forces all required vars to exist. Lazy getters would let test files import without polluting env state.
+- **#49** — Add range CHECK on `program_info.fiscal_year_start_month` (SP1 carry-over). Should be 1–12.
+- **#69** — `db/seed.ts` should restore admin + employer1 profile rows after `TRUNCATE ... CASCADE` wipes them. Workaround today: run `npx tsx scripts/restore-dev-profiles.ts` after every `npm run db:seed`. The helper script is uncommitted in working dir.
+- **#76** — `getOneShotSubmission` (SP4) uses anon `db`; should use service-role `dbService` for consistency with the write path. Time-bomb when `db` is properly RLS-gated.
+- **#77** — Split `DATABASE_SERVICE_URL` from `DATABASE_POOL_URL` and downgrade the pool client to a real `anon` role. Today both clients connect via the same BYPASSRLS user, so the separation is semantic only.
+- **#84 [HIGH]** — `npm run build` is broken on `main` because `_public.intern.assessments.tsx` pulls `~/lib/assessment-submissions.server` into a non-loader/action export. SP4 Phase C bug surfaced during SP5 verification. **Blocks first production deploy.** Likely a missed `import type` somewhere.
+- **#89** — Decide ON DELETE behavior for `cohorts.role_id` / `interns.role_id`. Spec/plan documents say `restrict` but actual schema has `SET NULL`. Today an employer can delete a role and silently null out cohort/intern references. Either tighten schema (with soft-delete UI for roles with references) or document SET NULL as intentional design.
+- **SP5 Task 37 deferred** — admin invite → accept E2E (with a NODE_ENV-gated `/dev/invite-link` route) was skipped in Phase L pending security review of the gate. SP6 either builds it with belt-and-suspenders gating, or uses a different test strategy (direct Supabase admin API call from the test, no public route).
+- **Playwright CI gate** — every PR check shows `Playwright    skipping`. SP6 needs to either un-gate the job or document why it's permanently local-only. The 10 specs on `main` (`auth`, `admin-crud`, `admin-competency`, `admin-exit-employer-survey`, `admin-question-editor`, `intern-self-submit`, `employer-login`, `employer-competency`) are the floor.
+
 ## Original PRD non-goals (still out of scope)
 
 - Midpoint Performance Review form
-- Employer logins
 - Notifications (email, in-app, etc.)
+
+(Employer logins were originally a non-goal but were promoted into scope and shipped in Sub-project 5 — 2026-05-14.)
 
 ---
 
