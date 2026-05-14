@@ -21,7 +21,7 @@ export default function InternLayout() {
             className="wordmark"
             aria-label="IMPACT — Expand Your Opportunities"
             style={{
-              color: '#fff',
+              color: 'var(--white)',
               textDecoration: 'none',
               fontWeight: 700,
               letterSpacing: '0.02em',

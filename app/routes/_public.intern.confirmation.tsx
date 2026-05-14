@@ -127,7 +127,7 @@ export default function InternConfirmationPage() {
           <article
             className="identity-card"
             style={{
-              background: '#fff',
+              background: 'var(--white)',
               border: '1px solid var(--rule)',
               borderRadius: 10,
               padding: 24,

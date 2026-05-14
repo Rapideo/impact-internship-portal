@@ -11,7 +11,7 @@
 
 import { useMemo, useState } from 'react';
 import { Form, Link, redirect, useActionData, useLoaderData } from 'react-router';
-import { asc, eq } from 'drizzle-orm';
+import { and, asc, eq } from 'drizzle-orm';
 import type { Route } from './+types/_public.intern.assessments';
 import { db } from '~/lib/db.server';
 import { env } from '~/lib/env.server';
@@ -162,18 +162,6 @@ export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const intent = String(formData.get('intent') ?? '');
 
-  if (intent === 'switch') {
-    const headers = new Headers();
-    headers.append(
-      'Set-Cookie',
-      serializeInternIdentityCookie('', {
-        isProd: env.APP_URL.startsWith('https://'),
-        clear: true,
-      }),
-    );
-    throw redirect('/intern/assessments', { headers });
-  }
-
   if (intent !== 'confirm') {
     return { error: 'Invalid request.' } satisfies ActionError;
   }
@@ -211,13 +199,14 @@ export async function action({ request }: Route.ActionArgs) {
     } satisfies ActionError;
   }
 
-  // Defensive: confirm the cohort belongs to the selected employer.
+  // Verify the cohort exists AND belongs to the selected employer. This blocks a
+  // tampered form from baking a fraudulent employerId into the signed cookie.
   const cohortMatch = await db
-    .select({ id: cohortsTable.id })
+    .select({ employerId: cohortsTable.employerId })
     .from(cohortsTable)
-    .where(eq(cohortsTable.id, cohortId))
+    .where(and(eq(cohortsTable.id, cohortId), eq(cohortsTable.employerId, employerId)))
     .limit(1);
-  if (cohortMatch.length === 0) {
+  if (cohortMatch.length === 0 || !cohortMatch[0]) {
     return {
       error: 'No matching intern record. Check your details or contact your program administrator.',
       fields,
@@ -229,7 +218,7 @@ export async function action({ request }: Route.ActionArgs) {
     firstInitial: intern.firstInitial,
     lastName: intern.lastName,
     cohortId: intern.cohortId,
-    employerId,
+    employerId: cohortMatch[0].employerId,
   });
   const headers = new Headers();
   headers.append(
@@ -351,7 +340,7 @@ function IdentityGate({
           <article
             className="identity-card"
             style={{
-              background: '#fff',
+              background: 'var(--white)',
               border: '1px solid var(--rule)',
               borderRadius: 10,
               padding: 24,
