@@ -22,11 +22,7 @@ import {
   signInternIdentityCookie,
   serializeInternIdentityCookie,
 } from '~/lib/intern-identity.server';
-import {
-  getOneShotSubmission,
-  ONE_SHOT_TYPES,
-  type SubmissionType,
-} from '~/lib/assessment-submissions.server';
+import { getOneShotSubmission, type SubmissionType } from '~/lib/assessment-submissions.server';
 import { IdentityConfirmedChip } from '~/components/forms/IdentityConfirmedChip';
 import { PageHead } from '~/components/PageHead';
 
@@ -452,6 +448,3 @@ function IdentityGate({
     </>
   );
 }
-
-// Re-export for tests that want to reuse the one-shot type list.
-export const __TEST_ONE_SHOT_TYPES = ONE_SHOT_TYPES;
