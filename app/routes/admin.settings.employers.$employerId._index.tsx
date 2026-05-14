@@ -3,11 +3,13 @@ import {
   Form,
   Link,
   redirect,
+  useActionData,
   useLoaderData,
   useNavigate,
   useSearchParams,
 } from 'react-router';
 import { useEffect, useState } from 'react';
+import { eq } from 'drizzle-orm';
 import type { Route } from './+types/admin.settings.employers.$employerId._index';
 import { requireAdmin } from '~/lib/admin-guard.server';
 import { db } from '~/lib/db.server';
@@ -16,12 +18,14 @@ import {
   listCohortsForEmployer,
   listRolesForEmployerWithCohortCount,
 } from '~/lib/admin-queries.server';
-import { employers } from '../../db/schema';
-import { eq } from 'drizzle-orm';
+import { employerAccountStatus } from '~/lib/invites.server';
+import { getSupabaseAdmin } from '~/lib/supabase-admin.server';
+import { employers, profiles } from '../../db/schema';
 import { PageHead } from '~/components/PageHead';
 import { MetaStrip } from '~/components/MetaStrip';
 import { SettingsShell } from '~/components/SettingsShell';
 import { ConfirmModal } from '~/components/ConfirmModal';
+import { EmployerAccountCard } from '~/components/admin/EmployerAccountCard';
 import { EmptyRow } from '~/components/EmptyRow';
 import { useToast } from '~/components/ToastProvider';
 import { formatDate, formatPhone, initials } from '~/lib/format';
@@ -34,31 +38,61 @@ export const meta: Route.MetaFunction = ({ data: loaderData }) => [
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);
-  const employer = await getEmployerOrNull(db, params.employerId!);
+  const employer = await getEmployerOrNull(db, params.employerId);
   if (!employer) throw new Response('Not Found', { status: 404 });
-  const [cohorts, roles] = await Promise.all([
+  const [cohorts, roles, accountStatus] = await Promise.all([
     listCohortsForEmployer(db, employer.id),
     listRolesForEmployerWithCohortCount(db, employer.id),
+    employerAccountStatus(employer.id),
   ]);
-  return data({ employer, cohorts, roles }, { headers });
+
+  // Resolve the auth.users email for the linked employer account when
+  // one exists. TODO(sp5-future): `listUsers()` fetches every user in
+  // the project; once we have >1k employers this should switch to a
+  // paginated lookup or a denormalised email column on profiles.
+  let accountEmail: string | null = null;
+  if (accountStatus !== 'none') {
+    const profileRows = await db
+      .select({ userId: profiles.userId })
+      .from(profiles)
+      .where(eq(profiles.employerId, employer.id))
+      .limit(1);
+    if (profileRows.length > 0) {
+      const { data: userList } = await getSupabaseAdmin().auth.admin.listUsers();
+      accountEmail = userList.users.find((u) => u.id === profileRows[0]!.userId)?.email ?? null;
+    }
+  }
+
+  return data({ employer, cohorts, roles, accountStatus, accountEmail }, { headers });
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
   const { headers } = await requireAdmin(request);
   const fd = await request.formData();
   if (String(fd.get('_intent')) === 'delete') {
-    await db.delete(employers).where(eq(employers.id, params.employerId!));
+    await db.delete(employers).where(eq(employers.id, params.employerId));
     throw redirect('/admin/settings/employers?deleted=1', { headers });
   }
   return data({}, { headers });
 }
 
 export default function EmployerDetail() {
-  const { employer, cohorts, roles } = useLoaderData<typeof loader>();
+  const { employer, cohorts, roles, accountStatus, accountEmail } = useLoaderData<typeof loader>();
+  const actionData = useActionData<{ error?: string }>();
   const navigate = useNavigate();
   const toast = useToast();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [search] = useSearchParams();
+
+  const accountFlag = search.get('account');
+  const accountSuccess =
+    accountFlag === 'invited'
+      ? 'Invite sent.'
+      : accountFlag === 'resent'
+        ? 'Invite re-sent.'
+        : accountFlag === 'revoked'
+          ? 'Access revoked.'
+          : null;
 
   useEffect(() => {
     if (search.get('created') === '1')
@@ -212,6 +246,15 @@ export default function EmployerDetail() {
             )}
           </tbody>
         </table>
+
+        <EmployerAccountCard
+          employerId={employer.id}
+          contactEmail={employer.contactEmail}
+          status={accountStatus}
+          accountEmail={accountEmail}
+          error={actionData?.error ?? null}
+          success={accountSuccess}
+        />
 
         <Form method="post" id="delete-form">
           <input type="hidden" name="_intent" value="delete" />

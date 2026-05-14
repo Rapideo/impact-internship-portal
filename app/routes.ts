@@ -50,6 +50,10 @@ export default [
       'routes/admin.settings.employers.$employerId.edit.tsx',
     ),
     route(
+      'admin/settings/employers/:employerId/account',
+      'routes/admin.settings.employers.$employerId.account.tsx',
+    ),
+    route(
       'admin/settings/employers/:employerId/cohorts/new',
       'routes/admin.settings.employers.$employerId.cohorts.new.tsx',
     ),
