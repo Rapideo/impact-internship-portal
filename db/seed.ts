@@ -240,6 +240,39 @@ async function main() {
       await client.unsafe('ROLLBACK');
       throw err;
     }
+
+    // Restore dev profile rows. The TRUNCATE ... CASCADE above wipes `profiles`
+    // because it references `employers`; without this step contributors have to
+    // remember to re-upsert admin + employer1 by hand after every seed.
+    // If auth.users hasn't been populated yet (fresh install, before
+    // `npm run admin:create`), log a warning and skip — the seed itself still
+    // succeeds.
+    console.log('Restoring dev profile rows (admin + employer1)...');
+    const EMPLOYER1_ID = '11111111-1111-1111-1111-111111111101';
+    const users = await client<{ id: string; email: string }[]>`
+      SELECT id, email FROM auth.users
+      WHERE email IN ('admin@example.com', 'employer1@example.com')
+    `;
+    if (users.length === 0) {
+      console.warn(
+        '  No matching auth.users rows yet — skipping profile restore. ' +
+          'Run `npm run admin:create` and re-seed to populate profile rows.',
+      );
+    } else {
+      for (const u of users) {
+        const role = u.email === 'admin@example.com' ? 'admin' : 'employer';
+        const employerId = u.email === 'admin@example.com' ? null : EMPLOYER1_ID;
+        await client`
+          INSERT INTO public.profiles (user_id, role, employer_id)
+          VALUES (${u.id}, ${role}, ${employerId})
+          ON CONFLICT (user_id) DO UPDATE
+          SET role = EXCLUDED.role, employer_id = EXCLUDED.employer_id
+        `;
+        console.log(
+          `  Restored profile: ${u.email} -> role=${role}, employer_id=${employerId ?? 'NULL'}`,
+        );
+      }
+    }
   } finally {
     await client.end();
   }

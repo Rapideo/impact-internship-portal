@@ -367,7 +367,7 @@ Plan docs frequently reference classes that don't exist. The real registry:
 ### Local development cheat-sheet (for SP6 onwards)
 
 - `npm run dev` — Vite + RR v7 dev server.
-- `npm run db:seed` — refreshes the database. **Then run** `npx tsx scripts/restore-dev-profiles.ts` to re-upsert admin + employer1 profile rows (the seed's TRUNCATE CASCADE wipes them; carry-over #69 tracks the fix). The script is uncommitted in working dir — keep it around until #69 lands.
+- `npm run db:seed` — refreshes the database (also re-upserts admin + employer1 profile rows so login keeps working after the TRUNCATE CASCADE).
 - `npm test -- --run` — vitest unit suite (196 tests today).
 - `npm run test:rls` — RLS integration suite, requires `supabase start`.
 - `npm run test:e2e` — Playwright suite.
