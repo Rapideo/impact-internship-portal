@@ -15,6 +15,13 @@
       "when": 1778820982680,
       "tag": "0001_program_info_fiscal_check",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778823646521,
+      "tag": "0002_role_fk_restrict",
+      "breakpoints": true
     }
   ]
 }
