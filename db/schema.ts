@@ -100,6 +100,10 @@ export const programInfo = pgTable(
   },
   (_t) => ({
     singleton: check('program_info_singleton', sql`id = 1`),
+    fiscalYearStartMonthRange: check(
+      'program_info_fiscal_year_start_month_check',
+      sql`fiscal_year_start_month BETWEEN 1 AND 12`,
+    ),
   }),
 );
 
