@@ -155,7 +155,10 @@ export async function getSubmission(id: string) {
 }
 
 export async function getOneShotSubmission(internId: string, type: SubmissionType) {
-  const rows = await db
+  // Service-role client: this is called from the intern public flow with only
+  // an HMAC-signed identity cookie (no Supabase JWT), so RLS-bound queries
+  // would return zero rows once Task #77 splits the URLs. See Task #76.
+  const rows = await dbService
     .select()
     .from(assessmentSubmissions)
     .where(
