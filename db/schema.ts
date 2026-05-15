@@ -146,7 +146,7 @@ export const cohorts = pgTable(
     employerId: uuid('employer_id')
       .notNull()
       .references(() => employers.id, { onDelete: 'cascade' }),
-    roleId: uuid('role_id').references(() => roles.id, { onDelete: 'set null' }),
+    roleId: uuid('role_id').references(() => roles.id, { onDelete: 'restrict' }),
     name: text('name').notNull(),
     startDate: text('start_date'),
     endDate: text('end_date'),
@@ -205,7 +205,7 @@ export const interns = pgTable(
     cohortId: uuid('cohort_id')
       .notNull()
       .references(() => cohorts.id, { onDelete: 'restrict' }),
-    roleId: uuid('role_id').references(() => roles.id, { onDelete: 'set null' }),
+    roleId: uuid('role_id').references(() => roles.id, { onDelete: 'restrict' }),
     firstInitial: text('first_initial').notNull(),
     lastName: text('last_name').notNull(),
     startDate: text('start_date'),

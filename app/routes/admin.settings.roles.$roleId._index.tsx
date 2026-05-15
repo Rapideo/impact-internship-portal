@@ -3,6 +3,7 @@ import {
   Form,
   Link,
   redirect,
+  useActionData,
   useLoaderData,
   useNavigate,
   useSearchParams,
@@ -44,20 +45,43 @@ export async function action({ request, params }: Route.ActionArgs) {
   const fd = await request.formData();
   if (String(fd.get('_intent')) === 'delete') {
     const role = await getRoleOrNull(db, params.roleId!);
-    await db.delete(rolesTbl).where(eq(rolesTbl.id, params.roleId!));
+    try {
+      await db.delete(rolesTbl).where(eq(rolesTbl.id, params.roleId!));
+    } catch (err: unknown) {
+      // cohorts.role_id and interns.role_id use ON DELETE RESTRICT
+      // (migration 0002_role_fk_restrict.sql). If any rows still reference
+      // this role the DB raises 23503; surface a friendly message instead
+      // of a 500.
+      const code =
+        typeof err === 'object' && err !== null && 'code' in err
+          ? String((err as { code?: unknown }).code)
+          : '';
+      if (code === '23503') {
+        return data(
+          {
+            deleteError:
+              "This role can't be deleted because it's currently assigned to one or more cohorts or interns. Reassign or remove them first, then try again.",
+          },
+          { headers, status: 400 },
+        );
+      }
+      throw err;
+    }
     throw redirect(`/admin/settings/employers/${role?.employerId ?? ''}?roleDeleted=1`, {
       headers,
     });
   }
-  return data({}, { headers });
+  return data({ deleteError: null as string | null }, { headers });
 }
 
 export default function RoleDetail() {
   const { role, employer, cohorts } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
   const toast = useToast();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [search] = useSearchParams();
+  const deleteError = actionData?.deleteError ?? null;
 
   useEffect(() => {
     if (search.get('created') === '1')
@@ -65,6 +89,12 @@ export default function RoleDetail() {
     if (search.get('updated') === '1')
       toast.show({ kind: 'success', label: 'UPDATED', message: 'Role updated.' });
   }, [search, toast]);
+
+  useEffect(() => {
+    if (deleteError) {
+      toast.show({ kind: 'danger', label: 'CANNOT DELETE', message: deleteError });
+    }
+  }, [deleteError, toast]);
 
   return (
     <>
@@ -186,7 +216,7 @@ export default function RoleDetail() {
           }
           label="DELETE ROLE"
           title="Delete this role?"
-          body="Removing this role will not delete cohorts or interns that reference it, but those records will need a new role assignment. This cannot be undone."
+          body="If any cohorts or interns are still assigned to this role, the delete will be refused — reassign them first. This cannot be undone."
           confirmText="Delete Permanently"
           variant="danger"
         />

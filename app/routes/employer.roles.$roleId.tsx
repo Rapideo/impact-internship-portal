@@ -6,10 +6,10 @@
 // RLS).
 //
 // Delete semantics: `cohorts.role_id` and `interns.role_id` both use
-// ON DELETE SET NULL in the current schema (0000_initial_schema.sql), so
-// deleting a role does not fail on FK — referencing rows simply have
-// their role pointer cleared. We still catch supabase errors and surface
-// them inline, in case a future migration tightens the FK.
+// ON DELETE RESTRICT (migration 0002_role_fk_restrict.sql, task #89), so
+// attempting to delete a role that still has cohort or intern references
+// raises Postgres error 23503 (foreign_key_violation). We catch that and
+// surface a friendly "reassign first" message inline rather than 500'ing.
 //
 // Auth is enforced by the parent `employer.tsx` layout; the
 // `!auth?.employerId` guard here is for TypeScript narrowing.
@@ -81,13 +81,12 @@ export async function action({ request, params }: Route.ActionArgs) {
   if (intent === 'delete') {
     const { error } = await supabase.from('roles').delete().eq('id', roleId);
     if (error) {
-      // Schema currently uses ON DELETE SET NULL for cohorts.role_id and
-      // interns.role_id so a delete should not FK-fail today. If a future
-      // migration tightens this to RESTRICT, surface a friendly message
-      // rather than redirecting on failure.
+      // cohorts.role_id and interns.role_id use ON DELETE RESTRICT
+      // (migration 0002_role_fk_restrict.sql). When a referencing row
+      // exists, the DB raises 23503 and we tell the user to reassign first.
       const friendly =
         error.code === '23503'
-          ? 'Cannot delete this role — one or more cohorts still reference it.'
+          ? "This role can't be deleted because it's currently assigned to one or more cohorts or interns. Reassign or remove them first, then try again."
           : `Delete failed: ${error.message}`;
       return data(
         { errors: [{ field: '_form', message: friendly }], values: null, saved: false as const },
@@ -242,7 +241,7 @@ export default function EditEmployerRole() {
         }}
         label="DELETE ROLE"
         title="Delete this role?"
-        body="Cohorts and interns that reference this role will have their role pointer cleared. This cannot be undone."
+        body="If any cohorts or interns are still assigned to this role, the delete will be refused — reassign them first. This cannot be undone."
         confirmText="Delete Permanently"
         variant="danger"
       />
