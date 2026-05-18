@@ -1,3 +1,11 @@
+// Admin shell nav — rewritten in SP7 Phase B to match the prototype's
+// admin.html structure verbatim: dark navy surface, 64px wordmark, 5 nav
+// links (Home / Interns / Assessments / Reports / Settings), 3px gold
+// underline rail under the active link, admin-chip on the right with
+// square gold avatar, divider, and logout form. Tokens come from
+// app/styles/tokens.css; component rules ported into app/styles/admin.css
+// (sp7-b block, appended).
+
 import { Form, NavLink } from 'react-router';
 
 type AdminTab = 'home' | 'interns' | 'assessments' | 'reports' | 'settings';
@@ -38,13 +46,9 @@ export function AdminNav({ active, userEmail }: AdminNavProps) {
           <span className="admin-chip">
             <span className="admin-chip__avatar">{avatarInitial}</span>
             {userEmail}
-            <span className="admin-chip__divider"></span>
+            <span className="admin-chip__divider" />
             <Form method="post" action="/sign-out" style={{ display: 'inline' }}>
-              <button
-                type="submit"
-                className="admin-chip__logout"
-                style={{ background: 'transparent', border: 0, cursor: 'pointer', padding: 0 }}
-              >
+              <button type="submit" className="admin-chip__logout">
                 Logout
               </button>
             </Form>

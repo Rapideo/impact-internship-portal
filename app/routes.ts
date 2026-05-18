@@ -102,5 +102,12 @@ export default [
     route('employer/roles/new', 'routes/employer.roles.new.tsx'),
     route('employer/roles/:roleId', 'routes/employer.roles.$roleId.tsx'),
   ]),
+  // Dev-only primitive gallery for SP7 Gate G2 review. Spread-gated by
+  // NODE_ENV so production builds don't ship the route. The loader inside
+  // the file also returns 404 if reached at runtime in prod (defense in
+  // depth).
+  ...(process.env.NODE_ENV !== 'production'
+    ? [route('dev/primitives', 'routes/dev.primitives.tsx')]
+    : []),
   route('*', 'routes/$.tsx'),
 ] satisfies RouteConfig;
