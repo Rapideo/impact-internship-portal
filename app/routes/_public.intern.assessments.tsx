@@ -1,13 +1,24 @@
-// Intern self-assessment chooser + identity gate.
+// Intern self-assessment chooser + identity gate — SP7 Phase D2 rebuild
+// against Prototypes/PROTOTYPE/intern-assessments.html.
 //
 // Two render branches keyed off the identity cookie:
-//   - No identity: 4-field identity-gate form (first initial, last name,
-//     employer, cohort). The cohort <select> cascades client-side from the
-//     employer pick. POST with intent=confirm runs `lookupInternByIdentity`,
-//     signs the cookie on match, redirects with Set-Cookie.
-//   - Identity confirmed: <IdentityConfirmedChip> + Switch button + 3-card
-//     grid of one-shot self-assessments. Cards that already have a submission
-//     show a "Submitted on {date}" pill instead of the CTA.
+//   - No identity: <PublicNav> ("← Back to home") + <PageHead> ("CHOOSE
+//     YOUR / ASSESSMENT.") + <IdentityCard> hosting a 4-field identity
+//     gate (First Initial / Last Name / Employer / Cohort) inside an
+//     `.id-grid.id-grid--4`, with a top-rule divider above the Confirm
+//     button. The cohort <select> cascades client-side from the employer
+//     pick. POST with intent=confirm runs lookupInternByIdentity, verifies
+//     the cohort belongs to the chosen employer, then signs the cookie
+//     and redirects with Set-Cookie.
+//   - Identity confirmed: <IdentityConfirmedChip> + Switch button (POSTs
+//     to /intern/reset-identity) + a 3-card chooser using <AssessmentCard>
+//     with prototype-verbatim copy. Each card shows "SUBMITTED ON …" if
+//     a one-shot submission exists, otherwise the "Begin …" primary CTA.
+//
+// The loader + action are PRESERVED VERBATIM — only the default-export
+// render body is rebuilt to match the prototype shell. The identity-gate
+// action still verifies cohort-belongs-to-employer before signing the
+// signed cookie (do not bypass — never trust raw form-supplied employerId).
 
 import { useMemo, useState } from 'react';
 import { Form, Link, redirect, useActionData, useLoaderData } from 'react-router';
@@ -23,10 +34,13 @@ import {
   serializeInternIdentityCookie,
 } from '~/lib/intern-identity.server';
 import { getOneShotSubmission, type SubmissionType } from '~/lib/assessment-submissions.server';
+import { AssessmentCard } from '~/components/AssessmentCard';
+import { IdentityCard } from '~/components/IdentityCard';
 import { IdentityConfirmedChip } from '~/components/forms/IdentityConfirmedChip';
 import { PageHead } from '~/components/PageHead';
+import { PublicNav } from '~/components/nav/PublicNav';
 
-export const meta: Route.MetaFunction = () => [{ title: 'My Assessments — IMPACT' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Intern Assessments — IMPACT 2026' }];
 
 interface EmployerOption {
   id: string;
@@ -51,39 +65,48 @@ interface IdentityDisplay {
   employerName: string;
 }
 
-const ONE_SHOT_CARDS: {
+// Verbatim from intern-assessments.html — card copy + stage tags + CTAs.
+const ONE_SHOT_CARDS: ReadonlyArray<{
   type: 'personal-goals' | 'midpoint-reflection' | 'participant-feedback';
+  stage: string;
+  meta: string;
   title: string;
-  micro: string;
-  blurb: string;
+  body: string;
   cta: string;
   href: string;
-}[] = [
+}> = [
   {
     type: 'personal-goals',
-    title: 'Personal Goals',
-    micro: 'START OF PROGRAM',
-    blurb: 'Set the goals you want to work toward during the internship.',
-    cta: 'Start Personal Goals',
+    stage: 'AT START',
+    meta: 'PERSONAL GOALS',
+    title: 'Set your starting line.',
+    body: "Capture what you're hoping to learn, the skills you want to build, and how you'll know you're making progress. Submit this in your first weeks.",
+    cta: 'Begin Personal Goals',
     href: '/intern/personal-goals',
   },
   {
     type: 'midpoint-reflection',
-    title: 'Midpoint Reflection',
-    micro: 'MIDPOINT CHECK-IN',
-    blurb: 'Reflect on your progress so far and what you want to focus on next.',
-    cta: 'Start Midpoint Reflection',
+    stage: 'AT MIDPOINT',
+    meta: 'MIDPOINT REFLECTION',
+    title: 'Reflect on the journey.',
+    body: "Look back at your goals, what's gone well, what's been hard, and where you want to focus for the second half. Submit this around the midpoint of your internship.",
+    cta: 'Begin Midpoint Reflection',
     href: '/intern/midpoint-reflection',
   },
   {
     type: 'participant-feedback',
-    title: 'Participant Feedback',
-    micro: 'END OF PROGRAM',
-    blurb: 'Share your honest feedback about the internship program.',
-    cta: 'Start Participant Feedback',
+    stage: 'AT EXIT',
+    meta: 'PARTICIPANT FEEDBACK',
+    title: 'Look back on your journey.',
+    body: "A short reflection on your experience — what went well, what was hard, and what you'd recommend. Submit this near the end of your internship.",
+    cta: 'Begin Participant Feedback',
     href: '/intern/participant-feedback',
   },
 ];
+
+// Chooser-page back-link in the prototype routes to the landing page,
+// not back to assessments.
+const CHOOSER_NAV_LINKS = [{ to: '/', label: 'Back to home', back: true }] as const;
 
 export async function loader({ request }: Route.LoaderArgs) {
   const identity = await getCurrentInternIdentity(request);
@@ -225,9 +248,9 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 function formatSubmittedDate(iso: string): string {
+  // Matches IMPACT.formatCompletionDate() in the prototype: e.g. "Mar 14, 2026".
   const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${pad(d.getMonth() + 1)}.${pad(d.getDate())}.${d.getFullYear()}`;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 export default function InternAssessmentsPage() {
@@ -242,11 +265,21 @@ export default function InternAssessmentsPage() {
 
   return (
     <>
+      <PublicNav links={CHOOSER_NAV_LINKS} />
       <PageHead
-        breadcrumb="INTERN / ASSESSMENTS"
-        title="MY ASSESSMENTS."
-        sub="Complete each self-assessment when prompted by your program coordinator."
+        breadcrumb="INTERN ASSESSMENTS / 2026"
+        title={
+          <>
+            CHOOSE YOUR
+            <br />
+            ASSESSMENT.
+          </>
+        }
+        sub="Confirm your identity to see which assessments you've completed and which are still ahead. You'll complete three reflections during the program — one at the start, one at the midpoint, and one at the end."
       />
+
+      {/* Identity-confirmed chip + Switch — mirrors the prototype's
+          `[data-section="identity-confirmed"]` strip. */}
       <section>
         <div className="container">
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
@@ -258,51 +291,53 @@ export default function InternAssessmentsPage() {
             />
             <Form method="post" action="/intern/reset-identity">
               <button type="submit" className="btn btn--outline btn--sm">
-                Switch
+                Not you? Switch &rarr;
               </button>
             </Form>
           </div>
+        </div>
+      </section>
 
-          <div className="quick-links" style={{ marginTop: 24 }}>
+      {/* 3-card chooser grid + foot-note — mirrors prototype's
+          `[data-section="cards"]` block. */}
+      <section style={{ paddingTop: 24 }}>
+        <div className="container">
+          <div className="assessment-grid">
             {ONE_SHOT_CARDS.map((card) => {
               const submittedAt = statusByType.get(card.type) ?? null;
               return (
-                <article
+                <AssessmentCard
                   key={card.type}
-                  className="kpi-card"
-                  data-testid={`assessment-card-${card.type}`}
-                >
-                  <span className="kpi-card__label">{card.micro}</span>
-                  <h2
-                    style={{
-                      fontFamily: "'Archivo Black', sans-serif",
-                      fontSize: 22,
-                      color: 'var(--navy)',
-                      margin: '8px 0',
-                    }}
-                  >
-                    {card.title}
-                  </h2>
-                  <p style={{ fontSize: 14, color: 'var(--ink)', margin: '0 0 16px' }}>
-                    {card.blurb}
-                  </p>
-                  {submittedAt ? (
-                    <span
-                      className="kpi-card__delta"
-                      style={{ color: 'var(--navy)' }}
-                      data-testid={`submitted-pill-${card.type}`}
-                    >
-                      Submitted on {formatSubmittedDate(submittedAt)}
-                    </span>
-                  ) : (
-                    <Link to={card.href} className="btn btn--primary btn--sm">
-                      {card.cta}
-                    </Link>
-                  )}
-                </article>
+                  stage={card.stage}
+                  meta={card.meta}
+                  title={card.title}
+                  body={card.body}
+                  done={Boolean(submittedAt)}
+                  action={
+                    submittedAt ? (
+                      <span
+                        className="kpi-card__delta"
+                        style={{ color: 'var(--navy)' }}
+                        data-testid={`submitted-pill-${card.type}`}
+                      >
+                        Submitted on {formatSubmittedDate(submittedAt)}
+                      </span>
+                    ) : (
+                      <Link to={card.href} className="btn btn--primary">
+                        {card.cta}
+                        <span className="btn__arrow"> &rarr;</span>
+                      </Link>
+                    )
+                  }
+                />
               );
             })}
           </div>
+
+          <p className="assessment-foot-note">
+            Each assessment can only be submitted once. Completion is recorded for your cohort
+            administrator.
+          </p>
         </div>
       </section>
     </>
@@ -326,123 +361,125 @@ function IdentityGate({
 
   return (
     <>
+      <PublicNav links={CHOOSER_NAV_LINKS} />
       <PageHead
-        breadcrumb="INTERN / ASSESSMENTS"
-        title="MY ASSESSMENTS."
-        sub="Confirm your identity to begin a self-assessment."
+        breadcrumb="INTERN ASSESSMENTS / 2026"
+        title={
+          <>
+            CHOOSE YOUR
+            <br />
+            ASSESSMENT.
+          </>
+        }
+        sub="Confirm your identity to see which assessments you've completed and which are still ahead. You'll complete three reflections during the program — one at the start, one at the midpoint, and one at the end."
       />
-      <section>
-        <div className="container" style={{ maxWidth: 560 }}>
-          <article
-            className="identity-card"
-            style={{
-              background: 'var(--white)',
-              border: '1px solid var(--rule)',
-              borderRadius: 10,
-              padding: 24,
-            }}
-          >
-            <h2
-              style={{
-                fontFamily: "'Archivo Black', sans-serif",
-                fontSize: 20,
-                color: 'var(--navy)',
-                margin: '0 0 8px',
-              }}
-            >
-              Confirm your identity
-            </h2>
-            <p style={{ fontSize: 14, color: 'var(--ink-soft)', margin: '0 0 16px' }}>
-              We use this to match you to your cohort roster. We never store more than your first
-              initial and last name.
-            </p>
 
+      <section>
+        <div className="container">
+          <IdentityCard
+            title="Confirm Your Identity"
+            subnote="UNIQUE KEY · FIRST INITIAL + LAST NAME + EMPLOYER + COHORT"
+          >
             {actionData?.error ? (
-              <div className="form-banner form-banner--danger" role="alert">
+              <div role="alert" className="form-banner form-banner--danger">
                 {actionData.error}
               </div>
             ) : null}
 
-            <Form
-              method="post"
-              style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
-              data-testid="identity-gate-form"
-            >
+            <Form method="post" data-testid="identity-gate-form">
               <input type="hidden" name="intent" value="confirm" />
 
-              <div className="field">
-                <label htmlFor="firstInitial">First initial</label>
-                <input
-                  id="firstInitial"
-                  name="firstInitial"
-                  className="input"
-                  maxLength={1}
-                  pattern="[A-Za-z]"
-                  required
-                  defaultValue={actionData?.fields?.firstInitial ?? ''}
-                  autoComplete="off"
-                />
-              </div>
+              <div className="id-grid id-grid--4">
+                <div className="field">
+                  <label htmlFor="firstInitial">First Initial</label>
+                  <input
+                    id="firstInitial"
+                    name="firstInitial"
+                    className="input"
+                    type="text"
+                    maxLength={1}
+                    pattern="[A-Za-z]"
+                    required
+                    placeholder="e.g., M"
+                    style={{ textTransform: 'uppercase' }}
+                    defaultValue={actionData?.fields?.firstInitial ?? ''}
+                    autoComplete="off"
+                  />
+                </div>
 
-              <div className="field">
-                <label htmlFor="lastName">Last name</label>
-                <input
-                  id="lastName"
-                  name="lastName"
-                  className="input"
-                  required
-                  defaultValue={actionData?.fields?.lastName ?? ''}
-                  autoComplete="family-name"
-                />
-              </div>
+                <div className="field">
+                  <label htmlFor="lastName">Last Name</label>
+                  <input
+                    id="lastName"
+                    name="lastName"
+                    className="input"
+                    type="text"
+                    required
+                    placeholder="e.g., Bayer"
+                    defaultValue={actionData?.fields?.lastName ?? ''}
+                    autoComplete="family-name"
+                  />
+                </div>
 
-              <div className="field">
-                <label htmlFor="employerId">Employer</label>
-                <select
-                  id="employerId"
-                  name="employerId"
-                  className="select"
-                  required
-                  value={employerId}
-                  onChange={(e) => setEmployerId(e.target.value)}
-                >
-                  <option value="">Select your employer…</option>
-                  {employers.map((emp) => (
-                    <option key={emp.id} value={emp.id}>
-                      {emp.name}
+                <div className="field">
+                  <label htmlFor="employerId">Employer</label>
+                  <select
+                    id="employerId"
+                    name="employerId"
+                    className="select"
+                    required
+                    value={employerId}
+                    onChange={(e) => setEmployerId(e.target.value)}
+                  >
+                    <option value="">Select employer</option>
+                    {employers.map((emp) => (
+                      <option key={emp.id} value={emp.id}>
+                        {emp.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="field">
+                  <label htmlFor="cohortId">Cohort</label>
+                  <select
+                    id="cohortId"
+                    name="cohortId"
+                    className="select"
+                    required
+                    disabled={!employerId}
+                    defaultValue={actionData?.fields?.cohortId ?? ''}
+                  >
+                    <option value="">
+                      {employerId ? 'Select cohort' : 'Select employer first'}
                     </option>
-                  ))}
-                </select>
+                    {filteredCohorts.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              <div className="field">
-                <label htmlFor="cohortId">Cohort</label>
-                <select
-                  id="cohortId"
-                  name="cohortId"
-                  className="select"
-                  required
-                  disabled={!employerId}
-                  defaultValue={actionData?.fields?.cohortId ?? ''}
-                >
-                  <option value="">
-                    {employerId ? 'Select your cohort…' : 'Pick an employer first…'}
-                  </option>
-                  {filteredCohorts.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div style={{ marginTop: 8 }}>
+              {/* Top-rule divider above the Confirm button — verbatim from
+                  the prototype's identity-gate footer styling. */}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  marginTop: 22,
+                  paddingTop: 22,
+                  borderTop: '1px solid var(--rule)',
+                }}
+              >
                 <button type="submit" className="btn btn--primary">
-                  Continue
+                  Confirm
+                  <span className="btn__arrow"> &rarr;</span>
                 </button>
               </div>
             </Form>
-          </article>
+          </IdentityCard>
         </div>
       </section>
     </>

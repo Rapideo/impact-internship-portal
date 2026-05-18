@@ -56,31 +56,35 @@ _Findings:_ Loader-redirect path (no session) verified live. Wrapped in `<Public
 ### `[D] /auth/callback` (SP5 new — transient redirect)
 _Findings:_ Deferred to manual test pass.
 
-### `[~] /intern/assessments` ↔ `intern-assessments.html`
+### `[✓] /intern/assessments` ↔ `intern-assessments.html`
 _Findings:_
 - **P0** — Production page is completely different design-wise from prototype. **Decision: keep the prototype's look** (per Matt). **Rebuild specifics:** identity-gate uses `.identity-card` + `.id-grid.id-grid--4` (4-column field grid) + a top-rule divider above the Confirm button. After confirmation, prototype swaps to a 3-card chooser (`.chooser-card`-style) with status pills ("SUBMITTED ON …" vs "ONE SUBMISSION") and per-card mono numerals. Use the existing `IdentityConfirmedChip` for the post-confirm header strip.
+  - **Resolved in SP7 Phase D2 (see PR #<TBD>)** — chooser rebuilt against the prototype byte-for-byte. Identity gate uses `<IdentityCard>` + `.id-grid.id-grid--4` + top-rule divider; post-confirm view uses `<IdentityConfirmedChip>` + "Not you? Switch" + 3 `<AssessmentCard>`s with verbatim stage pills, meta labels, titles, body copy, and CTA strings. Status pill swaps in "Submitted on {date}" when a one-shot row exists.
 
-### `[~] /intern/personal-goals` ↔ `personal-goals.html`
+### `[✓] /intern/personal-goals` ↔ `personal-goals.html`
 _Findings:_
 - **P0** — Missing the entire shared shell: prototype has `<header class="nav">` with wordmark + "← Back to assessments" back-link, and the persistent dark `<footer>`. Production's `_public.intern.tsx` layout supplies an ad-hoc inline-styled nav (text-only "IMPACT" wordmark, no logo, single "My Assessments" link) and **no footer**. Fix in the layout: real navy nav with `.wordmark__img`, a `.back-link` style back-arrow link, and a `.footer` block at the bottom of the outlet.
 - **P0** — Missing the **sticky `.action-bar`** at the bottom of the viewport. Prototype shows a fixed bar with a mono status caption ("PERSONAL GOALS · ONE SUBMISSION") on the left and Cancel + Submit buttons on the right. Production renders the submit button inline inside `AssessmentForm` with no action bar shell. Either move the form's submit row into a shared `<ActionBar>` (component exists at `app/components/ActionBar.tsx`) or wrap `AssessmentForm` output with it on each form route.
 - **P1** — `PageHead` title is `"PERSONAL GOALS."` — flat. Prototype uses a 2-line Archivo Black headline (`"YOUR STARTING<br/>LINE."`). Allow `title` to be a `ReactNode` so we can pass `<>YOUR STARTING<br/>LINE.</>`, and update micro-label to the prototype's "PERSONAL GOALS / 2026 / ONE SUBMISSION" format (with year + cardinality, not "INTERN / PERSONAL GOALS").
 - **P1** — Prototype splits the 7-question set across 2 containers with a navy-tinted Archivo Black section header ("My Focus for This Internship") between question 4 and question 5. Production renders all questions in a single flat list — no section break. Add an optional `sectionBreaks` prop on `AssessmentForm`, or render two `AssessmentForm` calls with the section heading between them.
 - **P2** — "Submitting as" chip wraps the `IdentityConfirmedChip` with an extra duplicate `SUBMITTING AS` micro-label outside it, but the chip itself already includes a "Confirmed as" label. Pick one.
+  - **Resolved in SP7 Phase D2 (see PR #<TBD>)** — `_public.intern.tsx` now mounts `<PublicFooter>`; each child route renders its own `<PublicNav>` with the prototype's "← Back to assessments" back-link variant. `<PageHead>` carries the 2-line `<>YOUR STARTING<br/>LINE.</>` title and the verbatim `PERSONAL GOALS / 2026 / ONE SUBMISSION` micro-label. `<AssessmentForm>` consumes the new Phase C `sectionBreaks=[{afterQuestionIndex: 3, title: 'My Focus for This Internship'}]` and `identityChip={...}` props, dropping the duplicate "SUBMITTING AS" wrapper. Sticky `<ActionBar>` (also Phase C) carries `statusCaption="PERSONAL GOALS · ONE SUBMISSION"` with a Cancel link to `/intern/assessments`.
 
-### `[~] /intern/midpoint-reflection` ↔ `midpoint-reflection.html`
+### `[✓] /intern/midpoint-reflection` ↔ `midpoint-reflection.html`
 _Findings:_
 - **P0** — Same shell gaps as Personal Goals: no real nav (need wordmark image + back-link), no footer, no sticky `.action-bar`. Inherits whatever fix lands on the intern layout.
 - **P1** — Same heading delta: prototype is `"REFLECT ON<br/>THE JOURNEY."` (2-line Archivo Black); production is `"MIDPOINT REFLECTION."`. Same micro-label format mismatch ("INTERN / MIDPOINT REFLECTION" vs "MIDPOINT REFLECTION / 2026 / ONE SUBMISSION").
 - **P2** — Same duplicated "SUBMITTING AS" micro-label wrapping the chip.
+  - **Resolved in SP7 Phase D2 (see PR #<TBD>)** — same shell rebuild as Personal Goals. 2-line `<>REFLECT ON<br/>THE JOURNEY.</>` title, verbatim micro-label, identity chip via `<AssessmentForm identityChip={...}>`, sticky action bar with `statusCaption="MIDPOINT REFLECTION · ONE SUBMISSION"`.
 
-### `[~] /intern/participant-feedback` ↔ `participant-feedback.html`
+### `[✓] /intern/participant-feedback` ↔ `participant-feedback.html`
 _Findings:_
 - **P0** — Same shell gaps: missing real nav, footer, sticky action bar.
 - **P1** — Same heading delta: prototype is `"LOOK BACK ON<br/>YOUR JOURNEY."`; production is `"PARTICIPANT FEEDBACK."`. Same micro-label format mismatch.
 - **P2** — Same duplicated "SUBMITTING AS" labeling.
+  - **Resolved in SP7 Phase D2 (see PR #<TBD>)** — same shell rebuild. 2-line `<>LOOK BACK ON<br/>YOUR JOURNEY.</>` title, verbatim micro-label, identity chip mounted by `<AssessmentForm>`, sticky action bar with `statusCaption="PARTICIPANT FEEDBACK · ONE SUBMISSION"`.
 
-### `[~] /intern/confirmation` ↔ `assessment-confirmation.html`
+### `[✓] /intern/confirmation` ↔ `assessment-confirmation.html`
 _Findings:_
 - **P0** — Missing the brand badge: prototype renders a 56px circular `.confirm__badge` with a stroked SVG checkmark above the title. Production has no badge at all — just a `PageHead` and a `<dl>`. Add the badge SVG inside a `.confirm__badge` container above the title.
 - **P0** — Wrong structural class: prototype's confirmation page uses `<main class="confirm">` with `.confirm__inner`, `.confirm__title`, `.confirm__body`, `.confirm__receipt`, `.confirm__receipt-head`, `.confirm__receipt-id`, `.meta-strip`, `.confirm__note`, `.confirm__actions`. Production uses `PageHead` + a custom `<article className="identity-card">` with all inline-styled `<dl>` rows. The `.meta-strip` class **does exist** in admin.css — use the existing 5-cell horizontal meta strip with mono values instead of a 2-column DL. Also reuse `app/components/MetaStrip.tsx`.
@@ -89,6 +93,7 @@ _Findings:_
 - **P1** — Missing the `.confirm__note` warning paragraph ("You will not be able to resubmit this assessment. If you need to correct something, please contact your program administrator.") below the receipt.
 - **P1** — Missing brand nav + footer (same `_public.intern.tsx` shell issue applies here).
 - **P2** — Date format in `formatSubmittedDate` is `MM.DD.YYYY · HH:MM`; prototype uses `MMM D, YYYY · h:mma`-ish. Worth aligning but not blocking.
+  - **Resolved in SP7 Phase D2 (see PR #<TBD>)** — rebuilt via `<ConfirmReceipt variant="success">` (Phase B primitive). Badge, micro-label, title, body, receipt card, mono receipt id (`IMP-SA-2026-NNN` derived from submittedAt), `<MetaStrip>` (5 cells, no `<dl>`), `.confirm__note` warning, and the navy CTA all in place. Per-type copy moved into the loader as a `COPY` map verbatim from the prototype JS (`micro`/`title`/`body` for each of the 4 supported `?type=` values). Nav + footer attached via the rebuilt layout. Date format now uses `MMM D, YYYY` to better match the prototype.
 
 ### `[✓] /*` (404) ↔ `404.html` _(closed in SP7 Phase D1 — see PR #<TBD>)_
 _Findings:_

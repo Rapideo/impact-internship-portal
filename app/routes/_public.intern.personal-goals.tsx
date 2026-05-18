@@ -1,8 +1,22 @@
 // Personal Goals — one-shot intern self-assessment.
+// SP7 Phase D2 rebuild against Prototypes/PROTOTYPE/personal-goals.html.
 //
-// Loader: requires confirmed identity; loads the `personal-goals` question
-// set; redirects to confirmation if already submitted.
-// Action: validates answers, inserts via the service-role client.
+// Loader + action are PRESERVED VERBATIM — only the default-export render
+// body is rebuilt to match the prototype shell:
+//   - <PublicNav> "← Back to assessments" (rendered here since the layout
+//     no longer mounts nav per-route).
+//   - <PageHead> with 2-line Archivo Black title "YOUR STARTING / LINE."
+//     and the prototype micro-label "PERSONAL GOALS / 2026 / ONE SUBMISSION".
+//   - <AssessmentForm> mounts the identity chip itself (via the new
+//     `identityChip` prop wired in Phase C). No outer "SUBMITTING AS"
+//     wrapper — the chip's own __label slot already says that.
+//   - `sectionBreaks` injects "My Focus for This Internship" between Q4 and
+//     Q5 (afterQuestionIndex=3, zero-based) — matches the prototype's
+//     `<h3 class="assessment-section-head">` between `#questions-main` and
+//     `#questions-focus`.
+//   - The sticky `<ActionBar>` (mounted internally by <AssessmentForm>) gets
+//     `statusCaption="PERSONAL GOALS · ONE SUBMISSION"` and a Cancel link
+//     to `/intern/assessments` — matches the prototype's `.action-bar`.
 
 import { redirect, useActionData, useLoaderData } from 'react-router';
 import type { Route } from './+types/_public.intern.personal-goals';
@@ -19,10 +33,14 @@ import {
   insertAnonymousSubmission,
 } from '~/lib/assessment-submissions.server';
 import { AssessmentForm } from '~/components/forms/AssessmentForm';
-import { IdentityConfirmedChip } from '~/components/forms/IdentityConfirmedChip';
 import { PageHead } from '~/components/PageHead';
+import { PublicNav } from '~/components/nav/PublicNav';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Personal Goals — IMPACT' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Personal Goals — IMPACT 2026' }];
+
+const FORM_NAV_LINKS = [
+  { to: '/intern/assessments', label: 'Back to assessments', back: true },
+] as const;
 
 export async function loader({ request }: Route.LoaderArgs) {
   const identity = await getCurrentInternIdentity(request);
@@ -115,24 +133,20 @@ export default function PersonalGoalsPage() {
 
   return (
     <>
+      <PublicNav links={FORM_NAV_LINKS} />
       <PageHead
-        breadcrumb="INTERN / PERSONAL GOALS"
-        title="PERSONAL GOALS."
-        sub="Set the goals you want to work toward during the internship."
+        breadcrumb="PERSONAL GOALS / 2026 / ONE SUBMISSION"
+        title={
+          <>
+            YOUR STARTING
+            <br />
+            LINE.
+          </>
+        }
+        sub="This internship is an opportunity for you to build professional skills, explore your career interests, and take steps toward your future. Take a few minutes to reflect on what you want to get out of this experience."
       />
-      <section>
+      <section className="assessment-wrap">
         <div className="container">
-          <div style={{ marginBottom: 16 }}>
-            <span className="micro-label" style={{ marginRight: 8 }}>
-              SUBMITTING AS
-            </span>
-            <IdentityConfirmedChip
-              firstInitial={identity.firstInitial}
-              lastName={identity.lastName}
-              employerName={identity.employerName}
-              cohortName={identity.cohortName}
-            />
-          </div>
           <AssessmentForm
             actionPath="/intern/personal-goals"
             questions={set.questions}
@@ -143,6 +157,15 @@ export default function PersonalGoalsPage() {
             modalTitle="Submit your Personal Goals?"
             modalBody="Your responses will be locked once submitted. You won't be able to edit them afterward."
             readOnly={false}
+            identityChip={{
+              firstInitial: identity.firstInitial,
+              lastName: identity.lastName,
+              employerName: identity.employerName,
+              cohortName: identity.cohortName,
+            }}
+            sectionBreaks={[{ afterQuestionIndex: 3, title: 'My Focus for This Internship' }]}
+            cancelHref="/intern/assessments"
+            statusCaption="PERSONAL GOALS · ONE SUBMISSION"
           />
         </div>
       </section>

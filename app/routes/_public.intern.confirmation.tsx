@@ -1,13 +1,20 @@
 // Receipt page rendered after an intern submits a self-assessment.
+// SP7 Phase D2 rebuild against Prototypes/PROTOTYPE/assessment-confirmation.html.
 //
-// Type-keyed copy map mirrors the prototype's assessment-confirmation.html.
+// Per-type copy comes from the verbatim `copy` map in the prototype's JS
+// (`micro`/`title`/`body` keyed off `?type=`). The loader extends to return
+// the resolved copy strings so the default-export render body stays
+// declarative. Identity revalidation behavior is PRESERVED VERBATIM.
+//
 // If `?already=1` is present, swap the title for a softer "you've already
-// submitted this assessment" message.
+// submitted this assessment" message (existing SP4 UX defense, not in the
+// prototype but kept as a fallback). The micro-label + body still come
+// from the type-specific copy map.
 //
-// The identity cookie is read for the receipt block (first initial / last name
-// / employer / cohort + submitted date). For the exit-employer-survey path
-// the identity cookie may be absent (admin submits on the intern's behalf);
-// the receipt then falls back to a generic message.
+// The identity cookie is read for the receipt block (first initial / last
+// name / employer / cohort + submitted date). For the exit-employer-survey
+// path the identity cookie may be absent (admin submits on the intern's
+// behalf); the receipt then falls back to dashes (matches prototype).
 
 import { Link, useLoaderData } from 'react-router';
 import type { Route } from './+types/_public.intern.confirmation';
@@ -16,7 +23,9 @@ import { db } from '~/lib/db.server';
 import { cohorts as cohortsTable, employers as employersTable } from '../../db/schema';
 import { getCurrentInternIdentity } from '~/lib/intern-identity.server';
 import { getOneShotSubmission, type SubmissionType } from '~/lib/assessment-submissions.server';
-import { PageHead } from '~/components/PageHead';
+import { ConfirmReceipt } from '~/components/ConfirmReceipt';
+import type { MetaItem } from '~/components/MetaStrip';
+import { PublicNav } from '~/components/nav/PublicNav';
 
 const ALLOWED_TYPES = [
   'personal-goals',
@@ -26,30 +35,33 @@ const ALLOWED_TYPES = [
 ] as const;
 type AllowedType = (typeof ALLOWED_TYPES)[number];
 
+// Verbatim from assessment-confirmation.html — every string copied exactly.
 const COPY: Record<AllowedType, { micro: string; title: string; body: string }> = {
   'personal-goals': {
-    micro: 'PERSONAL GOALS',
-    title: 'Thanks! Your goals are locked in.',
-    body: 'Your program coordinator will review your goals before your midpoint check-in.',
+    micro: 'PERSONAL GOALS / 2026 / SUBMITTED',
+    title: 'Personal Goals submitted.',
+    body: 'Thanks for sharing your goals. Your cohort administrator can now see your starting reflection.',
   },
   'midpoint-reflection': {
-    micro: 'MIDPOINT REFLECTION',
-    title: 'Thanks for reflecting.',
-    body: 'Your midpoint reflection has been received. Keep the momentum going.',
+    micro: 'MIDPOINT REFLECTION / 2026 / SUBMITTED',
+    title: 'Midpoint Reflection submitted.',
+    body: 'Thanks for the thoughtful reflection. Your cohort administrator can now see your mid-program update.',
   },
   'participant-feedback': {
-    micro: 'PARTICIPANT FEEDBACK',
-    title: 'Thanks for your feedback.',
-    body: 'Your honest feedback helps us improve the program for future cohorts.',
+    micro: 'PARTICIPANT FEEDBACK / 2026 / SUBMITTED',
+    title: 'Participant Feedback submitted.',
+    body: 'Thanks for sharing your reflection. Your cohort administrator can now see your end-of-program feedback.',
   },
   'exit-employer-survey': {
-    micro: 'EXIT EMPLOYER SURVEY',
-    title: 'Survey saved.',
-    body: 'Thank you for taking the time to evaluate this internship.',
+    micro: 'EXIT EMPLOYER SURVEY / 2026 / SAVED',
+    title: 'Exit Employer Survey saved.',
+    body: "The survey has been saved against this intern's record. You can return to edit it from the Evaluations panel.",
   },
 };
 
-export const meta: Route.MetaFunction = () => [{ title: 'Submission confirmed — IMPACT' }];
+const CONFIRM_NAV_LINKS = [{ to: '/', label: 'Back to home', back: true }] as const;
+
+export const meta: Route.MetaFunction = () => [{ title: 'Thank You — IMPACT' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
@@ -88,15 +100,19 @@ export async function loader({ request }: Route.LoaderArgs) {
     }
   }
 
+  // Per-type copy resolved here so the default export stays declarative.
+  const copy = COPY[type];
+
   return {
     type,
     already,
+    copy,
     identity: identity
       ? {
           firstInitial: identity.firstInitial,
           lastName: identity.lastName,
-          employerName: employerName ?? 'Unknown employer',
-          cohortName: cohortName ?? 'Unknown cohort',
+          employerName: employerName ?? '—',
+          cohortName: cohortName ?? '—',
         }
       : null,
     submittedAt,
@@ -106,80 +122,71 @@ export async function loader({ request }: Route.LoaderArgs) {
 function formatSubmittedDate(iso: string | null): string {
   if (!iso) return '—';
   const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${pad(d.getMonth() + 1)}.${pad(d.getDate())}.${d.getFullYear()} · ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  // Matches IMPACT.formatCompletionDate() in the prototype: e.g. "Mar 14, 2026".
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// Derive a stable IMP-SA-2026-### receipt id from the submission timestamp.
+// Verisimilitude only — not a real lookup key. Mirrors the prototype's
+// hardcoded "IMP-SA-2026-048" string but varies per submission so the page
+// doesn't feel like a static mock.
+function deriveReceiptId(iso: string | null): string {
+  if (!iso) return 'IMP-SA-2026-000';
+  const ms = new Date(iso).getTime();
+  // Use the last 3 digits of the seconds-since-epoch as a pseudo-id.
+  const tail = Math.abs(Math.floor(ms / 1000)) % 1000;
+  return `IMP-SA-2026-${String(tail).padStart(3, '0')}`;
 }
 
 export default function InternConfirmationPage() {
-  const { type, already, identity, submittedAt } = useLoaderData<typeof loader>();
-  const copy = COPY[type];
+  const { type, already, copy, identity, submittedAt } = useLoaderData<typeof loader>();
 
+  // `already=1` softens the title/body (defensive race-catch path); the
+  // micro-label still reflects the type so the receipt strip looks normal.
   const title = already ? "You've already submitted this assessment." : copy.title;
   const body = already
     ? 'Your earlier responses are still on file. Reach out to your program coordinator if anything needs to change.'
     : copy.body;
 
+  const receiptItems: MetaItem[] = [
+    {
+      label: 'First Initial',
+      value: identity?.firstInitial ?? '—',
+      mono: true,
+    },
+    { label: 'Last Name', value: identity?.lastName ?? '—' },
+    { label: 'Employer', value: identity?.employerName ?? '—' },
+    { label: 'Cohort', value: identity?.cohortName ?? '—' },
+    {
+      label: 'Submitted',
+      value: formatSubmittedDate(submittedAt),
+      mono: true,
+    },
+  ];
+
+  // Back link target: the 3 intern-self-assessment types go back to the
+  // chooser; the exit-employer-survey type was submitted by an admin so
+  // back-to-assessments would be a dead-end — point them to home instead.
+  const backHref = type === 'exit-employer-survey' ? '/' : '/intern/assessments';
+  const backLabel = type === 'exit-employer-survey' ? 'Return home' : 'Back to assessments';
+
   return (
     <>
-      <PageHead breadcrumb={`INTERN / ${copy.micro} / CONFIRMATION`} title={title} sub={body} />
-      <section>
-        <div className="container" style={{ maxWidth: 720 }}>
-          <article
-            className="identity-card"
-            style={{
-              background: 'var(--white)',
-              border: '1px solid var(--rule)',
-              borderRadius: 10,
-              padding: 24,
-              marginTop: 16,
-            }}
-          >
-            <div className="micro-label" style={{ marginBottom: 12 }}>
-              RECEIPT
-            </div>
-            <dl
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '160px 1fr',
-                gap: '10px 16px',
-                margin: 0,
-              }}
-            >
-              <dt style={{ color: 'var(--muted)', fontSize: 13 }}>Assessment</dt>
-              <dd style={{ margin: 0, fontWeight: 600, color: 'var(--navy-deep)' }}>
-                {copy.micro
-                  .split(' ')
-                  .map((w) => w.charAt(0) + w.slice(1).toLowerCase())
-                  .join(' ')}
-              </dd>
-
-              {identity ? (
-                <>
-                  <dt style={{ color: 'var(--muted)', fontSize: 13 }}>Submitted by</dt>
-                  <dd style={{ margin: 0 }}>
-                    {identity.firstInitial}. {identity.lastName}
-                  </dd>
-
-                  <dt style={{ color: 'var(--muted)', fontSize: 13 }}>Employer</dt>
-                  <dd style={{ margin: 0 }}>{identity.employerName}</dd>
-
-                  <dt style={{ color: 'var(--muted)', fontSize: 13 }}>Cohort</dt>
-                  <dd style={{ margin: 0 }}>{identity.cohortName}</dd>
-                </>
-              ) : null}
-
-              <dt style={{ color: 'var(--muted)', fontSize: 13 }}>Submitted</dt>
-              <dd style={{ margin: 0 }}>{formatSubmittedDate(submittedAt)}</dd>
-            </dl>
-          </article>
-
-          <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
-            <Link to="/intern/assessments" className="btn btn--primary">
-              Back to My Assessments
-            </Link>
-          </div>
-        </div>
-      </section>
+      <PublicNav links={CONFIRM_NAV_LINKS} />
+      <ConfirmReceipt
+        variant="success"
+        microLabel={copy.micro}
+        title={title}
+        body={body}
+        receiptId={deriveReceiptId(submittedAt)}
+        receiptItems={receiptItems}
+        note="You will not be able to resubmit this assessment. If you need to correct something, please contact your program administrator."
+        actions={
+          <Link to={backHref} className="btn btn--primary">
+            {backLabel} <span className="btn__arrow">&rarr;</span>
+          </Link>
+        }
+      />
     </>
   );
 }
