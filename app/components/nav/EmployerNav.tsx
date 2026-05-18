@@ -1,6 +1,9 @@
-// Top navigation for the employer shell. Mirrors AdminNav's structure but uses
-// the employer link set and renders an employer-branded identity chip (employer
-// name + signed-in user email + sign-out form).
+// Employer shell nav — mirrors AdminNav's prototype-true structure but renders
+// the employer-scoped link set and a cyan-accented identity chip per spec §8
+// decision 7. Dark navy surface, 64px wordmark, 3px gold underline rail on
+// active link. The cyan accent on the chip distinguishes the employer surface
+// from admin at a glance. Layout rules ported into app/styles/admin.css
+// (`.admin-chip--employer` modifier + `.employer-chip__*` extras).
 
 import { Form, NavLink } from 'react-router';
 
@@ -18,22 +21,17 @@ const LINKS: ReadonlyArray<{ to: string; label: string; end?: boolean }> = [
 ];
 
 export function EmployerNav({ employerName, userEmail }: EmployerNavProps) {
+  const avatarInitial = (employerName[0] ?? 'E').toUpperCase();
   return (
     <header className="nav">
       <div className="nav__inner">
-        <a
-          href="/employer"
+        <NavLink
+          to="/employer"
           className="wordmark"
           aria-label="IMPACT — Expand Your Opportunities"
-          style={{
-            color: 'var(--white)',
-            textDecoration: 'none',
-            fontWeight: 700,
-            letterSpacing: '0.02em',
-          }}
         >
-          <strong>IMPACT</strong>
-        </a>
+          <img src="/logo.png" alt="IMPACT — Expand Your Opportunities" className="wordmark__img" />
+        </NavLink>
         <nav className="nav__links" aria-label="Employer navigation">
           {LINKS.map((l) => (
             <NavLink
@@ -45,16 +43,19 @@ export function EmployerNav({ employerName, userEmail }: EmployerNavProps) {
               {l.label}
             </NavLink>
           ))}
+          <span className="admin-chip admin-chip--employer">
+            <span className="admin-chip__avatar">{avatarInitial}</span>
+            <span className="employer-chip__name">{employerName}</span>
+            <span className="admin-chip__divider" />
+            <span className="employer-chip__email">{userEmail}</span>
+            <span className="admin-chip__divider" />
+            <Form method="post" action="/sign-out" style={{ display: 'inline' }}>
+              <button type="submit" className="admin-chip__logout">
+                Sign out
+              </button>
+            </Form>
+          </span>
         </nav>
-        <div className="employer-chip">
-          <span className="employer-chip__name">{employerName}</span>
-          <span className="employer-chip__email">{userEmail}</span>
-          <Form method="post" action="/sign-out" style={{ display: 'inline' }}>
-            <button type="submit" className="employer-chip__logout">
-              Sign out
-            </button>
-          </Form>
-        </div>
       </div>
     </header>
   );

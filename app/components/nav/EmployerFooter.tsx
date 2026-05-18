@@ -1,29 +1,23 @@
-// Footer for the employer shell. Mirrors AdminFooter visually but uses
-// employer-scoped links.
+// Employer shell footer — mirrors AdminFooter's prototype structure with
+// employer-scoped link set. Dark navy bookend per the prototype.
 
-import { Link } from 'react-router';
+import { NavLink } from 'react-router';
 
 export function EmployerFooter() {
   return (
     <footer className="footer">
       <div className="container footer__row">
-        <Link
+        <NavLink
           to="/employer"
           className="wordmark"
           aria-label="IMPACT — Expand Your Opportunities"
-          style={{
-            color: 'var(--white)',
-            textDecoration: 'none',
-            fontWeight: 700,
-            letterSpacing: '0.02em',
-          }}
         >
-          <strong>IMPACT</strong>
-        </Link>
+          <img src="/logo.png" alt="IMPACT — Expand Your Opportunities" className="wordmark__img" />
+        </NavLink>
         <div className="footer__links">
-          <Link to="/employer">Home</Link>
-          <Link to="/employer/cohorts">Cohorts</Link>
-          <Link to="/employer/interns">Interns</Link>
+          <NavLink to="/employer">Home</NavLink>
+          <NavLink to="/employer/cohorts">Cohorts</NavLink>
+          <NavLink to="/employer/interns">Interns</NavLink>
         </div>
         <div className="footer__meta">&copy; 2026 IMPACT / Indiana</div>
       </div>

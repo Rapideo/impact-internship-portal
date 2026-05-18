@@ -166,3 +166,105 @@
   border: 1px solid #86efac;
   color: #166534;
 }
+
+/* =========================================================
+   SP7 Phase B — prototype-true overrides.
+   Sourced from Prototypes/PROTOTYPE/styles.css `.login*` rules
+   (renamed to .auth__* for the multi-route auth shell).
+   ========================================================= */
+
+.auth {
+  padding: 64px 0 96px;
+  background: var(--canvas);
+}
+
+.auth__inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .auth__inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+.auth__intro {
+  padding-right: 20px;
+}
+
+.auth__intro .micro-label {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.auth__title {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 7vw, 88px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  margin: 20px 0 24px;
+  color: var(--ink);
+}
+
+.auth__sub {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 460px;
+  margin: 0 0 36px;
+}
+
+.auth__facts {
+  list-style: none;
+  padding: 0;
+  margin: 32px 0 0;
+  border-top: 1px solid var(--rule);
+  background: transparent;
+}
+
+.auth__facts li {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  padding: 18px 2px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.auth__facts li .mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+  width: 40px;
+  flex-shrink: 0;
+  margin-right: 0;
+}
+
+.auth__form-wrap {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 40px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+.auth__form-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 40px;
+  width: 56px;
+  height: 3px;
+  background: var(--gold);
+  transform: translateY(-2px);
+}
