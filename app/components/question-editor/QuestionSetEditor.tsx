@@ -1,5 +1,25 @@
+// Question-set editor — admin Settings → Questions accordion editor.
+//
+// SP7 Phase C rewrite — preserves the existing prop API verbatim. Internal
+// markup mirrors the prototype's `settings-question-set.html`:
+//
+//   - Two `.qs-editor-card` blocks (Set Configuration + Questions), each
+//     with `.qs-editor-card__head` (display-font title on the left, mono
+//     micro-label on the right).
+//   - Per-question accordion via <QuestionRowEditor> with
+//     `.qs-question-row` shells (unchanged from SP3).
+//   - Sticky `<ActionBar>` (SP7 Phase B) on the bottom with the prototype's
+//     `QUESTION SET · EDIT` mono caption + Cancel + (optional) Delete +
+//     Save Changes buttons.
+//
+// The local `./styles.css` import is intentionally removed — the SP7 plan
+// (Phase C task 15) ports `.qs-editor-card*`, `.qs-question-row*`, and
+// `.qs-type-picker*` into `app/styles/admin.css` (verbatim from the
+// prototype's `styles.css`) so admin pages get the prototype-correct
+// rendering without per-component CSS file duplication.
+
 import { useState, useId, useCallback } from 'react';
-import './styles.css';
+import { ActionBar } from '~/components/ActionBar';
 import { QuestionRowEditor } from './QuestionRowEditor';
 import { newQuestion } from './newQuestionDefaults';
 import type { Question, QuestionType } from '../../lib/question-types';
@@ -177,7 +197,7 @@ export function QuestionSetEditor({
           ))}
         </div>
         {pickerOpen ? (
-          <div className="qs-type-picker" style={{ display: 'flex' }}>
+          <div className="qs-type-picker">
             {TYPE_OPTIONS.map((opt) => (
               <button
                 type="button"
@@ -206,38 +226,19 @@ export function QuestionSetEditor({
         </div>
       ) : null}
 
-      <div className="action-bar">
-        <div className="action-bar__inner">
-          <div className="action-bar__status">
-            <span className="mono" style={{ color: 'var(--navy)' }}>
-              QUESTION SET · EDIT
-            </span>
-          </div>
-          <div className="action-bar__buttons">
-            <button type="button" className="btn btn--outline" onClick={onCancel} disabled={saving}>
-              Cancel
-            </button>
-            {onDelete ? (
-              <button
-                type="button"
-                className="btn btn--danger"
-                onClick={onDelete}
-                disabled={saving}
-              >
-                Delete Set
-              </button>
-            ) : null}
-            <button
-              type="button"
-              className="btn btn--primary"
-              onClick={handleSave}
-              disabled={saving}
-            >
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
-        </div>
-      </div>
+      <ActionBar status="QUESTION SET · EDIT">
+        <button type="button" className="btn btn--outline" onClick={onCancel} disabled={saving}>
+          Cancel
+        </button>
+        {onDelete ? (
+          <button type="button" className="btn btn--danger" onClick={onDelete} disabled={saving}>
+            Delete Set
+          </button>
+        ) : null}
+        <button type="button" className="btn btn--primary" onClick={handleSave} disabled={saving}>
+          {saving ? 'Saving…' : 'Save Changes'} <span className="btn__arrow">&rarr;</span>
+        </button>
+      </ActionBar>
     </>
   );
 }

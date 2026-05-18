@@ -1894,3 +1894,273 @@
   color: var(--muted);
   font-style: italic;
 }
+
+/* ============================================================
+   SP7 PHASE C — FORM PRIMITIVES
+   Ported from `Prototypes/PROTOTYPE/styles.css`. Drives the
+   markup emitted by:
+     - <QuestionSetEditor>       (qs-editor-card, qs-question-row,
+                                  qs-type-picker, qs-options-row)
+     - <AssessmentForm>          (assessment-section-head)
+     - <CompetencyAssessmentForm> (competency-form, competency-form__phase)
+   The matching prototype source lives in `styles.css` lines 3304+
+   (qs-editor-card block) and the per-page `personal-goals.html`
+   inline `<h3 class="assessment-section-head">` block (Q4→Q5 break).
+   ============================================================ */
+
+/* Question-set editor card wrappers */
+.qs-editor-card {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  margin: 24px 0;
+}
+
+.qs-editor-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.qs-editor-card__title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* Per-question accordion row */
+.qs-question-row {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.qs-question-row__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  background: var(--canvas-alt);
+}
+
+.qs-question-row__head:hover {
+  background: #ecf0f5;
+}
+
+.qs-question-row__head:focus-visible {
+  outline: 2px solid var(--navy);
+  outline-offset: -2px;
+}
+
+.qs-question-row__num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+}
+
+.qs-question-row__label {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qs-question-row__type {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 2px 6px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm, 4px);
+}
+
+.qs-question-row__controls {
+  display: flex;
+  gap: 4px;
+}
+
+.qs-question-row__body {
+  padding: 16px;
+  display: none;
+}
+
+.qs-question-row--expanded {
+  border-color: var(--navy);
+  box-shadow: 0 1px 4px rgba(21, 58, 152, 0.08);
+}
+
+.qs-question-row--expanded .qs-question-row__body {
+  display: block;
+}
+
+.qs-question-row--expanded .qs-question-row__head {
+  background: #fff;
+  border-bottom: 1px solid var(--rule);
+}
+
+.qs-question-row__body .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.qs-question-row__body .field > label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Type picker (inline "+ Add Question") */
+.qs-type-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px dashed var(--rule);
+  border-radius: var(--radius-md);
+}
+
+.qs-type-picker__btn {
+  appearance: none;
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.qs-type-picker__btn:hover {
+  background: var(--canvas-alt);
+}
+
+/* Options-list editor (shared with OptionsListEditor) */
+.qs-options-list {
+  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.qs-options-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 6px;
+  background: var(--canvas-alt);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.qs-options-row input.input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+/* Inline editable list — leftmost "handle" cell hosts ↑ + ↓ buttons */
+.settings-list__cell {
+  /* Cells are pure layout slots inside the 90px / 1fr / 40px grid row.
+     The `--handle` modifier is the only one that needs explicit flexing
+     (so the two ↑/↓ buttons sit side by side); the others are
+     auto-sized by the grid. */
+}
+
+.settings-list__cell--handle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+}
+
+.settings-list__cell--label {
+  /* Grid track does the work; no override needed. */
+}
+
+.settings-list__cell--remove {
+  text-align: right;
+}
+
+/* Section-head divider rendered inside <AssessmentForm> between Q-groups
+   (Personal Goals: between Q4 and Q5, title "My Focus for This Internship") */
+.assessment-section-head {
+  font-family: var(--font-display);
+  font-size: 22px;
+  margin: 32px 0 16px;
+  color: var(--navy);
+}
+
+/* Competency form helpers — small overrides on top of `.identity-card`
+   and `.meta-strip` (which the form embeds). The phase dropdown sits in a
+   compact row directly below the meta strip. */
+.competency-form__phase {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 20px;
+  max-width: 360px;
+}
+
+.competency-form__phase-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.competency-form__phase-select {
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  background: #fff;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.competency-form__phase-select:focus {
+  outline: none;
+  border-color: var(--navy);
+}
+
+.competency-form__phase-select:disabled {
+  background: var(--canvas-alt);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.competency-form__phase-helper {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.competency-form--readonly .competency-form__phase-select {
+  background: var(--canvas-alt);
+}

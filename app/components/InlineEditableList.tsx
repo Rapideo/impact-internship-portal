@@ -1,3 +1,27 @@
+// Inline editable list — admin Settings → Phases / Barriers row editor.
+//
+// SP7 Phase C rewrite — preserves the existing prop API verbatim. Internal
+// markup mirrors the prototype's `settings-phases.html` /
+// `settings-barriers.html` row pattern:
+//
+//   - `.settings-list` container with `role="list"`.
+//   - Each `.settings-list__row` is a grid with `90px / 1fr / 40px`
+//     columns (port already lives in `app/styles/admin.css`).
+//   - Leftmost cell (`--handle`) hosts BOTH ↑ and ↓ handle buttons,
+//     `disabled` on the appropriate edge rows (top row disables ↑, bottom
+//     row disables ↓). The cell uses a 2-button flex row instead of an
+//     inline string so the rendered DOM matches the prototype's two
+//     `<button class="settings-list__handle-btn">` children.
+//   - Middle cell hosts the label text input (`.settings-list__label-input`).
+//   - Right cell hosts the remove button (`.settings-list__remove-btn`).
+//   - `+ Add ...` button uses `.settings-list__add` (dashed-border row).
+//
+// Submitted form-data shape is unchanged: each row writes
+//   `${name}[i].id`   (hidden) and
+//   `${name}[i].label` (text input)
+// — server-side parsers in admin.settings.phases / barriers routes already
+// rely on this contract.
+
 import { useState } from 'react';
 
 export interface InlineRow {
@@ -59,7 +83,7 @@ export function InlineEditableList({
                 onClick={() => move(i, -1)}
               >
                 {'↑'}
-              </button>{' '}
+              </button>
               <button
                 type="button"
                 className="settings-list__handle-btn"
