@@ -97,7 +97,7 @@ export default function BarriersSettings() {
       <SettingsShell active="barriers">
         <Form method="post">
           <div className="detail-header" style={{ marginTop: 0 }}>
-            <h2 className="detail-header__title">Entry-Assessment Barriers</h2>
+            <h2 className="detail-header__title">Entry Assessment Barriers</h2>
           </div>
           <InlineEditableList
             key={

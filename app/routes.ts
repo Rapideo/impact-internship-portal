@@ -107,7 +107,10 @@ export default [
   // the file also returns 404 if reached at runtime in prod (defense in
   // depth).
   ...(process.env.NODE_ENV !== 'production'
-    ? [route('dev/primitives', 'routes/dev.primitives.tsx')]
+    ? [
+        route('dev/primitives', 'routes/dev.primitives.tsx'),
+        route('dev/reseed', 'routes/dev.reseed.ts'),
+      ]
     : []),
   route('*', 'routes/$.tsx'),
 ] satisfies RouteConfig;

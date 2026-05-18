@@ -14,6 +14,7 @@ import { getEmployerOrNull } from '~/lib/admin-queries.server';
 import { roles as rolesTbl } from '../../db/schema';
 import { parseFormFields, requireString, optionalString, errorsByField } from '~/lib/validation';
 import { PageHead } from '~/components/PageHead';
+import { MetaStrip } from '~/components/MetaStrip';
 import { SettingsShell } from '~/components/SettingsShell';
 import { IdentityCard } from '~/components/IdentityCard';
 import { ActionBar } from '~/components/ActionBar';
@@ -81,7 +82,9 @@ export default function NewRole() {
         }
         title="NEW ROLE."
         sub="Define a role under this employer. Cohorts and intern records can reference roles when assigning placements."
-      />
+      >
+        <MetaStrip items={[{ label: 'Employer', value: employer.name }]} />
+      </PageHead>
       <SettingsShell active="employers">
         <Form method="post">
           <IdentityCard title="Role Record" subnote="NEW ROLE · DEFINE DETAILS">
