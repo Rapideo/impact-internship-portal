@@ -16,6 +16,7 @@ import { DetailHeader } from '~/components/DetailHeader';
 import { EmptyRow } from '~/components/EmptyRow';
 import { HeroSection } from '~/components/HeroSection';
 import { IdentityCard } from '~/components/IdentityCard';
+import { InlineEditableList } from '~/components/InlineEditableList';
 import { KpiCard } from '~/components/KpiCard';
 import { MetaStrip } from '~/components/MetaStrip';
 import { PageHead } from '~/components/PageHead';
@@ -34,6 +35,10 @@ import { PublicFooter } from '~/components/nav/PublicFooter';
 import { EmployerNav } from '~/components/nav/EmployerNav';
 import { EmployerFooter } from '~/components/nav/EmployerFooter';
 import { NameInitial } from '~/components/tables/NameInitial';
+import { AssessmentForm } from '~/components/forms/AssessmentForm';
+import { CompetencyAssessmentForm } from '~/components/forms/CompetencyAssessmentForm';
+import { QuestionSetEditor } from '~/components/question-editor/QuestionSetEditor';
+import type { Question, SectionBoundary } from '~/lib/question-types';
 
 export async function loader() {
   if (process.env.NODE_ENV === 'production') {
@@ -646,10 +651,371 @@ export default function DevPrimitives() {
           </p>
           <ActionBarDemo />
         </Section>
+
+        {/* ---------- SP7 Phase C — Form primitives demo ---------- */}
+
+        <Section title="SP7 PHASE C / Form primitives — Gate G3 walkthrough">
+          <p style={{ color: 'var(--muted)', maxWidth: 720 }}>
+            Each form below mounts its real component with mock data, so Gate G3 can walk it
+            side-by-side with the source prototype HTML. Note: every form&apos;s sticky{' '}
+            <code>&lt;ActionBar&gt;</code> is <code>position: fixed bottom</code>; with multiple
+            forms on the page only the most recently-mounted bar paints. Open each demo in turn
+            (collapse the others by scrolling away) to confirm the bar pin + button cluster.
+          </p>
+        </Section>
+
+        <Section title="AssessmentForm — Personal Goals (free-form + section break Q4→Q5)">
+          <p className="micro-label">
+            Prototype: <code>personal-goals.html</code>. Section break renders the &ldquo;My Focus
+            for This Internship&rdquo; display-font divider between Q4 and Q5.
+          </p>
+          <AssessmentForm
+            actionPath="#"
+            questions={DEMO_PERSONAL_GOALS_QUESTIONS}
+            initialAnswers={{}}
+            errors={{}}
+            submitLabel="Submit Personal Goals"
+            modalTitle="Submit your Personal Goals?"
+            modalBody="Your responses will be locked once submitted. You won't be able to edit them afterward."
+            readOnly={false}
+            sectionBreaks={[{ afterQuestionIndex: 3, title: 'My Focus for This Internship' }]}
+            identityChip={{
+              firstInitial: 'M',
+              lastName: 'Bayer',
+              employerName: 'Eskenazi Health',
+              cohortName: 'Eskenazi 2026',
+            }}
+            cancelHref="#"
+            statusCaption="PERSONAL GOALS · ONE SUBMISSION"
+          />
+        </Section>
+
+        <Section title="AssessmentForm — Midpoint Reflection (free-form, no breaks)">
+          <p className="micro-label">
+            Prototype: <code>midpoint-reflection.html</code>. Same component, no section breaks.
+          </p>
+          <AssessmentForm
+            actionPath="#"
+            questions={DEMO_MIDPOINT_QUESTIONS}
+            initialAnswers={{}}
+            errors={{}}
+            submitLabel="Submit Midpoint Reflection"
+            modalTitle="Submit your Midpoint Reflection?"
+            modalBody="Your responses will be locked once submitted."
+            readOnly={false}
+            identityChip={{
+              firstInitial: 'C',
+              lastName: 'Clark',
+              employerName: 'TTT Indianapolis',
+              cohortName: 'TTT 2026',
+            }}
+            cancelHref="#"
+            statusCaption="MIDPOINT REFLECTION · ONE SUBMISSION"
+          />
+        </Section>
+
+        <Section title="AssessmentForm — Participant Feedback (mixed: radio + Likert + textarea)">
+          <p className="micro-label">
+            Prototype: <code>participant-feedback.html</code>. Mixed-format questions: radio,
+            Likert, Yes/No (radio with two options), and textarea.
+          </p>
+          <AssessmentForm
+            actionPath="#"
+            questions={DEMO_FEEDBACK_QUESTIONS}
+            initialAnswers={{}}
+            errors={{}}
+            submitLabel="Submit Participant Feedback"
+            modalTitle="Submit your Participant Feedback?"
+            modalBody="Your responses will be locked once submitted."
+            readOnly={false}
+            identityChip={{
+              firstInitial: 'E',
+              lastName: 'Evans',
+              employerName: 'Habitat for Humanity',
+              cohortName: 'Habitat 2026',
+            }}
+            cancelHref="#"
+            statusCaption="PARTICIPANT FEEDBACK · ONE SUBMISSION"
+          />
+        </Section>
+
+        <Section title="CompetencyAssessmentForm — 3-tier (Core + Cohort + Intern)">
+          <p className="micro-label">
+            Prototype: <code>competency-new.html</code>. Identity card subnote reads &ldquo;UNIQUE
+            KEY · FIRST INITIAL + LAST NAME + EMPLOYER + COHORT · MULTIPLE PHASES ALLOWED&rdquo;.
+            3-tier section heads render between rubric tiers via
+            <code>&lt;RubricSectionHead&gt;</code>; action-bar caption is
+            <code>PASS = ALL READY</code>.
+          </p>
+          <CompetencyAssessmentForm
+            internId="demo-intern-id"
+            phases={[
+              { id: 'wk-2', label: 'Week 2' },
+              { id: 'wk-4', label: 'Week 4' },
+              { id: 'wk-8', label: 'Week 8' },
+            ]}
+            questions={DEMO_COMPETENCY_QUESTIONS}
+            sectionBoundaries={DEMO_COMPETENCY_BOUNDARIES}
+            initialAnswers={{}}
+            initialPhase={null}
+            errors={{}}
+            actionPath="#"
+            submitLabel="Save Competency Assessment"
+            readOnly={false}
+            meta={{
+              internName: 'M. Bayer',
+              cohortName: 'Eskenazi 2026',
+              employerName: 'Eskenazi Health',
+              roleName: 'Medical Assistant',
+              startDate: '04.01.2026',
+              endDate: '09.30.2026',
+            }}
+            cancelHref="#"
+          />
+        </Section>
+
+        <Section title="QuestionSetEditor — accordion editor + sticky action bar">
+          <p className="micro-label">
+            Prototype: <code>settings-question-set.html</code>. Two <code>.qs-editor-card</code>{' '}
+            blocks (Set Configuration + Questions). Click a row head to expand the per-type config
+            sub-form; use the &ldquo;+ Add Question&rdquo; button to open the type picker.
+          </p>
+          <QuestionSetEditor
+            initial={{
+              name: 'Personal Goals',
+              minRequired: 5,
+              allowMultiple: false,
+              questions: DEMO_PERSONAL_GOALS_QUESTIONS,
+            }}
+            nameEditable={false}
+            onSave={() => {
+              /* demo no-op */
+            }}
+            onCancel={() => {
+              /* demo no-op */
+            }}
+          />
+        </Section>
+
+        <Section title="InlineEditableList — Settings → Phases / Barriers row editor">
+          <p className="micro-label">
+            Prototype: <code>settings-phases.html</code>, <code>settings-barriers.html</code>. Grid{' '}
+            <code>90px / 1fr / 40px</code> hosts ↑↓ handle buttons, label input, and remove button.
+            Edge rows render the handle button as <code>disabled</code>.
+          </p>
+          <form
+            method="post"
+            action="#"
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+          >
+            <InlineEditableList
+              addLabel="+ Add Phase"
+              name="phases"
+              initial={[
+                { id: 'orientation', label: 'Orientation' },
+                { id: 'week-2', label: 'Week 2 Check-In' },
+                { id: 'week-4', label: 'Week 4 Review' },
+                { id: 'week-8', label: 'Mid-Program' },
+                { id: 'exit', label: 'Exit Interview' },
+              ]}
+            />
+          </form>
+        </Section>
       </main>
     </ToastProvider>
   );
 }
+
+// ---------- SP7 Phase C — Mock fixtures ----------
+
+const DEMO_PERSONAL_GOALS_QUESTIONS: Question[] = [
+  {
+    id: 'pg-1',
+    type: 'textarea',
+    label: 'What goals do you have for this internship?',
+    required: true,
+    sortOrder: 1,
+    config: { rows: 4, placeholder: 'Share two or three goals…' },
+  },
+  {
+    id: 'pg-2',
+    type: 'textarea',
+    label: 'Why are these goals important to you?',
+    required: true,
+    sortOrder: 2,
+    config: { rows: 4, placeholder: 'A few sentences is fine.' },
+  },
+  {
+    id: 'pg-3',
+    type: 'textarea',
+    label: 'What skills do you most want to grow?',
+    required: false,
+    sortOrder: 3,
+    config: { rows: 3, placeholder: 'Technical, communication, leadership…' },
+  },
+  {
+    id: 'pg-4',
+    type: 'textarea',
+    label: 'How will you know you have made progress?',
+    required: false,
+    sortOrder: 4,
+    config: { rows: 3, placeholder: 'Concrete signs of growth.' },
+  },
+  // Section break renders here (afterQuestionIndex: 3 → after Q4)
+  {
+    id: 'pg-5',
+    type: 'short-text',
+    label: 'In one sentence, name your single biggest focus.',
+    required: false,
+    sortOrder: 5,
+    config: { placeholder: 'e.g. Build patient-facing confidence.', maxLength: 120 },
+  },
+];
+
+const DEMO_MIDPOINT_QUESTIONS: Question[] = [
+  {
+    id: 'mp-1',
+    type: 'textarea',
+    label: 'What is going well so far?',
+    required: true,
+    sortOrder: 1,
+    config: { rows: 4, placeholder: 'Take a moment to acknowledge progress.' },
+  },
+  {
+    id: 'mp-2',
+    type: 'textarea',
+    label: 'What has been most challenging?',
+    required: false,
+    sortOrder: 2,
+    config: { rows: 4, placeholder: 'Be honest — this helps your team support you.' },
+  },
+];
+
+const DEMO_FEEDBACK_QUESTIONS: Question[] = [
+  {
+    id: 'pf-1',
+    type: 'radio',
+    label: 'Overall, how would you rate your internship experience?',
+    required: true,
+    sortOrder: 1,
+    config: {
+      options: [
+        { value: 'excellent', label: 'Excellent' },
+        { value: 'good', label: 'Good' },
+        { value: 'fair', label: 'Fair' },
+        { value: 'poor', label: 'Poor' },
+      ],
+      otherWithText: false,
+    },
+  },
+  {
+    id: 'pf-2',
+    type: 'likert',
+    label: 'I felt supported by my employer.',
+    required: true,
+    sortOrder: 2,
+    config: { min: 1, max: 5, leftLabel: 'Strongly Disagree', rightLabel: 'Strongly Agree' },
+  },
+  {
+    id: 'pf-3',
+    type: 'radio',
+    label: 'Would you recommend this program to a peer?',
+    required: true,
+    sortOrder: 3,
+    config: {
+      options: [
+        { value: 'yes', label: 'Yes' },
+        { value: 'no', label: 'No' },
+      ],
+      otherWithText: false,
+    },
+  },
+  {
+    id: 'pf-4',
+    type: 'textarea',
+    label: 'Anything else you would like the program to know?',
+    required: false,
+    sortOrder: 4,
+    config: { rows: 4, placeholder: 'Optional reflections.' },
+  },
+];
+
+const DEMO_COMPETENCY_QUESTIONS: Question[] = [
+  // Core tier — 3 rubric rows
+  {
+    id: 'core-1',
+    type: 'competency-rubric-row',
+    label: 'Communication',
+    required: true,
+    sortOrder: 1,
+    config: {},
+  },
+  {
+    id: 'core-2',
+    type: 'competency-rubric-row',
+    label: 'Professionalism',
+    required: true,
+    sortOrder: 2,
+    config: {},
+  },
+  {
+    id: 'core-3',
+    type: 'competency-rubric-row',
+    label: 'Initiative',
+    required: true,
+    sortOrder: 3,
+    config: {},
+  },
+  // Cohort tier — 2 rubric rows
+  {
+    id: 'coh-1',
+    type: 'competency-rubric-row',
+    label: 'Vital sign measurement',
+    required: true,
+    sortOrder: 4,
+    config: {},
+  },
+  {
+    id: 'coh-2',
+    type: 'competency-rubric-row',
+    label: 'Patient triage protocol',
+    required: true,
+    sortOrder: 5,
+    config: {},
+  },
+  // Intern tier — 1 rubric row
+  {
+    id: 'int-1',
+    type: 'competency-rubric-row',
+    label: 'Spanish-language patient intake',
+    required: false,
+    sortOrder: 6,
+    config: {},
+  },
+];
+
+const DEMO_COMPETENCY_BOUNDARIES: SectionBoundary[] = [
+  // Mirrors the SP3 stitching loader: each tier carries an explicit
+  // boundary whose `afterIndex` is `tagged.length - 1` at the moment the
+  // boundary was pushed (so Core lands at -1, before question 0).
+  {
+    afterIndex: -1,
+    label: 'Professional Competencies',
+    subLabel: '3 Domains · Shared across all roles',
+  },
+  {
+    afterIndex: 2,
+    label: 'Role-Specific: Eskenazi 2026',
+    subLabel: '2 Domains · This cohort',
+  },
+  {
+    afterIndex: 4,
+    label: 'Intern-Specific',
+    subLabel: '1 Domain · Custom for this intern',
+  },
+];
 
 function ActionBarDemo() {
   const [step, setStep] = useState(0);
