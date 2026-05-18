@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this project is
 
-The **IMPACT Internship Assessment Portal** is a web app for an Indiana-based internship program. The clickable 34-page prototype is **locked** (lives in a separate sibling repo, `Rapideo/impact-prototype`). The production rebuild's **Sub-projects 0 through 5 are all complete** as of 2026-05-14: React Router v7 scaffold, Drizzle schema for all 15 public tables, 32+ RLS policies + JWT custom-access-token hook, dev seed, full admin CRUD (Employers/Cohorts/Roles/Phases/Barriers/Program Info/Interns), question-engine with 6 renderer types + editor + 3-tier competency stitching, all 5 assessment forms (intern self-submit anonymous flow + admin-completed Competency + Exit Employer Survey), employer shell with branded auth pages + dashboard + scoped cohorts/interns/competency/exit-survey/profile/roles flows. Test pyramid is 196 unit + 19 RLS + 10 e2e specs (CI Playwright still gated). **Only Sub-project 6 (Polish & Launch) remains** — visual fidelity, Resend wiring, carry-over cleanup (including the SP4-era build-break that has to land before first prod deploy), and the production cutover itself.
+The **IMPACT Internship Assessment Portal** is a web app for an Indiana-based internship program. The clickable 34-page prototype is **locked** (lives in a separate sibling repo, `Rapideo/impact-prototype`). The production rebuild's **Sub-projects 0 through 5 are all complete** as of 2026-05-14: React Router v7 scaffold, Drizzle schema for all 15 public tables, 32+ RLS policies + JWT custom-access-token hook, dev seed, full admin CRUD (Employers/Cohorts/Roles/Phases/Barriers/Program Info/Interns), question-engine with 6 renderer types + editor + 3-tier competency stitching, all 5 assessment forms (intern self-submit anonymous flow + admin-completed Competency + Exit Employer Survey), employer shell with branded auth pages + dashboard + scoped cohorts/interns/competency/exit-survey/profile/roles flows. Test pyramid is 196 unit + 19 RLS + 10 e2e specs (CI Playwright still gated). **Only Sub-project 6 (Polish & Launch) remains** — visual fidelity, Resend wiring, remaining carry-over cleanup, and the production cutover itself.
 
 The app tracks:
 - Intake / Entry Assessment (captured on the intern record at creation)
@@ -229,11 +229,6 @@ npm run dev                 # http://localhost:5173
 - **CI** (`.github/workflows/ci.yml`) runs five jobs: `Sanity checks (stub)` (required), `Lint & Typecheck`, `Vitest (unit)`, `Vitest (integration + RLS) on supabase start`, and a gated `Playwright` job (enabled in Sub-project 6). The integration job boots a local Docker Postgres via `supabase start`, applies migrations + policies + seed, and runs unit + RLS tests against it.
 - **`supabase/config.toml`** registers the `custom_access_token_hook`. `supabase start` reads this file too, so the same JWT-hook wiring works in CI as in impact-dev.
 
-### Pending follow-ups from code reviews
-
-- Lazy-evaluate `app/lib/env.server.ts` — currently throws at module load if any of the 8 required env vars is missing. Workable today because `.env.local` is fully populated, but bumps a contributor's first-import experience.
-- Add range CHECK on `program_info.fiscal_year_start_month` (1-12). Currently any integer accepted.
-
 ## Production app — sub-project 2 complete
 
 Admin core is live. Routes under `/admin/*` are real: home dashboard, interns list + record (create + edit), and all Settings pages (Employers, Cohorts, Roles, Phases, Barriers, Program Info). Auth requires admin role; non-admins land at `/employer` (sub-project 5). A Playwright smoke (`tests/e2e/admin-crud.spec.ts`) walks login → create employer → cohort → intern → edit intern → list, gated off in CI alongside the rest of `test:e2e` until sub-project 6.
@@ -258,7 +253,7 @@ The assessment-forms surface is live. Three intern-facing self-assessments (Pers
 
 Intern submissions to `assessment_submissions` use `dbService` (the service-role Drizzle client in `app/lib/db.service.server.ts`) because the RLS policies deliberately block anon writes. The narrow contract is: action handler → revalidate identity via `getCurrentInternIdentity` → `dbService` insert via `insertAnonymousSubmission()`. **Never call `dbService` outside this path.** For admin writes the regular `db` client is correct — `db/policies/0002_admin_all.sql` covers admin reads + writes.
 
-Known carry-over: today both `db` and `dbService` connect via the same `DATABASE_POOL_URL` as the same BYPASSRLS user, so the separation is currently semantic. A future hardening (tracked as the DATABASE_SERVICE_URL split) will downgrade `DATABASE_POOL_URL` to a real `anon` role; `getOneShotSubmission` will need to migrate to `dbService` at the same time.
+Known carry-over (#77): today both `db` and `dbService` connect via the same `DATABASE_POOL_URL` as the same BYPASSRLS user, so the separation is currently semantic. A future hardening (the `DATABASE_SERVICE_URL` split) will downgrade `DATABASE_POOL_URL` to a real `anon` role. `getOneShotSubmission` already uses the service-role client (per PR #84) so it's ready for the split.
 
 ### One-shot enforcement
 
@@ -279,9 +274,7 @@ Admin routes that read `?internId=` from the URL validate it against `UUID_RE` (
 
 ### Sub-project 4 follow-ups (not blocking SP5)
 
-- **#76** — `getOneShotSubmission` uses anon `db`; should be `dbService` for consistency with the write path. Time-bomb when `db` is properly RLS-gated.
 - **#77** — split `DATABASE_SERVICE_URL` from `DATABASE_POOL_URL`; downgrade pool client to real `anon` role.
-- **#69** — `db/seed.ts` should restore admin/employer1 profile rows after `TRUNCATE ... CASCADE` wipes them. Today they have to be re-upserted by hand after a dev seed.
 
 ## Production app — sub-project 5 complete
 
@@ -359,8 +352,6 @@ Plan docs frequently reference classes that don't exist. The real registry:
 
 ### Sub-project 5 follow-ups (carry into SP6)
 
-- **#84 [HIGH]** — `npm run build` fails on `main` because `_public.intern.assessments.tsx` pulls `~/lib/assessment-submissions.server` into a non-loader/action export. SP4 Phase C bug surfaced during SP5 verification. **Blocks first production deploy.** Likely fix: an `import type` somewhere is actually an `import`, or a default-export function references the server module. 5–10 min once we look at it carefully.
-- **#89** — `cohorts.role_id` and `interns.role_id` use `ON DELETE SET NULL` in the actual schema, but the spec/plan documents say `ON DELETE restrict`. Today an employer can delete a role and silently null out cohort/intern references. Decision: tighten the schema (with a migration + soft-delete UI for roles that have references) OR document SET NULL as the intentional design. The defensive 23503 handler in `employer.roles.$roleId.tsx` is dead code under current schema, kept for forward-compatibility if we tighten.
 - **Task 37 deferred** — admin invite → accept E2E (with a NODE_ENV-gated `/dev/invite-link` route) was skipped in Phase L pending a security review of the gate. SP6 should review and either build it (with belt-and-suspenders gating like `if (process.env.NODE_ENV === 'production') return 404` PLUS only mount under a separate `vite.config` env check) or replace with a different test strategy (direct Supabase admin API call from the test, no public route at all).
 - **Playwright still skipping in CI** — every PR check log shows `Playwright    skipping`. Specs exist and pass locally but no CI signal. SP6 needs to either un-gate the job or document why it's permanently local-only. The 10 specs on `main` today (`auth`, `admin-crud`, `admin-competency`, `admin-exit-employer-survey`, `admin-question-editor`, `intern-self-submit`, `employer-login`, `employer-competency`) are the floor of what CI should validate before launch.
 
@@ -372,4 +363,4 @@ Plan docs frequently reference classes that don't exist. The real registry:
 - `npm run test:rls` — RLS integration suite, requires `supabase start`.
 - `npm run test:e2e` — Playwright suite.
 - `npm run lint && npm run typecheck` — green on main today; safe baseline to compare against.
-- **`npm run build` is BROKEN on `main`** — task #84 above. Don't depend on it for verification until that fix lands.
+- `npm run build` — green on main as of PR #79 (~6s, emits client + SSR bundles).
