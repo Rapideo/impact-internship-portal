@@ -20,6 +20,14 @@ const DESCRIPTORS = {
   SUPABASE_SERVICE_ROLE_KEY: { name: 'SUPABASE_SERVICE_ROLE_KEY', required: true },
   DATABASE_URL: { name: 'DATABASE_URL', required: true },
   DATABASE_POOL_URL: { name: 'DATABASE_POOL_URL', required: true },
+  // Optional. When set, `db.service.server.ts` connects via this URL instead of
+  // DATABASE_POOL_URL. The intent (carry-over #77) is to let the pool client
+  // downgrade to a real `anon` Postgres role for genuine RLS enforcement while
+  // the service client keeps a BYPASSRLS connection for the anonymous-intern
+  // submission path. Today (dev) both vars point at the same BYPASSRLS URL,
+  // so flipping the switch later requires only re-provisioning roles in
+  // Supabase and updating this env var — no code change.
+  DATABASE_SERVICE_URL: { name: 'DATABASE_SERVICE_URL', required: false },
   RESEND_API_KEY: { name: 'RESEND_API_KEY', required: true },
   RESEND_FROM: { name: 'RESEND_FROM', required: true },
   APP_URL: { name: 'APP_URL', required: true },
@@ -27,7 +35,11 @@ const DESCRIPTORS = {
 
 type EnvKey = keyof typeof DESCRIPTORS;
 
-export const env = new Proxy({} as Record<EnvKey, string>, {
+type EnvShape = {
+  [K in EnvKey]: (typeof DESCRIPTORS)[K]['required'] extends true ? string : string | undefined;
+};
+
+export const env = new Proxy({} as EnvShape, {
   get(_target, prop: string | symbol) {
     if (typeof prop !== 'string' || !(prop in DESCRIPTORS)) {
       return undefined;
