@@ -1,5 +1,9 @@
 // Participant Feedback — one-shot intern self-assessment (mixed format:
 // radio + likert + textarea + radio; QuestionRenderer handles all types).
+// SP7 Phase D2 rebuild against Prototypes/PROTOTYPE/participant-feedback.html.
+//
+// Loader + action are PRESERVED VERBATIM — only the default-export render
+// body is rebuilt to match the prototype shell.
 
 import { redirect, useActionData, useLoaderData } from 'react-router';
 import type { Route } from './+types/_public.intern.participant-feedback';
@@ -16,10 +20,14 @@ import {
   insertAnonymousSubmission,
 } from '~/lib/assessment-submissions.server';
 import { AssessmentForm } from '~/components/forms/AssessmentForm';
-import { IdentityConfirmedChip } from '~/components/forms/IdentityConfirmedChip';
 import { PageHead } from '~/components/PageHead';
+import { PublicNav } from '~/components/nav/PublicNav';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Participant Feedback — IMPACT' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Participant Feedback — IMPACT 2026' }];
+
+const FORM_NAV_LINKS = [
+  { to: '/intern/assessments', label: 'Back to assessments', back: true },
+] as const;
 
 export async function loader({ request }: Route.LoaderArgs) {
   const identity = await getCurrentInternIdentity(request);
@@ -114,24 +122,20 @@ export default function ParticipantFeedbackPage() {
 
   return (
     <>
+      <PublicNav links={FORM_NAV_LINKS} />
       <PageHead
-        breadcrumb="INTERN / PARTICIPANT FEEDBACK"
-        title="PARTICIPANT FEEDBACK."
-        sub="Share your honest feedback about the internship program."
+        breadcrumb="PARTICIPANT FEEDBACK / 2026 / ONE SUBMISSION"
+        title={
+          <>
+            LOOK BACK ON
+            <br />
+            YOUR JOURNEY.
+          </>
+        }
+        sub="A short reflection on your internship experience. One submission per intern, so take your time and answer honestly."
       />
-      <section>
+      <section className="assessment-wrap">
         <div className="container">
-          <div style={{ marginBottom: 16 }}>
-            <span className="micro-label" style={{ marginRight: 8 }}>
-              SUBMITTING AS
-            </span>
-            <IdentityConfirmedChip
-              firstInitial={identity.firstInitial}
-              lastName={identity.lastName}
-              employerName={identity.employerName}
-              cohortName={identity.cohortName}
-            />
-          </div>
           <AssessmentForm
             actionPath="/intern/participant-feedback"
             questions={set.questions}
@@ -142,6 +146,14 @@ export default function ParticipantFeedbackPage() {
             modalTitle="Submit your Participant Feedback?"
             modalBody="Your responses will be locked once submitted. You won't be able to edit them afterward."
             readOnly={false}
+            identityChip={{
+              firstInitial: identity.firstInitial,
+              lastName: identity.lastName,
+              employerName: identity.employerName,
+              cohortName: identity.cohortName,
+            }}
+            cancelHref="/intern/assessments"
+            statusCaption="PARTICIPANT FEEDBACK · ONE SUBMISSION"
           />
         </div>
       </section>
