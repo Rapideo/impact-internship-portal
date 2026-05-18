@@ -16,9 +16,12 @@ import employerShellCss from './styles/employer-shell.css?url';
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
+  // Brand typefaces per spec §1.2 + SP7 Phase A decision 4 (Latin subset).
+  // Single combined request is faster than per-family URLs; CSS2 auto-serves
+  // unicode-range-subsetted faces so browsers only download glyphs they use.
   {
     rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap',
+    href: 'https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&subset=latin&display=swap',
   },
   { rel: 'stylesheet', href: adminCss },
   { rel: 'stylesheet', href: authCss },

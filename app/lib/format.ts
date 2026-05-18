@@ -70,3 +70,21 @@ export function slugify(s: string): string {
 export function initials(s: string): string {
   return (s || '').slice(0, 2).toUpperCase();
 }
+
+/**
+ * Format a JS Date as "Month Day, Year" — used on assessment confirmation
+ * pages + intern self-assessment status pills. Mirrors the prototype's
+ * `IMPACT.formatCompletionDate` helper from app.js.
+ */
+export function formatCompletionDate(date: Date | null | undefined): string {
+  if (!date) return '';
+  try {
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(date);
+  } catch {
+    return '';
+  }
+}
