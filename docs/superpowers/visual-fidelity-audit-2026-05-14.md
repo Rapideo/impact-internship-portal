@@ -30,27 +30,27 @@ The auth shell pattern (`AuthShell` component) was built in SP5 Phase C but only
 
 ## Auth + public surface
 
-### `[✓] /` (landing) ↔ `index.html` _(closed in SP7 Phase D1 — see PR #<TBD>)_
+### `[✓] /` (landing) ↔ `index.html` _(closed in SP7 Phase D1 — see PR #94)_
 _Findings:_
 - **P0** — Production landing has **no brand shell at all**: no `<header class="nav">`, no `<footer>`, no wordmark, no hero, no pillars. Page is literally `<main style="max-width:720"><h1>IMPACT Internship Assessment Portal</h1><p>The production app is under construction.</p>`. Rebuild from scratch to match prototype: navy nav with wordmark + 3 nav links (About / Intern Assessments / Admin Sign In CTA), hero section with `--canvas` background, Archivo Black headline ("EXPAND YOUR OPPORTUNITIES.") with `.hero__corner` gold corner glyph + `.accent-underline`, micro-label row, subhead, primary CTA → `/intern/assessments`, then a 3-card Pillars section (Intake / Competency / Outcomes) with numbered `.pillar__num` mono labels, and the dark `.footer` shell.
 - **P0** — `_public.tsx` layout currently renders only `<div className="public-shell"><Outlet/></div>` — no shared nav/footer. The intern layout (`_public.intern.tsx`) has its own ad-hoc nav using inline styles with a hardcoded `<strong>IMPACT</strong>` text-only wordmark; the public root has nothing. Either lift a shared `<PublicNav>` + `<PublicFooter>` into `_public.tsx`, or render them per-route. Each must use the dark `--navy-deep` surface to match the prototype.
-  - **Resolved in SP7 Phase D1 (PR #&lt;TBD&gt;) — per-route option chosen.** `_public.tsx` stays a thin pass-through; `<PublicNav>` + `<PublicFooter>` are rendered inside each public-surface route (landing, login, /auth/*, $.tsx 404) with route-specific `links={...}` so the prototype's per-page link-set differences (landing's "About / Intern Assessments / Admin Sign In" vs login's "Back to home / Intern Assessments" vs 404's "Home / Admin Sign In") render verbatim. Intern subtree (D2 scope) still renders its own ad-hoc nav and will move to `<PublicNav variant="intern">` in Phase D2.
+  - **Resolved in SP7 Phase D1 (PR #94) — per-route option chosen.** `_public.tsx` stays a thin pass-through; `<PublicNav>` + `<PublicFooter>` are rendered inside each public-surface route (landing, login, /auth/*, $.tsx 404) with route-specific `links={...}` so the prototype's per-page link-set differences (landing's "About / Intern Assessments / Admin Sign In" vs login's "Back to home / Intern Assessments" vs 404's "Home / Admin Sign In") render verbatim. Intern subtree (D2 scope) still renders its own ad-hoc nav and will move to `<PublicNav variant="intern">` in Phase D2.
 - **P0** — Brand tokens (`--navy`, `--cyan`, `--gold`, `--canvas`, Archivo Black) all exist in `tokens.css` but are not consumed on this page. Fonts must be preconnected/loaded in `root.tsx` (verify via Grep — prototype loads them from a `<link>`; production may rely on root layout).
 - **P1** — No `.hero`, `.pillar`, `.footer`, `.wordmark` rules exist in `global.css` or `tokens.css`; they're only in `admin.css`. Port the prototype's hero + pillar + footer rules into `global.css` so public-shell pages can use them without depending on admin styling.
 
-### `[✓] /login` ↔ `login.html` _(closed in SP7 Phase D1 — see PR #<TBD>)_
+### `[✓] /login` ↔ `login.html` _(closed in SP7 Phase D1 — see PR #94)_
 _Findings:_
 - **P0** — Production `_public.login.tsx` uses raw inline styles instead of the `AuthShell` component at `app/components/auth/AuthShell.tsx`. AuthShell was built in SP5 Phase C with a docstring that literally says "Mirrors the prototype's `login.html` aesthetic" but `/login` itself was never refactored to use it. Result: typeface mismatch (no Archivo Black headline, no IBM Plex), missing brand language, "simpler" look that doesn't match the rest of the auth flow. **Fix:** wrap in `<AuthShell microLabel="SIGN IN / 2026" title="Welcome back." sub="..." />` and replace inline styles with the existing `app/styles/auth.css` classes.
 - **P0** — Beyond the shell wrap, prototype includes a full top `<header class="nav">` with wordmark + "Back to home" + "Intern Assessments" links above the auth card. Confirm `AuthShell` renders that header; if not, add it. Prototype also includes a left "intro" column with `micro-label`, `.login__title`, `.login__sub`, and a numbered `<ul class="login__facts">` ("01 Intake / 02 Competency / 03 Outcomes") sitting next to the form — a 2-column layout. Current production login is form-only, no intro panel.
 - **P1** — Prototype uses a `.login__form-head` strip with a `.micro-label--navy` "Credentials" eyebrow and a "Demo — any value works" note. Production omits both.
 
 ### `[✓] /auth/forgot` (SP5 new — no prototype)
-_Findings:_ No gaps. AuthShell rendering correctly (branded two-column split, Archivo Black headline, navy/cyan/gold tokens). Use as the reference for the `/login` fix. **Updated in SP7 Phase D1** to wrap in `<PublicNav>` + `<PublicFooter>` for brand-shell parity with the rest of the public surface; copy adjusted to mirror the prototype's RECOVER PASSWORD modal voice ("Send a recovery link."). See PR #&lt;TBD&gt;.
+_Findings:_ No gaps. AuthShell rendering correctly (branded two-column split, Archivo Black headline, navy/cyan/gold tokens). Use as the reference for the `/login` fix. **Updated in SP7 Phase D1** to wrap in `<PublicNav>` + `<PublicFooter>` for brand-shell parity with the rest of the public surface; copy adjusted to mirror the prototype's RECOVER PASSWORD modal voice ("Send a recovery link."). See PR #94.
 
-### `[✓] /auth/reset` (SP5 new — needs recovery token) _(closed in SP7 Phase D1 — see PR #&lt;TBD&gt;)_
+### `[✓] /auth/reset` (SP5 new — needs recovery token) _(closed in SP7 Phase D1 — see PR #94)_
 _Findings:_ Loader-redirect path (no session) verified live. Wrapped in `<PublicNav>` + `<PublicFooter>` for brand-shell parity. Live form rendering remains deferred (`[D]` carry) for a manual session-with-recovery-token test pass.
 
-### `[✓] /auth/accept` (SP5 new — needs invite token) _(closed in SP7 Phase D1 — see PR #&lt;TBD&gt;)_
+### `[✓] /auth/accept` (SP5 new — needs invite token) _(closed in SP7 Phase D1 — see PR #94)_
 _Findings:_ Loader-redirect path (no session) verified live. Wrapped in `<PublicNav>` + `<PublicFooter>` for brand-shell parity; pattern matches `/auth/forgot`. Live form rendering remains deferred (`[D]` carry) for a manual invite-link test pass.
 
 ### `[D] /auth/callback` (SP5 new — transient redirect)
@@ -59,7 +59,7 @@ _Findings:_ Deferred to manual test pass.
 ### `[✓] /intern/assessments` ↔ `intern-assessments.html`
 _Findings:_
 - **P0** — Production page is completely different design-wise from prototype. **Decision: keep the prototype's look** (per Matt). **Rebuild specifics:** identity-gate uses `.identity-card` + `.id-grid.id-grid--4` (4-column field grid) + a top-rule divider above the Confirm button. After confirmation, prototype swaps to a 3-card chooser (`.chooser-card`-style) with status pills ("SUBMITTED ON …" vs "ONE SUBMISSION") and per-card mono numerals. Use the existing `IdentityConfirmedChip` for the post-confirm header strip.
-  - **Resolved in SP7 Phase D2 (see PR #<TBD>)** — chooser rebuilt against the prototype byte-for-byte. Identity gate uses `<IdentityCard>` + `.id-grid.id-grid--4` + top-rule divider; post-confirm view uses `<IdentityConfirmedChip>` + "Not you? Switch" + 3 `<AssessmentCard>`s with verbatim stage pills, meta labels, titles, body copy, and CTA strings. Status pill swaps in "Submitted on {date}" when a one-shot row exists.
+  - **Resolved in SP7 Phase D2 (see PR #95)** — chooser rebuilt against the prototype byte-for-byte. Identity gate uses `<IdentityCard>` + `.id-grid.id-grid--4` + top-rule divider; post-confirm view uses `<IdentityConfirmedChip>` + "Not you? Switch" + 3 `<AssessmentCard>`s with verbatim stage pills, meta labels, titles, body copy, and CTA strings. Status pill swaps in "Submitted on {date}" when a one-shot row exists.
 
 ### `[✓] /intern/personal-goals` ↔ `personal-goals.html`
 _Findings:_
@@ -68,21 +68,21 @@ _Findings:_
 - **P1** — `PageHead` title is `"PERSONAL GOALS."` — flat. Prototype uses a 2-line Archivo Black headline (`"YOUR STARTING<br/>LINE."`). Allow `title` to be a `ReactNode` so we can pass `<>YOUR STARTING<br/>LINE.</>`, and update micro-label to the prototype's "PERSONAL GOALS / 2026 / ONE SUBMISSION" format (with year + cardinality, not "INTERN / PERSONAL GOALS").
 - **P1** — Prototype splits the 7-question set across 2 containers with a navy-tinted Archivo Black section header ("My Focus for This Internship") between question 4 and question 5. Production renders all questions in a single flat list — no section break. Add an optional `sectionBreaks` prop on `AssessmentForm`, or render two `AssessmentForm` calls with the section heading between them.
 - **P2** — "Submitting as" chip wraps the `IdentityConfirmedChip` with an extra duplicate `SUBMITTING AS` micro-label outside it, but the chip itself already includes a "Confirmed as" label. Pick one.
-  - **Resolved in SP7 Phase D2 (see PR #<TBD>)** — `_public.intern.tsx` now mounts `<PublicFooter>`; each child route renders its own `<PublicNav>` with the prototype's "← Back to assessments" back-link variant. `<PageHead>` carries the 2-line `<>YOUR STARTING<br/>LINE.</>` title and the verbatim `PERSONAL GOALS / 2026 / ONE SUBMISSION` micro-label. `<AssessmentForm>` consumes the new Phase C `sectionBreaks=[{afterQuestionIndex: 3, title: 'My Focus for This Internship'}]` and `identityChip={...}` props, dropping the duplicate "SUBMITTING AS" wrapper. Sticky `<ActionBar>` (also Phase C) carries `statusCaption="PERSONAL GOALS · ONE SUBMISSION"` with a Cancel link to `/intern/assessments`.
+  - **Resolved in SP7 Phase D2 (see PR #95)** — `_public.intern.tsx` now mounts `<PublicFooter>`; each child route renders its own `<PublicNav>` with the prototype's "← Back to assessments" back-link variant. `<PageHead>` carries the 2-line `<>YOUR STARTING<br/>LINE.</>` title and the verbatim `PERSONAL GOALS / 2026 / ONE SUBMISSION` micro-label. `<AssessmentForm>` consumes the new Phase C `sectionBreaks=[{afterQuestionIndex: 3, title: 'My Focus for This Internship'}]` and `identityChip={...}` props, dropping the duplicate "SUBMITTING AS" wrapper. Sticky `<ActionBar>` (also Phase C) carries `statusCaption="PERSONAL GOALS · ONE SUBMISSION"` with a Cancel link to `/intern/assessments`.
 
 ### `[✓] /intern/midpoint-reflection` ↔ `midpoint-reflection.html`
 _Findings:_
 - **P0** — Same shell gaps as Personal Goals: no real nav (need wordmark image + back-link), no footer, no sticky `.action-bar`. Inherits whatever fix lands on the intern layout.
 - **P1** — Same heading delta: prototype is `"REFLECT ON<br/>THE JOURNEY."` (2-line Archivo Black); production is `"MIDPOINT REFLECTION."`. Same micro-label format mismatch ("INTERN / MIDPOINT REFLECTION" vs "MIDPOINT REFLECTION / 2026 / ONE SUBMISSION").
 - **P2** — Same duplicated "SUBMITTING AS" micro-label wrapping the chip.
-  - **Resolved in SP7 Phase D2 (see PR #<TBD>)** — same shell rebuild as Personal Goals. 2-line `<>REFLECT ON<br/>THE JOURNEY.</>` title, verbatim micro-label, identity chip via `<AssessmentForm identityChip={...}>`, sticky action bar with `statusCaption="MIDPOINT REFLECTION · ONE SUBMISSION"`.
+  - **Resolved in SP7 Phase D2 (see PR #95)** — same shell rebuild as Personal Goals. 2-line `<>REFLECT ON<br/>THE JOURNEY.</>` title, verbatim micro-label, identity chip via `<AssessmentForm identityChip={...}>`, sticky action bar with `statusCaption="MIDPOINT REFLECTION · ONE SUBMISSION"`.
 
 ### `[✓] /intern/participant-feedback` ↔ `participant-feedback.html`
 _Findings:_
 - **P0** — Same shell gaps: missing real nav, footer, sticky action bar.
 - **P1** — Same heading delta: prototype is `"LOOK BACK ON<br/>YOUR JOURNEY."`; production is `"PARTICIPANT FEEDBACK."`. Same micro-label format mismatch.
 - **P2** — Same duplicated "SUBMITTING AS" labeling.
-  - **Resolved in SP7 Phase D2 (see PR #<TBD>)** — same shell rebuild. 2-line `<>LOOK BACK ON<br/>YOUR JOURNEY.</>` title, verbatim micro-label, identity chip mounted by `<AssessmentForm>`, sticky action bar with `statusCaption="PARTICIPANT FEEDBACK · ONE SUBMISSION"`.
+  - **Resolved in SP7 Phase D2 (see PR #95)** — same shell rebuild. 2-line `<>LOOK BACK ON<br/>YOUR JOURNEY.</>` title, verbatim micro-label, identity chip mounted by `<AssessmentForm>`, sticky action bar with `statusCaption="PARTICIPANT FEEDBACK · ONE SUBMISSION"`.
 
 ### `[✓] /intern/confirmation` ↔ `assessment-confirmation.html`
 _Findings:_
@@ -93,9 +93,9 @@ _Findings:_
 - **P1** — Missing the `.confirm__note` warning paragraph ("You will not be able to resubmit this assessment. If you need to correct something, please contact your program administrator.") below the receipt.
 - **P1** — Missing brand nav + footer (same `_public.intern.tsx` shell issue applies here).
 - **P2** — Date format in `formatSubmittedDate` is `MM.DD.YYYY · HH:MM`; prototype uses `MMM D, YYYY · h:mma`-ish. Worth aligning but not blocking.
-  - **Resolved in SP7 Phase D2 (see PR #<TBD>)** — rebuilt via `<ConfirmReceipt variant="success">` (Phase B primitive). Badge, micro-label, title, body, receipt card, mono receipt id (`IMP-SA-2026-NNN` derived from submittedAt), `<MetaStrip>` (5 cells, no `<dl>`), `.confirm__note` warning, and the navy CTA all in place. Per-type copy moved into the loader as a `COPY` map verbatim from the prototype JS (`micro`/`title`/`body` for each of the 4 supported `?type=` values). Nav + footer attached via the rebuilt layout. Date format now uses `MMM D, YYYY` to better match the prototype.
+  - **Resolved in SP7 Phase D2 (see PR #95)** — rebuilt via `<ConfirmReceipt variant="success">` (Phase B primitive). Badge, micro-label, title, body, receipt card, mono receipt id (`IMP-SA-2026-NNN` derived from submittedAt), `<MetaStrip>` (5 cells, no `<dl>`), `.confirm__note` warning, and the navy CTA all in place. Per-type copy moved into the loader as a `COPY` map verbatim from the prototype JS (`micro`/`title`/`body` for each of the 4 supported `?type=` values). Nav + footer attached via the rebuilt layout. Date format now uses `MMM D, YYYY` to better match the prototype.
 
-### `[✓] /*` (404) ↔ `404.html` _(closed in SP7 Phase D1 — see PR #<TBD>)_
+### `[✓] /*` (404) ↔ `404.html` _(closed in SP7 Phase D1 — see PR #94)_
 _Findings:_
 - **P0** — No brand shell: missing the `<header class="nav">` (with wordmark + "Home" link + "Admin Sign In" CTA) and the dark `<footer>`. The ErrorBoundary renders only the `.confirm` block bare. Wrap in the public shell (whatever lands as the shared nav/footer fix for `/`).
 - **P0** — Missing the muted `.confirm__badge` with the "X-in-circle" SVG glyph (prototype overrides `background: var(--canvas-alt)` for the 404 to neutralize the success-tinted default). Add the badge.
@@ -119,17 +119,20 @@ _Findings:_
 - **P2 — Plex weight subset missing.** Prototype loads `IBM+Plex+Sans:wght@400;500;600;700`. Production loads default weights via system fallback — `font-weight: 600/700` lines (e.g., `.col-name`, KPI labels) silently fall back. Add the `<link>` to fonts.googleapis.com in `root.tsx`.
 - **P2 — print stylesheet missing.** Prototype has a `@media print` block that hides chrome on detail pages so printed records read cleanly. Production has none.
 - **P2 — toast / micro-label letter-spacing.** Prototype micro-label is `letter-spacing: 0.14em`; production is `0.12em`. Subtle but noticeable on the page-head crumb.
+  - **Resolved across SP7 Phases A (PR #90) + B (PR #92).** Phase A ported the prototype `:root` block wholesale (closing the token-registry + `--canvas-alt` + body-font + container-padding items) and added the Latin-subset Plex font links to `root.tsx` (closing the Plex-weight-subset item) and the `@media print` rules (closing print stylesheet). Phase B rebuilt `<AdminNav>` + `<AdminFooter>` + the `.nav__*` / `.admin-chip*` / `.footer .wordmark*` CSS to the prototype's 100px-nav / 64px-wordmark / 3px-gold-rail / mono-square-chip silhouette (closing the nav-height / active-state / link-typography / admin-chip / footer-wordmark items). The micro-label letter-spacing was tightened to `0.14em` in Phase A. SP7 Phase E1 (this PR) consumes the rebuilt primitives — no additional CSS changes required.
 
-### `[~] /admin` ↔ `admin.html`
+### `[✓] /admin` ↔ `admin.html` _(closed in SP7 Phase E1 — see PR #<TBD-E1>)_
 _Findings:_
 - **P0 — personalized greeting lost.** Prototype: `GOOD MORNING,<br/>KORTNEY.` two-line H1 keyed off the admin's first name. Production hard-codes `GOOD MORNING.` with no name. Pass the admin's first name (or derive from email) into PageHead and render with a line break.
 - **P1 — quick-link arrow has no special class.** Prototype `.quick-link__arrow` has its own font-weight treatment (`font-weight: 700`); production CSS doesn't define `.quick-link__arrow` at all so the arrow inherits regular weight. Add the rule.
 - **P2 — sub-copy line break.** Prototype "Program overview for the 2026 cohort cycle. Data reflects the current demo dataset." is two sentences; production drops the second sentence. Restore.
+  - **Resolved in SP7 Phase E1 (see PR #<TBD-E1>).** Admin home loader now reads the signed-in user's email via `supabase.auth.getUser()` and derives a display first name (`deriveFirstName(email)` — local-part-before-separator, uppercased). `<PageHead>` renders the 2-line `<>GOOD MORNING,<br/>{firstName}.</>` title plus the verbatim 2-sentence sub copy ("Program overview for the 2026 cohort cycle. Data reflects the current demo dataset."). KPI grid now consumes `<KpiCard variant="cyan" />` for Active Interns and `variant="success"` for 90-Day Outcomes; Quick Links + Recent Activity also rewired through the Phase B `<QuickLinks>` / `<RecentActivity>` primitives. The audit's P1 about `.quick-link__arrow` font-weight was a false positive — the prototype's actual rule is `.quick-link__arrow { font-size: 14px; }` with no weight override, matching production.
 
-### `[~] /admin/settings/employers` ↔ `settings-employers.html`
+### `[✓] /admin/settings/employers` ↔ `settings-employers.html` _(closed in SP7 Phase E1 — see PR #<TBD-E1>)_
 _Findings:_
 - **P1** — No structural delta beyond the cross-cutting nav fixes. Rail label "Assessments" matches; ordering matches.
 - **P2** — Page-head sub copy matches verbatim; OK.
+  - **Resolved in SP7 Phase E1 (see PR #<TBD-E1>).** Cross-cutting nav + footer + container parity landed in Phase A/B; this route was already structurally aligned with the prototype `settings-employers.html` (page-head + `<SettingsShell active="employers">` + the `.assessments` table with `.col-name` + `.name-initial` chips). E1 verified parity via side-by-side walk — no markup changes required on this route.
 
 ### `[~] /admin/settings/employers/:employerId` ↔ `settings-employer.html`
 _Findings:_
