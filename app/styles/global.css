@@ -1,3 +1,12 @@
+/* =========================================================
+   Global base + utilities — ported from
+   Prototypes/PROTOTYPE/styles.css per SP7 Phase A, spec §1.2.
+   Component rules (nav, hero, cards, tables, forms, etc.)
+   live in admin.css / auth.css / employer-shell.css and get
+   rebuilt phase-by-phase against the prototype.
+   ========================================================= */
+
+/* ---------- Reset ---------- */
 *,
 *::before,
 *::after {
@@ -10,21 +19,304 @@ body {
   padding: 0;
   background: var(--canvas);
   color: var(--ink);
-  font-family: 'IBM Plex Sans', system-ui, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  font-family: inherit;
+}
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Display headings default to Archivo Black — components can override. */
 h1,
 h2,
 h3 {
-  font-family: 'Archivo Black', sans-serif;
+  font-family: var(--font-display);
   margin: 0;
 }
 
+.container {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* ---------- Micro labels + mono ---------- */
+.micro-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.micro-label--ink {
+  color: var(--ink);
+}
+.micro-label--navy {
+  color: var(--navy);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* ---------- Wordmark (used by nav + footer; Phase B rebuilds shells) ---------- */
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  height: 64px;
+}
+
+.wordmark__img {
+  height: 64px;
+  width: auto;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 14px 22px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    background 120ms ease,
+    box-shadow 150ms ease,
+    border-color 120ms ease;
+  white-space: nowrap;
+}
+
+.btn--primary {
+  background: var(--navy);
+  color: #fff;
+  border-color: var(--navy);
+}
+.btn--primary:hover {
+  background: var(--navy-deep);
+  border-color: var(--navy-deep);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn--outline {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.btn--outline:hover {
+  background: var(--ink);
+  color: var(--canvas);
+  transform: translateY(-1px);
+}
+
+.btn--white {
+  background: #fff;
+  color: var(--navy);
+  border-color: var(--navy);
+}
+.btn--white:hover {
+  background: var(--canvas);
+  border-color: var(--navy-deep);
+  color: var(--navy-deep);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn--danger {
+  background: transparent;
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.btn--danger:hover {
+  background: var(--danger);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* Production-only variant kept for compatibility; refine in Phase B. */
+.btn--ghost-danger {
+  background: transparent;
+  color: var(--danger);
+  border-color: transparent;
+}
+.btn--ghost-danger:hover {
+  color: #fff;
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn--sm {
+  padding: 10px 14px;
+  font-size: 12px;
+}
+
+.btn__arrow {
+  display: inline-block;
+  transform: translateY(1px);
+}
+
+/* ---------- Back-link (used by intern + auth nav variants) ---------- */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--on-dark-muted);
+}
+.back-link:hover {
+  color: var(--gold);
+}
+
+/* ---------- Accent underline (used by hero + other display headlines) ---------- */
+.accent-underline {
+  background-image: linear-gradient(var(--gold), var(--gold));
+  background-repeat: no-repeat;
+  background-size: 100% 12px;
+  background-position: 0 92%;
+  padding-bottom: 2px;
+}
+
+/* ---------- Focus ring (global accessibility default) ---------- */
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ---------- Error-page utility (preserved for ErrorBoundary use) ---------- */
 .error-page {
   max-width: 720px;
   margin: 4rem auto;
   padding: 0 1.5rem;
+}
+
+/* ---------- Print stylesheet (ported verbatim from prototype) ---------- */
+@media print {
+  .nav,
+  .footer,
+  .action-bar,
+  .filters,
+  .filter-group,
+  .detail-actions,
+  .table-meta,
+  .col-actions,
+  .modal,
+  .toast-stack,
+  .subnav,
+  .quick-links,
+  .hero__ctas,
+  .btn,
+  .admin-chip {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+    font-size: 12pt;
+  }
+
+  .container {
+    max-width: none;
+    padding: 0;
+  }
+
+  .page-head {
+    padding: 24px 0 16px;
+    border-bottom: 1px solid #ccc;
+  }
+  .page-head__title {
+    font-size: 24pt;
+  }
+
+  .rubric-panel {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
+    margin-bottom: 12px;
+  }
+  .rubric-panel__head {
+    background: #f5f5f5 !important;
+  }
+
+  .identity-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  .notes-view,
+  .rubric-notes {
+    background: #fff !important;
+  }
+
+  .rating-view {
+    border-color: #ccc;
+  }
+  .rating-view__option {
+    border-color: #ccc;
+  }
+  .rating-view__option--selected {
+    background: #333 !important;
+    color: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .meta-strip__item {
+    border-color: #ccc;
+  }
+
+  .pill {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .assessments {
+    font-size: 10pt;
+  }
+  .assessments th,
+  .assessments td {
+    border-bottom: 1px solid #ccc;
+  }
+
+  .confirm__badge {
+    box-shadow: none;
+  }
+
+  .kpi-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }

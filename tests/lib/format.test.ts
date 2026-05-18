@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { formatDate, formatDateLong, formatPhone, slugify, initials } from '~/lib/format';
+import {
+  formatDate,
+  formatDateLong,
+  formatPhone,
+  slugify,
+  initials,
+  formatCompletionDate,
+} from '~/lib/format';
 
 describe('formatDate', () => {
   it('formats ISO date as MM.DD.YYYY', () => {
@@ -44,5 +51,15 @@ describe('initials', () => {
   });
   it('returns empty for empty', () => {
     expect(initials('')).toBe('');
+  });
+});
+
+describe('formatCompletionDate', () => {
+  it('formats Date as Month Day, Year', () => {
+    expect(formatCompletionDate(new Date('2026-04-14T12:00:00Z'))).toBe('April 14, 2026');
+  });
+  it('returns empty for null/undefined', () => {
+    expect(formatCompletionDate(null)).toBe('');
+    expect(formatCompletionDate(undefined)).toBe('');
   });
 });
