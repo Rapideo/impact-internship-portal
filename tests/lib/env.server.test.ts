@@ -39,4 +39,16 @@ describe('env.server lazy evaluation', () => {
     const { env } = await import('~/lib/env.server');
     expect(env.DATABASE_POOL_URL).toBe('postgresql://example');
   });
+
+  it('returns undefined (not throw) when an optional var is missing', async () => {
+    delete process.env.DATABASE_SERVICE_URL;
+    const { env } = await import('~/lib/env.server');
+    expect(env.DATABASE_SERVICE_URL).toBeUndefined();
+  });
+
+  it('returns the value when an optional var is set', async () => {
+    process.env.DATABASE_SERVICE_URL = 'postgresql://service';
+    const { env } = await import('~/lib/env.server');
+    expect(env.DATABASE_SERVICE_URL).toBe('postgresql://service');
+  });
 });
