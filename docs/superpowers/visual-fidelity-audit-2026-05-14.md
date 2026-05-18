@@ -30,27 +30,28 @@ The auth shell pattern (`AuthShell` component) was built in SP5 Phase C but only
 
 ## Auth + public surface
 
-### `[~] /` (landing) ↔ `index.html`
+### `[✓] /` (landing) ↔ `index.html` _(closed in SP7 Phase D1 — see PR #<TBD>)_
 _Findings:_
 - **P0** — Production landing has **no brand shell at all**: no `<header class="nav">`, no `<footer>`, no wordmark, no hero, no pillars. Page is literally `<main style="max-width:720"><h1>IMPACT Internship Assessment Portal</h1><p>The production app is under construction.</p>`. Rebuild from scratch to match prototype: navy nav with wordmark + 3 nav links (About / Intern Assessments / Admin Sign In CTA), hero section with `--canvas` background, Archivo Black headline ("EXPAND YOUR OPPORTUNITIES.") with `.hero__corner` gold corner glyph + `.accent-underline`, micro-label row, subhead, primary CTA → `/intern/assessments`, then a 3-card Pillars section (Intake / Competency / Outcomes) with numbered `.pillar__num` mono labels, and the dark `.footer` shell.
 - **P0** — `_public.tsx` layout currently renders only `<div className="public-shell"><Outlet/></div>` — no shared nav/footer. The intern layout (`_public.intern.tsx`) has its own ad-hoc nav using inline styles with a hardcoded `<strong>IMPACT</strong>` text-only wordmark; the public root has nothing. Either lift a shared `<PublicNav>` + `<PublicFooter>` into `_public.tsx`, or render them per-route. Each must use the dark `--navy-deep` surface to match the prototype.
+  - **Resolved in SP7 Phase D1 (PR #&lt;TBD&gt;) — per-route option chosen.** `_public.tsx` stays a thin pass-through; `<PublicNav>` + `<PublicFooter>` are rendered inside each public-surface route (landing, login, /auth/*, $.tsx 404) with route-specific `links={...}` so the prototype's per-page link-set differences (landing's "About / Intern Assessments / Admin Sign In" vs login's "Back to home / Intern Assessments" vs 404's "Home / Admin Sign In") render verbatim. Intern subtree (D2 scope) still renders its own ad-hoc nav and will move to `<PublicNav variant="intern">` in Phase D2.
 - **P0** — Brand tokens (`--navy`, `--cyan`, `--gold`, `--canvas`, Archivo Black) all exist in `tokens.css` but are not consumed on this page. Fonts must be preconnected/loaded in `root.tsx` (verify via Grep — prototype loads them from a `<link>`; production may rely on root layout).
 - **P1** — No `.hero`, `.pillar`, `.footer`, `.wordmark` rules exist in `global.css` or `tokens.css`; they're only in `admin.css`. Port the prototype's hero + pillar + footer rules into `global.css` so public-shell pages can use them without depending on admin styling.
 
-### `[~] /login` ↔ `login.html`
+### `[✓] /login` ↔ `login.html` _(closed in SP7 Phase D1 — see PR #<TBD>)_
 _Findings:_
 - **P0** — Production `_public.login.tsx` uses raw inline styles instead of the `AuthShell` component at `app/components/auth/AuthShell.tsx`. AuthShell was built in SP5 Phase C with a docstring that literally says "Mirrors the prototype's `login.html` aesthetic" but `/login` itself was never refactored to use it. Result: typeface mismatch (no Archivo Black headline, no IBM Plex), missing brand language, "simpler" look that doesn't match the rest of the auth flow. **Fix:** wrap in `<AuthShell microLabel="SIGN IN / 2026" title="Welcome back." sub="..." />` and replace inline styles with the existing `app/styles/auth.css` classes.
 - **P0** — Beyond the shell wrap, prototype includes a full top `<header class="nav">` with wordmark + "Back to home" + "Intern Assessments" links above the auth card. Confirm `AuthShell` renders that header; if not, add it. Prototype also includes a left "intro" column with `micro-label`, `.login__title`, `.login__sub`, and a numbered `<ul class="login__facts">` ("01 Intake / 02 Competency / 03 Outcomes") sitting next to the form — a 2-column layout. Current production login is form-only, no intro panel.
 - **P1** — Prototype uses a `.login__form-head` strip with a `.micro-label--navy` "Credentials" eyebrow and a "Demo — any value works" note. Production omits both.
 
 ### `[✓] /auth/forgot` (SP5 new — no prototype)
-_Findings:_ No gaps. AuthShell rendering correctly (branded two-column split, Archivo Black headline, navy/cyan/gold tokens). Use as the reference for the `/login` fix.
+_Findings:_ No gaps. AuthShell rendering correctly (branded two-column split, Archivo Black headline, navy/cyan/gold tokens). Use as the reference for the `/login` fix. **Updated in SP7 Phase D1** to wrap in `<PublicNav>` + `<PublicFooter>` for brand-shell parity with the rest of the public surface; copy adjusted to mirror the prototype's RECOVER PASSWORD modal voice ("Send a recovery link."). See PR #&lt;TBD&gt;.
 
-### `[D] /auth/reset` (SP5 new — needs recovery token)
-_Findings:_ Deferred to manual test pass.
+### `[✓] /auth/reset` (SP5 new — needs recovery token) _(closed in SP7 Phase D1 — see PR #&lt;TBD&gt;)_
+_Findings:_ Loader-redirect path (no session) verified live. Wrapped in `<PublicNav>` + `<PublicFooter>` for brand-shell parity. Live form rendering remains deferred (`[D]` carry) for a manual session-with-recovery-token test pass.
 
-### `[D] /auth/accept` (SP5 new — needs invite token)
-_Findings:_ Deferred to manual test pass.
+### `[✓] /auth/accept` (SP5 new — needs invite token) _(closed in SP7 Phase D1 — see PR #&lt;TBD&gt;)_
+_Findings:_ Loader-redirect path (no session) verified live. Wrapped in `<PublicNav>` + `<PublicFooter>` for brand-shell parity; pattern matches `/auth/forgot`. Live form rendering remains deferred (`[D]` carry) for a manual invite-link test pass.
 
 ### `[D] /auth/callback` (SP5 new — transient redirect)
 _Findings:_ Deferred to manual test pass.
@@ -89,7 +90,7 @@ _Findings:_
 - **P1** — Missing brand nav + footer (same `_public.intern.tsx` shell issue applies here).
 - **P2** — Date format in `formatSubmittedDate` is `MM.DD.YYYY · HH:MM`; prototype uses `MMM D, YYYY · h:mma`-ish. Worth aligning but not blocking.
 
-### `[~] /*` (404) ↔ `404.html`
+### `[✓] /*` (404) ↔ `404.html` _(closed in SP7 Phase D1 — see PR #<TBD>)_
 _Findings:_
 - **P0** — No brand shell: missing the `<header class="nav">` (with wordmark + "Home" link + "Admin Sign In" CTA) and the dark `<footer>`. The ErrorBoundary renders only the `.confirm` block bare. Wrap in the public shell (whatever lands as the shared nav/footer fix for `/`).
 - **P0** — Missing the muted `.confirm__badge` with the "X-in-circle" SVG glyph (prototype overrides `background: var(--canvas-alt)` for the 404 to neutralize the success-tinted default). Add the badge.

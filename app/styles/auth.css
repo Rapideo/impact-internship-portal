@@ -268,3 +268,101 @@
   background: var(--gold);
   transform: translateY(-2px);
 }
+
+/* =========================================================
+   SP7 Phase D1 — additional `.login__*`-equivalents ported
+   from Prototypes/PROTOTYPE/styles.css. Renamed under
+   `.auth__*` for the multi-route auth shell.
+   ========================================================= */
+
+/* Gold-pill demo-note (prototype `.login__demo-note`). Overrides the
+ * SP5-era plain-text variant so the badge reads as the prototype's
+ * branded eyebrow. */
+.auth__demo-note {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--navy-deep);
+  background: var(--gold);
+  padding: 5px 9px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+/* "Recover password →" link below the password field. Prototype
+ * absolute-positions this inside `.field`; in production the link
+ * sits in its own row beneath the form to play nicely with React
+ * Router <Link> + the (less-cluttered) AuthShell structure. */
+.auth__recover-row {
+  margin: -8px 0 18px;
+  text-align: right;
+}
+
+.auth__recover {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 120ms ease;
+}
+
+.auth__recover:hover {
+  color: var(--navy);
+}
+
+/* "OR" divider rail between submit + secondary action. Ports
+ * `.login__divider` 1:1. */
+.auth__divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 26px 0;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.24em;
+  color: var(--muted);
+}
+
+.auth__divider::before,
+.auth__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+/* `.login__secondary` — dashed-rule outbound link (intern flow shortcut
+ * from /login). Overrides the SP5-era `.auth__secondary` plain-text
+ * variant so the button has the prototype's bordered-pill feel. */
+.auth__secondary {
+  display: block;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--navy);
+  padding: 13px;
+  border: 1px dashed var(--rule);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  margin-top: 8px;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.auth__secondary:hover {
+  border-color: var(--navy);
+  background: rgba(21, 58, 152, 0.04);
+  color: var(--navy-deep);
+}
+
+.auth__secondary a {
+  color: inherit;
+  text-decoration: none;
+}
