@@ -1,3 +1,16 @@
+// Admin sign-in — SP7 Phase D1 rebuild against Prototypes/PROTOTYPE/login.html.
+//
+// The loader + action are PRESERVED VERBATIM from the SP1 implementation —
+// they handle Supabase password sign-in, role decode via getClaims(), and
+// post-auth redirect. Only the default-export render body is rebuilt:
+// composes <PublicNav> (with prototype's login-page link set) + <AuthShell>
+// (the SP5 branded two-column shell, prototype's `.login` block) + the
+// prototype's `.login__form-head` "Credentials / Demo — any value works"
+// strip (the demo-note retained for dev clarity — see Deviations in PR) +
+// the email/password fields wrapped in `.auth__field` + the
+// `.auth__submit` action + an `.login__divider`-equivalent OR rail + a
+// `.login__secondary` outbound link to /intern/assessments.
+
 import { Form, Link, redirect, useActionData, useNavigation } from 'react-router';
 import {
   createSupabaseServerClient,
@@ -5,6 +18,19 @@ import {
   getAuthContext,
 } from '~/lib/auth.server';
 import type { Route } from './+types/_public.login';
+import { AuthShell } from '~/components/auth/AuthShell';
+import { PublicNav } from '~/components/nav/PublicNav';
+import { PublicFooter } from '~/components/nav/PublicFooter';
+
+const LOGIN_NAV_LINKS = [
+  { to: '/', label: 'Back to home' },
+  { to: '/intern/assessments', label: 'Intern Assessments' },
+] as const;
+
+const LOGIN_FOOTER_LINKS = [
+  { to: '/', label: 'Home' },
+  { to: '/intern/assessments', label: 'Intern Assessments' },
+] as const;
 
 export async function loader({ request }: Route.LoaderArgs) {
   const headers = new Headers();
@@ -48,78 +74,78 @@ export default function Login() {
   const isSubmitting = navigation.state === 'submitting';
 
   return (
-    <main
-      style={{
-        maxWidth: 420,
-        margin: '4rem auto',
-        padding: '0 1.5rem',
-      }}
-    >
-      <h1 style={{ color: 'var(--navy)', marginBottom: '0.5rem' }}>Sign in</h1>
-      <p style={{ color: 'var(--ink-soft)', marginBottom: '2rem' }}>
-        IMPACT Internship Assessment Portal
-      </p>
+    <>
+      <PublicNav links={LOGIN_NAV_LINKS} />
 
-      <Form method="post" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <span style={{ fontSize: '0.875rem', color: 'var(--navy-deep)' }}>Email</span>
-          <input
-            type="email"
-            name="email"
-            required
-            autoComplete="email"
-            style={{
-              padding: '0.625rem 0.75rem',
-              border: '1px solid var(--line)',
-              borderRadius: 'var(--radius-md)',
-              fontSize: '1rem',
-            }}
-          />
-        </label>
-
-        <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <span style={{ fontSize: '0.875rem', color: 'var(--navy-deep)' }}>Password</span>
-          <input
-            type="password"
-            name="password"
-            required
-            autoComplete="current-password"
-            style={{
-              padding: '0.625rem 0.75rem',
-              border: '1px solid var(--line)',
-              borderRadius: 'var(--radius-md)',
-              fontSize: '1rem',
-            }}
-          />
-        </label>
+      <AuthShell
+        microLabel="SIGN IN / 2026"
+        title="Welcome back."
+        sub="Administrator access for the IMPACT Internship Assessment Portal. Manage cohorts, run competency assessments, and record placement outcomes."
+        facts={[
+          { mono: '01', label: 'Intake — at placement' },
+          { mono: '02', label: 'Competency — multi-phase' },
+          { mono: '03', label: 'Outcomes — 90-day window' },
+        ]}
+      >
+        <div className="auth__form-head">
+          <span className="micro-label micro-label--navy">Credentials</span>
+        </div>
 
         {actionData?.error ? (
-          <p style={{ color: '#b00020', fontSize: '0.875rem', margin: 0 }}>{actionData.error}</p>
+          <div role="alert" className="auth__alert auth__alert--danger">
+            {actionData.error}
+          </div>
         ) : null}
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          style={{
-            padding: '0.75rem 1rem',
-            background: 'var(--navy)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 'var(--radius-md)',
-            fontSize: '1rem',
-            cursor: isSubmitting ? 'not-allowed' : 'pointer',
-            opacity: isSubmitting ? 0.6 : 1,
-          }}
-        >
-          {isSubmitting ? 'Signing in…' : 'Sign in'}
-        </button>
-      </Form>
+        <Form method="post">
+          <label className="auth__field" htmlFor="login-email">
+            <span className="auth__field-label">Email</span>
+            <input
+              className="input"
+              type="email"
+              id="login-email"
+              name="email"
+              required
+              autoComplete="email"
+              placeholder="kortney@impact.org"
+            />
+          </label>
 
-      <p style={{ marginTop: '1.5rem', fontSize: '0.875rem' }}>
-        <Link to="/auth/forgot" style={{ color: 'var(--navy)' }}>
-          Forgot password?
+          <label className="auth__field" htmlFor="login-password">
+            <span className="auth__field-label">Password</span>
+            <input
+              className="input"
+              type="password"
+              id="login-password"
+              name="password"
+              required
+              autoComplete="current-password"
+              placeholder="••••••••"
+            />
+          </label>
+
+          <button type="submit" className="auth__submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Signing in…' : 'Sign in'}
+            <span className="btn__arrow"> &rarr;</span>
+          </button>
+        </Form>
+
+        <div className="auth__recover-row">
+          <Link to="/auth/forgot" className="auth__recover">
+            Recover password &rarr;
+          </Link>
+        </div>
+
+        <div className="auth__divider">
+          <span>OR</span>
+        </div>
+
+        <Link to="/intern/assessments" className="auth__secondary">
+          Intern? Go to Intern Assessments &rarr;
         </Link>
-      </p>
-    </main>
+      </AuthShell>
+
+      <PublicFooter links={LOGIN_FOOTER_LINKS} />
+    </>
   );
 }
