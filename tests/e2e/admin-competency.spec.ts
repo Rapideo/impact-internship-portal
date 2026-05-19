@@ -180,13 +180,24 @@ test('admin can run the picker, submit a competency, then edit a rating', async 
   // Detail-page heading reads "COMPETENCY — TEST1.". The submission view
   // shows the read-only form, so the rubric rows render their ratings —
   // we just assert the heading and at least one Ready radio is checked.
+  // The rubric renderer (CompetencyRubricRowQuestion.tsx) wraps each radio
+  // in a `<label class="assessment-rubric-pill">`; the native input is
+  // hidden via CSS, so Playwright's `getByRole('radio')` accessibility
+  // filter skips it on the assertion path. Match the input directly by
+  // its `value` attribute (the renderer uses lowercase: ready/developing/
+  // emerging) — `toBeChecked` reads the DOM property regardless of
+  // visibility. Same pattern as admin-exit-employer-survey for Likert.
   await expect(page.getByRole('heading', { level: 1 })).toContainText(/COMPETENCY/i);
   const firstRow = page.locator('[data-qid="comp-attendance"]');
-  await expect(firstRow.getByRole('radio', { name: 'Ready' })).toBeChecked();
+  await expect(firstRow.locator('input[type="radio"][value="ready"]')).toBeChecked();
 
   // --- Edit: flip one row to Developing, save, verify persistence -----
-  await page.getByRole('link', { name: /^Edit$/ }).click();
-  await expect(page).toHaveURL(/\/admin\/assessments\/competency\/edit\//);
+  // SP7 Phase F renamed the edit affordance to "Edit Assessment".
+  await page.getByRole('link', { name: /Edit Assessment/i }).click();
+  // Bump timeout above the 5s default to match the other URL transitions
+  // in this spec — under concurrent dev-server load (2 workers), the
+  // client-side RR navigation can take longer than 5s to land.
+  await expect(page).toHaveURL(/\/admin\/assessments\/competency\/edit\//, { timeout: 15_000 });
 
   await setRubricRating(page, 'comp-attendance', 'Developing');
   // SP7 Phase F — edit-mode submit button label is "Submit Changes".
@@ -200,7 +211,8 @@ test('admin can run the picker, submit a competency, then edit a rating', async 
     /\/admin\/assessments\/competency\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(\?|$)/,
     { timeout: 15_000 },
   );
+  // Same display:none-on-native-radio reason as the Ready assertion above.
   await expect(
-    page.locator('[data-qid="comp-attendance"]').getByRole('radio', { name: 'Developing' }),
+    page.locator('[data-qid="comp-attendance"] input[type="radio"][value="developing"]'),
   ).toBeChecked();
 });
