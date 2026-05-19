@@ -81,6 +81,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       questions: set.questions,
       minRequired: set.minRequired,
       existingAnswers: (existing?.answers as SerializedAnswers | undefined) ?? {},
+      existingSubmittedAt: existing?.submittedAt ?? null,
     },
     { headers },
   );
@@ -158,11 +159,13 @@ export async function action({ request }: Route.ActionArgs) {
     }
   }
 
-  throw redirect(`/employer/interns/${internId}?ees=saved`, { headers });
+  // SP7 Phase G: hub-redirect-with-toast pattern — return to the intern
+  // record with `?submitted=exit-survey`; that route toasts on arrival.
+  throw redirect(`/employer/interns/${internId}?submitted=exit-survey`, { headers });
 }
 
 export default function EmployerExitSurvey() {
-  const { intern, cohort, employer, role, questions, existingAnswers } =
+  const { intern, cohort, employer, role, questions, existingAnswers, existingSubmittedAt } =
     useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const errors = (actionData?.errors ?? {}) as Record<string, string>;
@@ -181,6 +184,10 @@ export default function EmployerExitSurvey() {
     }
   }, [errors, toast]);
 
+  const lastSavedDate = existingSubmittedAt
+    ? new Date(existingSubmittedAt as unknown as string).toLocaleDateString()
+    : null;
+
   return (
     <>
       <PageHead
@@ -188,12 +195,25 @@ export default function EmployerExitSurvey() {
           <>
             <Link to="/employer/interns" style={{ color: 'inherit', textDecoration: 'none' }}>
               EMPLOYER / INTERNS
-            </Link>{' '}
-            / EXIT EMPLOYER SURVEY
+            </Link>
+            {' / '}
+            <Link
+              to={`/employer/interns/${intern.id}`}
+              style={{ color: 'inherit', textDecoration: 'none' }}
+            >
+              {intern.lastName.toUpperCase()}
+            </Link>
+            {' / EXIT EMPLOYER SURVEY'}
           </>
         }
-        title="EXIT EMPLOYER SURVEY."
-        sub="Complete the post-internship employer survey for this intern. Saving updates the existing record."
+        title={
+          <>
+            EXIT EMPLOYER
+            <br />
+            SURVEY.
+          </>
+        }
+        sub="Complete the post-internship employer survey for this intern. Save now, edit later."
       >
         <MetaStrip
           items={[
@@ -206,18 +226,30 @@ export default function EmployerExitSurvey() {
           ]}
         />
       </PageHead>
-      <section>
+      <section className="assessment-wrap">
         <div className="container">
+          {lastSavedDate ? (
+            <div
+              role="status"
+              className="auth__alert auth__alert--success"
+              style={{ marginBottom: 24 }}
+            >
+              This survey was last saved on {lastSavedDate}. Editing here will update the existing
+              record.
+            </div>
+          ) : null}
           <AssessmentForm
             actionPath={`/employer/exit-survey?internId=${internId}`}
             questions={questions}
             initialAnswers={existingAnswers}
             errors={errors}
             setLevelError={setLevelError}
-            submitLabel="Save Exit Survey"
-            modalTitle="Save the exit employer survey?"
+            submitLabel="Save Survey"
+            modalTitle="Save the Exit Employer Survey?"
             modalBody="You can re-open and update this record later from the intern record."
             readOnly={false}
+            cancelHref={`/employer/interns/${intern.id}`}
+            statusCaption="EXIT EMPLOYER SURVEY · EDITABLE"
           />
         </div>
       </section>

@@ -3,9 +3,8 @@
 // Mirrors admin.assessments.competency.$id.tsx but with employer-scope guards
 // and no delete action — employers may not delete submissions.
 
-import { useEffect } from 'react';
 import { and, eq, isNull } from 'drizzle-orm';
-import { data, Link, redirect, useLoaderData, useSearchParams } from 'react-router';
+import { data, Link, redirect, useLoaderData } from 'react-router';
 import type { Route } from './+types/employer.competency.$id';
 import { getAuthContext } from '~/lib/auth.server';
 import { db } from '~/lib/db.server';
@@ -22,7 +21,7 @@ import { stitchedCompetencyQuestions } from '~/lib/question-engine.server';
 import type { SerializedAnswers } from '~/lib/question-types';
 import { CompetencyAssessmentForm } from '~/components/forms/CompetencyAssessmentForm';
 import { PageHead } from '~/components/PageHead';
-import { useToast } from '~/components/ToastProvider';
+import { MetaStrip } from '~/components/MetaStrip';
 import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [
@@ -80,16 +79,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 export default function EmployerCompetencyDetail() {
   const { submission, intern, cohort, employer, role, phases, questions, sectionBoundaries } =
     useLoaderData<typeof loader>();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const toast = useToast();
-
-  useEffect(() => {
-    if (searchParams.get('saved') === '1') {
-      toast.show({ kind: 'success', label: 'SAVED', message: 'Competency assessment saved.' });
-      searchParams.delete('saved');
-      setSearchParams(searchParams, { replace: true });
-    }
-  }, [searchParams, setSearchParams, toast]);
 
   const submittedAt =
     typeof submission.submittedAt === 'string'
@@ -105,19 +94,41 @@ export default function EmployerCompetencyDetail() {
           <>
             <Link to="/employer/interns" style={{ color: 'inherit', textDecoration: 'none' }}>
               EMPLOYER / INTERNS
-            </Link>{' '}
-            / COMPETENCY
+            </Link>
+            {' / '}
+            <Link
+              to={`/employer/interns/${intern.id}`}
+              style={{ color: 'inherit', textDecoration: 'none' }}
+            >
+              {intern.lastName.toUpperCase()}
+            </Link>
+            {' / COMPETENCY'}
           </>
         }
         title={`COMPETENCY — ${intern.lastName.toUpperCase()}.`}
         sub={`Phase ${phaseLabel} · submitted ${submittedAt.toLocaleDateString()}.`}
         actions={
-          <Link to={`/employer/competency/edit?id=${submission.id}`} className="btn btn--outline">
-            Edit
-          </Link>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <Link to={`/employer/interns/${intern.id}`} className="btn btn--outline">
+              &larr; Back to intern
+            </Link>
+            <Link to={`/employer/competency/edit?id=${submission.id}`} className="btn btn--primary">
+              Edit
+            </Link>
+          </div>
         }
-      />
-      <section>
+      >
+        <MetaStrip
+          items={[
+            { label: 'Intern', value: `${intern.firstInitial}. ${intern.lastName}` },
+            { label: 'Phase', value: phaseLabel },
+            { label: 'Cohort', value: cohort?.name ?? '—' },
+            { label: 'Role', value: role?.label ?? '—' },
+            { label: 'Submitted', value: submittedAt.toLocaleDateString(), mono: true },
+          ]}
+        />
+      </PageHead>
+      <section className="assessment-wrap">
         <div className="container">
           <CompetencyAssessmentForm
             internId={intern.id}
