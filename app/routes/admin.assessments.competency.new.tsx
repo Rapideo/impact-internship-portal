@@ -147,13 +147,19 @@ export default function AdminCompetencyNew() {
             <Link to="/admin/assessments" style={{ color: 'inherit', textDecoration: 'none' }}>
               ADMIN / ASSESSMENTS
             </Link>{' '}
-            / COMPETENCY / NEW
+            / NEW
           </>
         }
-        title="NEW COMPETENCY ASSESSMENT."
-        sub="Select the phase, score the rubric, and save. Multiple phases per intern are supported."
+        title={
+          <>
+            NEW COMPETENCY
+            <br />
+            ASSESSMENT.
+          </>
+        }
+        sub="Capture a phase-specific competency evaluation for an active intern. Combines shared professional domains with role-specific skills for the placement."
       />
-      <section>
+      <section className="assessment-wrap">
         <div className="container">
           <CompetencyAssessmentForm
             internId={intern.id}
@@ -165,8 +171,9 @@ export default function AdminCompetencyNew() {
             errors={errors}
             setLevelError={setLevelError}
             actionPath={`/admin/assessments/competency/new?internId=${intern.id}`}
-            submitLabel="Save Competency Assessment"
+            submitLabel="Submit Assessment"
             readOnly={false}
+            cancelHref="/admin/assessments"
             meta={{
               internName: `${intern.firstInitial}. ${intern.lastName}`,
               cohortName: cohort?.name ?? '—',

@@ -377,6 +377,55 @@
   color: #6a4f00;
 }
 
+/* Result pills (competency detail page-head — ported from prototype) */
+.pill--pass {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--navy);
+  color: var(--gold);
+  border: 1px solid var(--navy);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.pill--pass::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--gold);
+  border-radius: 50%;
+}
+.pill--fail {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.pill--fail::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--danger);
+  border-radius: 50%;
+}
+
+/* Detail actions row (competency detail + self-assessment detail — ported from prototype) */
+.detail-actions {
+  display: flex;
+  gap: 12px;
+  padding: 40px 0 120px;
+  flex-wrap: wrap;
+}
+.detail-actions .btn--primary {
+  margin-left: auto;
+}
+
 /* Filters */
 .filters {
   display: flex;
@@ -400,13 +449,22 @@
 .input,
 .select,
 .textarea {
-  font-family: 'IBM Plex Sans', sans-serif;
+  width: 100%;
+  min-height: 60px;
+  padding: 12px 14px;
+  font-family: var(--font-body);
   font-size: 14px;
-  padding: 10px 12px;
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-  background: #fff;
+  line-height: 1.55;
   color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  outline: none;
+  resize: vertical;
+}
+.textarea:focus {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(21, 58, 152, 0.18);
 }
 .input--search {
   min-width: 280px;
@@ -2163,4 +2221,25 @@
 
 .competency-form--readonly .competency-form__phase-select {
   background: var(--canvas-alt);
+}
+
+/* ---------- Rubric notes (label stacked above textarea) ----------
+   Ported from Prototypes/PROTOTYPE/styles.css lines 1114-1128.
+   Used by intern-record Entry Assessment + Outcomes panels;
+   without these rules the <label> defaults to inline and sits
+   next to the textarea instead of above it. */
+.rubric-notes {
+  padding: 20px 28px 24px;
+  border-top: 1px solid var(--rule);
+  background: rgba(239, 241, 245, 0.4);
+}
+
+.rubric-notes__label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
 }

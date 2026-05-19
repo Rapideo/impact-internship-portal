@@ -1,12 +1,15 @@
-import { data, Link, useLoaderData, useNavigate } from 'react-router';
+import { data, Link, useFetcher, useLoaderData, useNavigate } from 'react-router';
 import { useMemo, useState } from 'react';
 import type { Route } from './+types/admin.interns._index';
 import { requireAdmin } from '~/lib/admin-guard.server';
 import { db } from '~/lib/db.server';
 import { listInternsForListing } from '~/lib/admin-queries.server';
+import { interns as internsTable } from '../../db/schema';
+import { eq } from 'drizzle-orm';
 import { PageHead } from '~/components/PageHead';
 import { TableFilter } from '~/components/TableFilter';
 import { EmptyRow } from '~/components/EmptyRow';
+import { ConfirmModal } from '~/components/ConfirmModal';
 import { formatDate, initials } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Interns — IMPACT Admin' }];
@@ -15,9 +18,19 @@ export async function loader({ request }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);
   const interns = await listInternsForListing(db);
   const cohortOptions = Array.from(new Set(interns.map((i) => i.cohortName))).sort();
-  // Use data() rather than Response.json() so useLoaderData<typeof loader>()
-  // can infer the body shape while still forwarding refreshed cookies.
   return data({ interns, cohortOptions }, { headers });
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  const { headers } = await requireAdmin(request);
+  const formData = await request.formData();
+  const intent = String(formData.get('_intent') ?? '');
+  const id = String(formData.get('id') ?? '');
+  if (intent === 'delete' && id) {
+    await db.update(internsTable).set({ deletedAt: new Date() }).where(eq(internsTable.id, id));
+    return data({ ok: true as const, deletedId: id }, { headers });
+  }
+  return data({ ok: false as const }, { headers, status: 400 });
 }
 
 function outcomePill(employed90: boolean | null, employed180: boolean | null) {
@@ -29,9 +42,11 @@ function outcomePill(employed90: boolean | null, employed180: boolean | null) {
 export default function AdminInterns() {
   const { interns, cohortOptions } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const deleteFetcher = useFetcher<typeof action>();
   const [search, setSearch] = useState('');
   const [cohort, setCohort] = useState('all');
   const [outcome, setOutcome] = useState('all');
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
 
   const filtered = useMemo(() => {
     return interns.filter((i) => {
@@ -44,6 +59,15 @@ export default function AdminInterns() {
       return true;
     });
   }, [interns, search, cohort, outcome]);
+
+  // Hide rows the user just soft-deleted (optimistic UI). The next loader run
+  // re-fetches and the row stays gone on the server side.
+  const deletedId =
+    deleteFetcher.data && 'deletedId' in deleteFetcher.data ? deleteFetcher.data.deletedId : null;
+  const visible = useMemo(
+    () => (deletedId ? filtered.filter((i) => i.id !== deletedId) : filtered),
+    [filtered, deletedId],
+  );
 
   return (
     <>
@@ -61,7 +85,7 @@ export default function AdminInterns() {
         <div className="container">
           <TableFilter
             countLabel="Active interns"
-            count={filtered.length}
+            count={visible.length}
             rightAside="Sort: Start Date ↓"
             inputs={
               <>
@@ -114,21 +138,26 @@ export default function AdminInterns() {
               <thead>
                 <tr>
                   <th style={{ width: '24%' }}>Intern</th>
-                  <th style={{ width: '22%' }}>Cohort</th>
+                  <th style={{ width: '20%' }}>Cohort</th>
                   <th style={{ width: '14%' }}>Start Date</th>
-                  <th style={{ width: '16%' }}>Role</th>
-                  <th style={{ width: '24%' }}>90-Day Outcome</th>
+                  <th style={{ width: '14%' }}>Role</th>
+                  <th style={{ width: '14%' }}>90-Day Outcome</th>
+                  <th style={{ width: '14%' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.length === 0 ? (
-                  <EmptyRow colSpan={5} message="No records match the current filters." />
+                {visible.length === 0 ? (
+                  <EmptyRow colSpan={6} message="No records match the current filters." />
                 ) : (
-                  filtered.map((i) => (
+                  visible.map((i) => (
                     <tr
                       key={i.id}
                       style={{ cursor: 'pointer' }}
-                      onClick={() => navigate(`/admin/interns/${i.id}`)}
+                      onClick={(e) => {
+                        // Don't navigate when the click landed on an Action link.
+                        if ((e.target as HTMLElement).closest('a, button')) return;
+                        navigate(`/admin/interns/${i.id}`);
+                      }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                           e.preventDefault();
@@ -147,6 +176,25 @@ export default function AdminInterns() {
                       <td className="col-date">{formatDate(i.startDate)}</td>
                       <td>{i.roleLabel ?? '—'}</td>
                       <td>{outcomePill(i.employed90, i.employed180)}</td>
+                      <td>
+                        <div className="col-actions">
+                          <Link to={`/admin/interns/${i.id}`} className="action-link">
+                            Edit
+                          </Link>
+                          <button
+                            type="button"
+                            className="action-link action-link--danger"
+                            onClick={() =>
+                              setPendingDelete({
+                                id: i.id,
+                                name: `${i.firstInitial}. ${i.lastName}`,
+                              })
+                            }
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -155,6 +203,21 @@ export default function AdminInterns() {
           </TableFilter>
         </div>
       </section>
+
+      <ConfirmModal
+        open={pendingDelete !== null}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={() => {
+          if (!pendingDelete) return;
+          deleteFetcher.submit({ _intent: 'delete', id: pendingDelete.id }, { method: 'post' });
+          setPendingDelete(null);
+        }}
+        label="DELETE RECORD"
+        title="Delete this intern record?"
+        body="This record will be permanently removed. This action cannot be undone."
+        confirmText="Delete Permanently"
+        variant="danger"
+      />
     </>
   );
 }

@@ -114,14 +114,14 @@ export async function action({ request }: Route.ActionArgs) {
     submittedBy,
   });
 
-  // Redirect back to the intern detail page (added in SP2) so the admin
-  // sees the survey marked as Submitted alongside the other records.
-  throw redirect(`/admin/interns/${internId}?ees=saved`, { headers });
+  // Back to the assessments hub (SP7 Phase F UX fix) so the admin can
+  // pick a different intern + assessment next, rather than bouncing into
+  // the unrelated intern record edit page.
+  throw redirect(`/admin/assessments?submitted=exit-survey`, { headers });
 }
 
 export default function AdminExitEmployerSurvey() {
-  const { intern, cohort, employer, role, questions, existingAnswers } =
-    useLoaderData<typeof loader>();
+  const { intern, employer, role, questions, existingAnswers } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const errors = (actionData?.errors ?? {}) as Record<string, string>;
   const setLevelError = errors.__minRequired ?? errors.__form ?? null;
@@ -144,27 +144,32 @@ export default function AdminExitEmployerSurvey() {
       <PageHead
         breadcrumb={
           <>
-            <Link to="/admin/assessments" style={{ color: 'inherit', textDecoration: 'none' }}>
-              ADMIN / ASSESSMENTS
+            <Link to="/admin/interns" style={{ color: 'inherit', textDecoration: 'none' }}>
+              ADMIN / INTERNS
             </Link>{' '}
-            / EXIT EMPLOYER SURVEY
+            / EVALUATIONS / EXIT EMPLOYER SURVEY
           </>
         }
-        title="EXIT EMPLOYER SURVEY."
-        sub="Complete the post-internship employer survey for this intern. Saving updates the existing record."
+        title={
+          <>
+            EXIT EMPLOYER
+            <br />
+            SURVEY.
+          </>
+        }
+        sub="Captured on behalf of the employer at the close of the placement. Save now, edit later."
       >
         <MetaStrip
           items={[
             { label: 'Employer', value: employer?.name ?? '—' },
             { label: 'Participant', value: `${intern.firstInitial}. ${intern.lastName}` },
             { label: 'Position', value: role?.label ?? '—' },
-            { label: 'Cohort', value: cohort?.name ?? '—' },
-            { label: 'Start', value: formatDate(intern.startDate), mono: true },
-            { label: 'End', value: formatDate(intern.endDate), mono: true },
+            { label: 'Start Date', value: formatDate(intern.startDate), mono: true },
+            { label: 'End Date', value: formatDate(intern.endDate), mono: true },
           ]}
         />
       </PageHead>
-      <section>
+      <section className="assessment-wrap">
         <div className="container">
           <AssessmentForm
             actionPath={`/admin/assessments/exit-employer-survey?internId=${internId}`}
@@ -172,10 +177,12 @@ export default function AdminExitEmployerSurvey() {
             initialAnswers={existingAnswers}
             errors={errors}
             setLevelError={setLevelError}
-            submitLabel="Save Exit Survey"
-            modalTitle="Save the exit employer survey?"
-            modalBody="You can re-open and update this record later from the intern detail page."
+            submitLabel="Save Survey"
+            modalTitle="Save this Exit Employer Survey?"
+            modalBody="The survey will be stored against this intern's record. You can return to edit it from the Evaluations panel."
             readOnly={false}
+            cancelHref={`/admin/interns/${internId}`}
+            statusCaption="EXIT EMPLOYER SURVEY · EDITABLE"
           />
         </div>
       </section>

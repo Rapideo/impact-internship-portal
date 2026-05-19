@@ -7,7 +7,7 @@ import {
   useLoaderData,
   useNavigation,
 } from 'react-router';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { Route } from './+types/admin.interns.new';
 import { requireAdmin } from '~/lib/admin-guard.server';
 import { db } from '~/lib/db.server';
@@ -34,6 +34,7 @@ import { PageHead } from '~/components/PageHead';
 import { RubricPanel } from '~/components/RubricPanel';
 import { ActionBar } from '~/components/ActionBar';
 import { BarrierCheckList } from '~/components/BarrierCheckList';
+import { ConfirmModal } from '~/components/ConfirmModal';
 
 export const meta: Route.MetaFunction = () => [{ title: 'New Intern — IMPACT Admin' }];
 
@@ -148,6 +149,8 @@ export default function NewIntern() {
   const actionData = useActionData<typeof action>();
   const nav = useNavigation();
   const errs = errorsByField(actionData?.errors ?? []);
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const [employerId, setEmployerId] = useState<string>('');
   const [cohortId, setCohortId] = useState<string>('');
@@ -188,7 +191,7 @@ export default function NewIntern() {
       />
       <section className="assessment-wrap">
         <div className="container">
-          <Form method="post">
+          <Form method="post" ref={formRef}>
             <div className="rubric">
               <RubricPanel
                 num="01"
@@ -336,10 +339,7 @@ export default function NewIntern() {
                 meta="Barriers to entry identified at intake. Notes feed support planning."
               >
                 <BarrierCheckList barriers={barriers} checkedIds={barrierIds} />
-                <div
-                  className="rubric-notes"
-                  style={{ padding: '22px 28px', borderTop: '1px solid var(--rule)' }}
-                >
+                <div className="rubric-notes">
                   <label className="rubric-notes__label" htmlFor="barrier-notes">
                     Notes
                   </label>
@@ -429,9 +429,10 @@ export default function NewIntern() {
                 Cancel
               </Link>
               <button
-                type="submit"
+                type="button"
                 className="btn btn--primary"
                 disabled={nav.state === 'submitting'}
+                onClick={() => setConfirmOpen(true)}
               >
                 {nav.state === 'submitting' ? (
                   'Saving…'
@@ -445,6 +446,20 @@ export default function NewIntern() {
           </Form>
         </div>
       </section>
+
+      <ConfirmModal
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={() => {
+          setConfirmOpen(false);
+          formRef.current?.requestSubmit();
+        }}
+        label="SAVE CHANGES"
+        title="Save this intern record?"
+        body="Identity fields will lock once saved. Ongoing fields (Entry Assessment, Employment Details) remain editable."
+        confirmText="Save"
+        cancelText="Keep Editing"
+      />
     </>
   );
 }

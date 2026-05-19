@@ -4,6 +4,13 @@
 // (personal-goals, midpoint-reflection, participant-feedback). Empty-state
 // renders when the intern hasn't submitted that type yet. Includes an
 // optional soft-delete action that frees the intern to re-submit.
+//
+// SP7 Phase F rewrite — markup now matches `self-assessment-detail.html`:
+// two-line `<LASTNAME> —<br/><TYPE>.` title, 6-cell meta-strip including
+// a "Locked = Immutable" cell per prototype, `<DetailHeader>` band above
+// the rubric with question-count micro-label, rubric-panel empty state
+// (not identity-card), `.detail-actions` row at the bottom (Close /
+// Delete Submission) instead of header-action buttons.
 
 import { useState } from 'react';
 import { eq } from 'drizzle-orm';
@@ -20,6 +27,7 @@ import { UUID_RE } from '~/lib/validation';
 import { AssessmentForm } from '~/components/forms/AssessmentForm';
 import { PageHead } from '~/components/PageHead';
 import { MetaStrip } from '~/components/MetaStrip';
+import { DetailHeader } from '~/components/DetailHeader';
 import { ConfirmModal } from '~/components/ConfirmModal';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Self-Assessment Detail · IMPACT Admin' }];
@@ -33,8 +41,24 @@ function isValidType(v: string): v is SelfType {
 
 function typeLabel(t: SelfType): string {
   if (t === 'personal-goals') return 'PERSONAL GOALS';
-  if (t === 'midpoint-reflection') return 'MID-POINT REFLECTION';
+  if (t === 'midpoint-reflection') return 'MIDPOINT REFLECTION';
   return 'PARTICIPANT FEEDBACK';
+}
+
+function setDisplayName(t: SelfType): string {
+  if (t === 'personal-goals') return 'Personal Goals';
+  if (t === 'midpoint-reflection') return 'Midpoint Reflection';
+  return 'Participant Feedback';
+}
+
+function setSubCopy(t: SelfType): string {
+  if (t === 'personal-goals') {
+    return 'Submitted and locked. One submission per intern. The intern’s starting reflection on what they want to get out of this internship.';
+  }
+  if (t === 'midpoint-reflection') {
+    return 'Submitted and locked. One submission per intern. The intern’s mid-program reflection on progress and next steps.';
+  }
+  return 'Submitted and locked. One submission per intern. End-of-program feedback covering experience, supports, and barriers.';
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -120,8 +144,11 @@ export default function SelfAssessmentDetail() {
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const closeHref = internId ? `/admin/interns/${internId}` : '/admin/self-assessment-results';
+  const titleName = loaderData.found ? loaderData.intern.lastName.toUpperCase() : 'NO SUBMISSION';
 
-  const metaItems = [
+  // 6-cell meta-strip per prototype: First Initial · Last · Employer ·
+  // Cohort · Submitted · Locked = "Immutable".
+  const metaItems: { label: string; value: string; mono?: boolean }[] = [
     { label: 'First Initial', value: loaderData.intern.firstInitial, mono: true },
     { label: 'Last Name', value: loaderData.intern.lastName },
     { label: 'Employer', value: loaderData.employer?.name ?? '—' },
@@ -133,49 +160,59 @@ export default function SelfAssessmentDetail() {
       typeof loaderData.submission.submittedAt === 'string'
         ? new Date(loaderData.submission.submittedAt)
         : loaderData.submission.submittedAt;
+    const mm = (submittedAt.getMonth() + 1).toString().padStart(2, '0');
+    const dd = submittedAt.getDate().toString().padStart(2, '0');
     metaItems.push({
       label: 'Submitted',
-      value: submittedAt.toLocaleDateString(),
+      value: `${mm}.${dd}.${submittedAt.getFullYear()}`,
       mono: true,
     });
+  } else {
+    metaItems.push({ label: 'Submitted', value: '—', mono: true });
   }
+  // Brand-voice cell — always present per prototype, confirms one-shot
+  // semantics regardless of submission state.
+  metaItems.push({ label: 'Locked', value: 'Immutable' });
+
+  const questionCount = loaderData.questions.length;
+  const detailMeta = loaderData.found ? `${String(questionCount).padStart(2, '0')} QUESTIONS` : '—';
 
   return (
     <>
       <PageHead
         breadcrumb={
           <>
-            <Link
-              to="/admin/self-assessment-results"
-              style={{ color: 'inherit', textDecoration: 'none' }}
-            >
-              ADMIN / SELF-ASSESSMENT RESULTS
-            </Link>{' '}
-            / DETAIL
-          </>
-        }
-        title={`${loaderData.intern.lastName.toUpperCase()} — ${typeLabel(loaderData.type)}.`}
-        sub={
-          loaderData.found ? 'Locked submission — read only.' : 'No submission yet for this type.'
-        }
-        actions={
-          <div style={{ display: 'flex', gap: 8 }}>
-            <Link to={closeHref} className="btn btn--outline">
-              Close
+            <Link to="/admin/interns" style={{ color: 'inherit', textDecoration: 'none' }}>
+              ADMIN / INTERNS
             </Link>
             {loaderData.found ? (
-              <button type="button" className="btn btn--danger" onClick={() => setDeleteOpen(true)}>
-                Delete Submission
-              </button>
-            ) : null}
-          </div>
+              <>
+                {' '}
+                /{' '}
+                <Link to={closeHref} style={{ color: 'inherit', textDecoration: 'none' }}>
+                  {loaderData.intern.lastName.toUpperCase()}
+                </Link>
+              </>
+            ) : null}{' '}
+            / {typeLabel(loaderData.type)}
+          </>
         }
+        title={
+          <>
+            {titleName} &mdash;
+            <br />
+            {typeLabel(loaderData.type)}.
+          </>
+        }
+        sub={setSubCopy(loaderData.type)}
       >
         <MetaStrip items={metaItems} />
       </PageHead>
 
-      <section>
+      <section className="assessment-wrap">
         <div className="container">
+          <DetailHeader title={setDisplayName(loaderData.type)} aside={detailMeta} />
+
           {loaderData.found ? (
             <AssessmentForm
               actionPath=""
@@ -188,13 +225,39 @@ export default function SelfAssessmentDetail() {
               readOnly={true}
             />
           ) : (
-            <article className="identity-card">
-              <p>
-                No <strong>{typeLabel(loaderData.type)}</strong> submission has been recorded for
-                this intern yet.
-              </p>
-            </article>
+            <div className="rubric assessment-questions">
+              <div
+                className="rubric-panel"
+                style={{ padding: '32px 28px', textAlign: 'center', color: 'var(--muted)' }}
+              >
+                <p
+                  style={{
+                    margin: '0 0 12px 0',
+                    fontFamily: 'var(--font-display)',
+                    fontSize: 18,
+                    color: 'var(--ink)',
+                  }}
+                >
+                  No submission yet.
+                </p>
+                <p style={{ margin: 0, fontSize: 14 }}>
+                  This intern has not yet submitted the assessment. The card on their record will
+                  update automatically once they do.
+                </p>
+              </div>
+            </div>
           )}
+
+          <div className="detail-actions">
+            <Link to={closeHref} className="btn btn--outline">
+              &larr; Close
+            </Link>
+            {loaderData.found ? (
+              <button type="button" className="btn btn--danger" onClick={() => setDeleteOpen(true)}>
+                Delete Submission
+              </button>
+            ) : null}
+          </div>
 
           {loaderData.found ? (
             <Form method="post" id="self-delete-form">
@@ -212,7 +275,7 @@ export default function SelfAssessmentDetail() {
         }}
         label="DELETE SUBMISSION"
         title="Delete this submission?"
-        body="The submission will be soft-deleted, freeing the intern to re-submit this assessment."
+        body="The submitted responses will be permanently removed and the intern will be able to submit again. This cannot be undone."
         confirmText="Delete Permanently"
         variant="danger"
       />
