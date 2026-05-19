@@ -25,6 +25,7 @@ import { MetaStrip } from '~/components/MetaStrip';
 import { SettingsShell } from '~/components/SettingsShell';
 import { ConfirmModal } from '~/components/ConfirmModal';
 import { EmptyRow } from '~/components/EmptyRow';
+import { RubricSectionHead } from '~/components/RubricSectionHead';
 import { useToast } from '~/components/ToastProvider';
 import { formatDate, initials } from '~/lib/format';
 
@@ -118,10 +119,12 @@ export default function CohortDetail() {
           <p className="prose-card__body">{cohort.description || 'No description recorded.'}</p>
         </article>
 
-        <div className="detail-header" style={{ marginTop: 32 }}>
-          <h2 className="detail-header__title">Phases</h2>
-          <span className="micro-label">Assessment phases applicable to this cohort</span>
-        </div>
+        <RubricSectionHead
+          label="PHASES"
+          title="Phases"
+          aside="Assessment phases applicable to this cohort"
+          spaced
+        />
         <p style={{ color: 'var(--muted)' }}>
           {phases.length === 0 ? 'No phases configured.' : phases.map((p) => p.label).join(', ')}
         </p>

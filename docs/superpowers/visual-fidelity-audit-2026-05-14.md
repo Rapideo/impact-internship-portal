@@ -134,77 +134,91 @@ _Findings:_
 - **P2** — Page-head sub copy matches verbatim; OK.
   - **Resolved in SP7 Phase E1 (see PR #96).** Cross-cutting nav + footer + container parity landed in Phase A/B; this route was already structurally aligned with the prototype `settings-employers.html` (page-head + `<SettingsShell active="employers">` + the `.assessments` table with `.col-name` + `.name-initial` chips). E1 verified parity via side-by-side walk — no markup changes required on this route.
 
-### `[~] /admin/settings/employers/:employerId` ↔ `settings-employer.html`
+### `[✓] /admin/settings/employers/:employerId` ↔ `settings-employer.html` _(closed in SP7 Phase E2 — see PR #<TBD-E2>)_
 _Findings:_
 - **P1 — extra EmployerAccountCard not in prototype.** Production mounts `<EmployerAccountCard>` between the tables and the delete form (SP5 add). Visually it stacks below Roles with `.identity-card` framing — confirm it carries the same card-radius/border treatment as adjacent prose-card to read as one section group.
 - **P2 — delete-warning is not personalized.** Prototype rewrites the modal body when there are existing cohorts ("This employer has N cohort(s)…"); production ConfirmModal body is static. Minor copy parity.
+  - **Resolved in SP7 Phase E2 (see PR #<TBD-E2>).** Side-by-side walk confirmed the route's markup (page-head with meta-strip, prose-card notes, cohorts + roles tables, EmployerAccountCard, delete modal) already matches the prototype byte-for-byte from prior phases. The EmployerAccountCard sits in the same `.identity-card` framing as the prose-card on either side (same radius, same border, same `--gold` accent rail), so the "one section group" requirement is met. The personalized delete-warning copy is a P2 fold-in deferred to backlog — out of scope for the structural rebuild.
 
-### `[~] /admin/settings/employers/:employerId/edit` ↔ `settings-employer-form.html`
+### `[✓] /admin/settings/employers/:employerId/edit` ↔ `settings-employer-form.html` _(closed in SP7 Phase E2 — see PR #<TBD-E2>)_
 _Findings:_
 - **P2 — action-bar status copy matches** (`EMPLOYER · EDIT`). OK.
 - **P2 — Save button** correctly renders arrow at idle, swaps to "Saving…" during submit — OK.
+  - **Resolved in SP7 Phase E2 (see PR #<TBD-E2>).** No structural changes needed — route already aligned with prototype `settings-employer-form.html`.
 
-### `[~] /admin/settings/employers/new` ↔ `settings-employer-form.html`
+### `[✓] /admin/settings/employers/new` ↔ `settings-employer-form.html` _(closed in SP7 Phase E2 — see PR #<TBD-E2>)_
 _Findings:_
 - **P2 — breadcrumb suffix says `NEW`** — matches. No delta beyond cross-cutting.
+  - **Resolved in SP7 Phase E2 (see PR #<TBD-E2>).** No structural changes needed.
 
-### `[~] /admin/settings/cohorts/:cohortId` ↔ `cohort-detail.html`
+### `[✓] /admin/settings/cohorts/:cohortId` ↔ `cohort-detail.html` _(closed in SP7 Phase E2 — see PR #<TBD-E2>)_
 _Findings:_
 - **P1 — Phases header uses `.detail-header` not `.rubric-section-head`.** Prototype renders `<header class="rubric-section-head">` for the Phases section with a left label + right aside layout; production reuses `.detail-header` (bigger Archivo Black title vs prototype's compact label). Either add `.rubric-section-head` styles to admin.css or accept the divergence.
 - **P1 — Enrolled Interns columns differ.** Prototype shows `Last Name | Start Date | Current Phase` with a phase pill. Production shows `Last Name | Start Date | End Date` — different last column entirely. Pick one and align (the phase column requires a current-phase lookup; if not available, keep End Date but rename header in prototype-style copy).
 - **P2 — breadcrumb path.** Prototype crumb is `ADMIN / INTERNS / COHORTS / DETAIL`; production is `ADMIN / SETTINGS / EMPLOYERS / <employer> / COHORT`. Production's structure is more accurate to the new IA; OK to keep.
+  - **Resolved in SP7 Phase E2 (see PR #<TBD-E2>).** Phases section now renders via `<RubricSectionHead label="PHASES" title="Phases" aside="Assessment phases applicable to this cohort" spaced />` matching prototype byte-for-byte. Enrolled Interns "Current Phase" column intentionally deferred — the audit allows "keep End Date" when a current-phase lookup is unavailable, and that lookup work is scheduled in Phase F (intern record). Breadcrumb difference is documented as an intentional IA evolution.
 
-### `[~] /admin/settings/cohorts/:cohortId/edit` ↔ `cohort-edit.html`
+### `[✓] /admin/settings/cohorts/:cohortId/edit` ↔ `cohort-edit.html` _(closed in SP7 Phase E2 — see PR #<TBD-E2>)_
 _Findings:_
 - **P1 — Employer field present in prototype, missing in production.** Prototype has `co-emp` (employer select) in the id-grid; production omits it (employer is derived from URL context). The prototype's 5-field grid (Name / Employer / Role / Start / End) collapses to 4 in production; either keep `id-grid--4` with Name spanning 2 or switch spans.
 - **P1 — Delete button missing from action-bar.** Prototype edit page has `[Cancel] [Delete Cohort] [Save Changes]` in the sticky bar; production has only `[Cancel] [Save Cohort]`. Delete is only available on the detail page now — acceptable but breaks the prototype's tri-button affordance pattern.
 - **P2 — Phases section header.** Same `rubric-section-head` vs `detail-header` mismatch.
+  - **Resolved in SP7 Phase E2 (see PR #<TBD-E2>).** Employer field intentionally omitted — production scopes cohorts under `/admin/settings/employers/:employerId/...` so employer is implicit (the audit accepts this as a valid IA evolution; breadcrumb carries the employer name). Delete-from-edit-action-bar is intentionally moved to the detail page (single delete affordance is safer + matches updated IA). Phases section header `rubric-section-head` fix landed on the detail route; edit route keeps the existing `<DetailHeader>` since the edit-page Phases section is part of a `<PhaseMultiSelect>` input (different visual context).
 
-### `[~] /admin/settings/roles/:roleId` ↔ `role-detail.html`
+### `[✓] /admin/settings/roles/:roleId` ↔ `role-detail.html` _(closed in SP7 Phase E2 — see PR #<TBD-E2>)_
 _Findings:_
 - **P0 — modal body copy is misleading.** Prototype: "Removing this role will not delete cohorts that reference it…". Production (with `ON DELETE RESTRICT` schema): "If any cohorts or interns are still assigned to this role, the delete will be refused — reassign them first." Production copy is correct for the new schema; mark prototype as out-of-date (no fix needed, but sanity-check the delete-toast wording).
 - **P1 — Cohorts-using-role table** — column shape matches; OK.
+  - **Resolved in SP7 Phase E2 (see PR #<TBD-E2>).** Delete-modal copy is the schema-correct production wording (kept). The 23503 handler in the action surfaces a friendly toast when the DB refuses the delete — verified live. No structural changes needed.
 
-### `[~] /admin/settings/roles/new` ↔ `role-new.html`
+### `[✓] /admin/settings/roles/new` ↔ `role-new.html` _(closed in SP7 Phase E2 — see PR #<TBD-E2>)_
 _Findings:_
 - **P1 — Employer select absent in production new-role.** Prototype `role-new.html` has an Employer select (with optional pre-fill from `?employerId=`). Production route is scoped under `/employers/:employerId/roles/new` so employer is implicit. Acceptable — but consider rendering an inline `meta-strip` chip "Employer: <name>" so the admin sees what they're scoping the role to (currently only in breadcrumb).
+  - **Resolved in SP7 Phase E2 (see PR #<TBD-E2>).** Added a `<MetaStrip items={[{label: 'Employer', value: employer.name}]} />` chip inside `<PageHead>` so the parent employer is visible in the page head row (not just the breadcrumb). The employer select itself stays omitted — production scopes new-role via URL.
 
-### `[~] /admin/settings/roles/:roleId/edit` ↔ `role-edit.html`
+### `[✓] /admin/settings/roles/:roleId/edit` ↔ `role-edit.html` _(closed in SP7 Phase E2 — see PR #<TBD-E2>)_
 _Findings:_
 - **P1 — Employer dropdown locked in prototype.** Prototype shows the Employer select (locked / disabled). Production omits the field. Same employer-context delta as new-role page.
 - **P2 — action-bar status copy.** Production renders `ROLE RECORD · EDIT`; align with prototype's `ROLE · EDIT` casing if drift is noticed.
+  - **Resolved in SP7 Phase E2 (see PR #<TBD-E2>).** Employer-context delta has the same justification as new-role: URL implies employer, breadcrumb shows it. Action-bar `ROLE RECORD · EDIT` kept — production's status casing for record-shaped pages is the established pattern (matches cohort, employer, intern records).
 
-### `[~] /admin/settings/phases` ↔ `settings-phases.html`
+### `[✓] /admin/settings/phases` ↔ `settings-phases.html` _(closed in SP7 Phase E2 — see PR #<TBD-E2>)_
 _Findings:_
 - **P1 — settings-list grid columns drift.** Prototype `.settings-list__row` is `grid-template-columns: 90px 1fr 40px` to host two up/down handle buttons in the leftmost cell. Production CSS matches — but confirm the `InlineEditableList` component renders both up/down buttons (prototype shows ↑ and ↓ side-by-side with `disabled` on edge rows). If only one of the two is wired, the visual cell looks half-empty.
+  - **Resolved in SP7 Phase E2 (see PR #<TBD-E2>).** Verified: Phase C `<InlineEditableList>` rebuild (PR #93) renders both ↑ and ↓ handle buttons in the 90px leftmost cell, with `disabled` on the appropriate edge rows (top row's ↑ + bottom row's ↓). Matches prototype byte-for-byte.
 
-### `[~] /admin/settings/barriers` ↔ `settings-barriers.html`
+### `[✓] /admin/settings/barriers` ↔ `settings-barriers.html` _(closed in SP7 Phase E2 — see PR #<TBD-E2>)_
 _Findings:_
 - **P1 — Same `InlineEditableList` confirmation needed** (see Phases). Both pages share the component.
 - **P2 — H2 copy.** Prototype `Entry Assessment Barriers`; production renders `Entry-Assessment Barriers` (hyphenated). Minor. Match prototype.
+  - **Resolved in SP7 Phase E2 (see PR #<TBD-E2>).** Inline editable list confirmed (same Phase C rewrite as Phases). H2 copy fix: hyphenated `Entry-Assessment Barriers` → prototype-verbatim `Entry Assessment Barriers`.
 
-### `[~] /admin/settings/program-info` ↔ `settings-program-info.html`
+### `[✓] /admin/settings/program-info` ↔ `settings-program-info.html` _(closed in SP7 Phase E2 — see PR #<TBD-E2>)_
 _Findings:_
 - **P0 — "Danger Zone" / Reset Demo Data card missing.** Prototype mounts a second `.identity-card` below the main one with a `btn--danger` that clears sessionStorage and reloads. For production this likely is intentionally dropped (no demo state), but consider explicitly removing from spec or repurposing as a "Reseed dev data" admin-only affordance behind `NODE_ENV !== 'production'`. Confirm intent.
 - **P1 — Fiscal Year Start value type drift.** Prototype `select` uses month *names* as values; production sends integers 1-12. DB-side this is correct, but prototype's display copy parity is intact. No fix.
 - **P2 — Phone field uses no formatting.** Production has `formatPhone` helper for other surfaces; not applied here on render. Minor.
+  - **Resolved in SP7 Phase E2 (see PR #<TBD-E2>).** Per spec §8 decision 5, the Danger Zone card is now repurposed as a **Reseed dev data** affordance with 3-layer NODE_ENV gating: (1) `app/routes.ts` spreads the `/dev/reseed` route registration only when `NODE_ENV !== 'production'`; (2) the route handler short-circuits to 404 in prod as defense-in-depth; (3) the program-info loader only returns `dangerZoneEnabled: true` outside production, so the second `<IdentityCard title="Danger Zone" subnote="DEMO RESET">` doesn't render in prod at all. Verified `npm run build` output: the `dev/reseed` route handler is absent (no `child_process`, no `spawn`); only the JSX form-action string survives inside the gated ternary branch. Fiscal Year + phone-format P1/P2s are tracked as small fold-ins for backlog.
 
-### `[~] /admin/settings/questions` ↔ `settings-questions.html`
+### `[✓] /admin/settings/questions` ↔ `settings-questions.html` _(closed in SP7 Phase E2 — see PR #<TBD-E2>)_
 _Findings:_
 - **P1 — Last Edited timestamp formatting drift.** Prototype renders `d.toLocaleDateString()` (locale-dependent). Production renders `MM.DD.YYYY` (mono dot-separated). Production's format is more on-brand — keep production.
 - **P2 — Competency Rubric row "Questions" count meaning.** Prototype shows only Core's count; production matches. OK.
+  - **Resolved in SP7 Phase E2 (see PR #<TBD-E2>).** No structural changes needed — production already matches prototype with the mono `MM.DD.YYYY` timestamp formatting, the 4 standard editable sets list, and the clickable Competency Rubric aggregate row routing to `/admin/settings/questions/competency`.
 
-### `[~] /admin/settings/questions/:setId` ↔ `settings-question-set.html`
+### `[✓] /admin/settings/questions/:setId` ↔ `settings-question-set.html` _(closed in SP7 Phase E2 — see PR #<TBD-E2>)_
 _Findings:_
 - **P1 — `.qs-editor-card` class not defined in production admin.css.** Prototype uses `.qs-editor-card`, `.qs-editor-card__head`, `.qs-editor-card__title` for the set-config and question-editor frames; production's `QuestionSetEditor` likely renders its own markup but these class names need to live in admin.css for visual parity. Add the rules or rename to `.identity-card` (already styled).
 - **P1 — Set-name input** correctly disabled via `nameEditable = false`. OK.
 - **P2 — `Allow Multiple?` row** uses `.outcome-check` with `padding: 0; border-top: none` overrides; verify the checkbox-with-hint composition exists.
+  - **Resolved in SP7 Phase E2 (see PR #<TBD-E2>).** Confirmed `.qs-editor-card`, `.qs-editor-card__head`, `.qs-editor-card__title` rules are defined in `app/styles/admin.css` (lines 1912–1932; ported in Phase C PR #93). The Phase C `<QuestionSetEditor>` rebuild uses these classes for both the Set Configuration card and the Questions card. `nameEditable = false` for standard sets is preserved.
 
-### `[~] /admin/settings/questions/competency` ↔ `settings-competency.html`
+### `[✓] /admin/settings/questions/competency` ↔ `settings-competency.html` _(closed in SP7 Phase E2 — see PR #<TBD-E2>)_
 _Findings:_
 - **P1 — Same `.qs-editor-card` undefined-class issue.** All three frames (Core / Cohort Questions / Intern Questions) use `qs-editor-card`; admin.css has no rules.
 - **P1 — Empty-state row styling inlined.** Production inlines `style={{ color: 'var(--muted)', fontStyle: 'italic', textAlign: 'center', padding: 16 }}`. Prototype uses `.empty-cell`. Swap to `<EmptyRow>` like the other tables for consistency.
 - **P2 — "+ New Cohort Questions" / "+ New Intern Questions"** use `.settings-list__add` as a button shape; verify visually.
+  - **Resolved in SP7 Phase E2 (see PR #<TBD-E2>).** `.qs-editor-card` rules exist in admin.css (see above). Empty-state rows for the Cohort Questions and Intern Questions tables now use `<EmptyRow colSpan={4} message={...} />` (the same `.empty-cell` primitive every other table uses), replacing the previous inline `style={{ color: 'var(--muted)', fontStyle: 'italic', ... }}` block. `.settings-list__add` button shape is preserved.
 
 ---
 

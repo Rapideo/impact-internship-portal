@@ -6,6 +6,7 @@ import {
   useActionData,
   useLoaderData,
   useNavigation,
+  useSearchParams,
 } from 'react-router';
 import { useEffect } from 'react';
 import type { Route } from './+types/admin.settings.program-info';
@@ -47,7 +48,12 @@ const MONTHS = [
 export async function loader({ request }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);
   const row = await getProgramInfo(db);
-  return data({ row }, { headers });
+  // SP7 Phase E2 — Danger Zone is gated to dev. The loader withholds the
+  // payload in production so the card doesn't render at all (defense in
+  // depth alongside the routes.ts spread gate on /dev/reseed and the
+  // hard-coded 404 in that route handler).
+  const dangerZoneEnabled = process.env.NODE_ENV !== 'production';
+  return data({ row, dangerZoneEnabled }, { headers });
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -104,11 +110,12 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 export default function ProgramInfoSettings() {
-  const { row } = useLoaderData<typeof loader>();
+  const { row, dangerZoneEnabled } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const nav = useNavigation();
   const toast = useToast();
   const errs = errorsByField(actionData?.errors ?? []);
+  const [search] = useSearchParams();
   useEffect(() => {
     if (actionData && 'errors' in actionData && actionData.errors.length > 0) {
       toast.show({
@@ -118,6 +125,12 @@ export default function ProgramInfoSettings() {
       });
     }
   }, [actionData, toast]);
+  useEffect(() => {
+    if (search.get('saved') === '1')
+      toast.show({ kind: 'success', label: 'UPDATED', message: 'Program Info updated.' });
+    if (search.get('reseeded') === '1')
+      toast.show({ kind: 'success', label: 'RESEEDED', message: 'Dev data reseeded.' });
+  }, [search, toast]);
   const v = (actionData?.values ?? row ?? {}) as {
     programName?: string;
     organizationName?: string | null;
@@ -257,6 +270,26 @@ export default function ProgramInfoSettings() {
             </button>
           </ActionBar>
         </Form>
+        {dangerZoneEnabled ? (
+          <IdentityCard
+            title="Danger Zone"
+            subnote="DEMO RESET"
+            sub={
+              <>
+                Wipes every row in the public schema and re-seeds the dev fixtures (employers,
+                cohorts, roles, interns, phases, barriers, question sets, program info). Equivalent
+                to running <code>npm run db:seed</code>. Only available in non-production
+                environments; the route refuses to run against the impact-prod project ref.
+              </>
+            }
+          >
+            <Form method="post" action="/dev/reseed">
+              <button type="submit" className="btn btn--danger">
+                Reseed dev data
+              </button>
+            </Form>
+          </IdentityCard>
+        ) : null}
       </SettingsShell>
     </>
   );

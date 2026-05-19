@@ -25,6 +25,7 @@ import {
   errorsByField,
 } from '~/lib/validation';
 import { PageHead } from '~/components/PageHead';
+import { MetaStrip } from '~/components/MetaStrip';
 import { SettingsShell } from '~/components/SettingsShell';
 import { IdentityCard } from '~/components/IdentityCard';
 import { ActionBar } from '~/components/ActionBar';
@@ -121,7 +122,9 @@ export default function NewCohort() {
         }
         title="NEW COHORT."
         sub="Create a cohort and define its assessment phases."
-      />
+      >
+        <MetaStrip items={[{ label: 'Employer', value: employer.name }]} />
+      </PageHead>
       <SettingsShell active="employers">
         <Form method="post">
           <IdentityCard title="Cohort Record" subnote="NEW COHORT · DEFINE IDENTITY AND PHASES">

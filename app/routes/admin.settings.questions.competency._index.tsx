@@ -11,6 +11,7 @@ import {
 import * as schema from '../../db/schema';
 import { PageHead } from '~/components/PageHead';
 import { SettingsShell } from '~/components/SettingsShell';
+import { EmptyRow } from '~/components/EmptyRow';
 
 export const meta: Route.MetaFunction = () => [
   { title: 'Competency Questions — Settings — IMPACT Admin' },
@@ -173,20 +174,12 @@ export default function CompetencyDetail() {
             </thead>
             <tbody>
               {cohortRows.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={4}
-                    style={{
-                      color: 'var(--muted)',
-                      fontStyle: 'italic',
-                      textAlign: 'center',
-                      padding: 16,
-                    }}
-                  >
-                    No cohort-specific competency sets yet. Click &quot;+ New Cohort Questions&quot;
-                    to add one.
-                  </td>
-                </tr>
+                <EmptyRow
+                  colSpan={4}
+                  message={
+                    'No cohort-specific competency sets yet. Click "+ New Cohort Questions" to add one.'
+                  }
+                />
               ) : (
                 cohortRows.map((r) => (
                   <tr
@@ -244,20 +237,12 @@ export default function CompetencyDetail() {
             </thead>
             <tbody>
               {internRows.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={4}
-                    style={{
-                      color: 'var(--muted)',
-                      fontStyle: 'italic',
-                      textAlign: 'center',
-                      padding: 16,
-                    }}
-                  >
-                    No intern-specific competency sets yet. Click &quot;+ New Intern Questions&quot;
-                    to add one.
-                  </td>
-                </tr>
+                <EmptyRow
+                  colSpan={4}
+                  message={
+                    'No intern-specific competency sets yet. Click "+ New Intern Questions" to add one.'
+                  }
+                />
               ) : (
                 internRows.map((r) => (
                   <tr
