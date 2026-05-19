@@ -1,4 +1,4 @@
-// Employer profile route (SP5 Phase J, Task 29).
+// Employer profile route (SP5 Phase J).
 //
 // Self-service editor for the signed-in employer's own contact record. The
 // employer's *name* is locked — only the program admin can rename an
@@ -6,10 +6,16 @@
 // edited here. Writes go through the authenticated supabase client so the
 // `employer_own_employer` RLS policy is the enforcement boundary.
 //
+// SP7 Phase G rebuild: title set to "MY EMPLOYER." with employer name moved
+// into the MetaStrip (Contact / Email / Phone surfaced for visual parity with
+// admin employer detail). Save confirmation now uses `useToast()` instead of
+// the mid-page `auth__alert--success` banner.
+//
 // Auth is enforced by the parent `employer.tsx` layout; the
 // `!auth?.employerId` guard here is belt-and-suspenders for TypeScript
 // narrowing.
 
+import { useEffect } from 'react';
 import {
   data,
   Form,
@@ -26,10 +32,13 @@ import { db } from '~/lib/db.server';
 import { employers } from '../../db/schema';
 import { errorsByField, optionalString, parseFormFields } from '~/lib/validation';
 import { PageHead } from '~/components/PageHead';
+import { MetaStrip } from '~/components/MetaStrip';
 import { IdentityCard } from '~/components/IdentityCard';
 import { ActionBar } from '~/components/ActionBar';
+import { useToast } from '~/components/ToastProvider';
+import { formatPhone } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'My Employer · IMPACT' }];
+export const meta: Route.MetaFunction = () => [{ title: 'My Employer — IMPACT' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const headers = new Headers();
@@ -87,6 +96,7 @@ export default function EmployerProfile() {
   const { employer } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const nav = useNavigation();
+  const toast = useToast();
   const errs = errorsByField(actionData?.errors ?? []);
   const v = (actionData?.values ?? employer) as {
     contactName?: string | null;
@@ -96,13 +106,29 @@ export default function EmployerProfile() {
   };
   const formError = errs._form;
   const saved = actionData?.saved === true;
+
+  useEffect(() => {
+    if (saved) {
+      toast.show({ kind: 'success', label: 'SAVED', message: 'Profile saved.' });
+    }
+  }, [saved, toast]);
+
   return (
     <>
       <PageHead
-        breadcrumb="EMPLOYER / PROFILE"
-        title={employer.name.toUpperCase() + '.'}
+        breadcrumb="EMPLOYER / MY EMPLOYER"
+        title="MY EMPLOYER."
         sub="Update your contact details. Your employer name is set by your program admin."
-      />
+      >
+        <MetaStrip
+          items={[
+            { label: 'Employer', value: employer.name },
+            { label: 'Contact', value: employer.contactName ?? '—' },
+            { label: 'Email', value: employer.contactEmail ?? '—' },
+            { label: 'Phone', value: formatPhone(employer.phone) || '—', mono: true },
+          ]}
+        />
+      </PageHead>
       <section>
         <div className="container">
           {formError ? (
@@ -112,15 +138,6 @@ export default function EmployerProfile() {
               style={{ marginBottom: 16 }}
             >
               {formError}
-            </div>
-          ) : null}
-          {saved ? (
-            <div
-              role="status"
-              className="auth__alert auth__alert--success"
-              style={{ marginBottom: 16 }}
-            >
-              Saved.
             </div>
           ) : null}
           <Form method="post">

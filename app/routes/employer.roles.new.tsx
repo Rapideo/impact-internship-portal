@@ -1,21 +1,36 @@
-// Employer role creation (SP5 Phase J, Task 30).
+// Employer role creation (SP5 Phase J).
 //
 // Insert is done through the authenticated supabase client so the
 // `employer_own_roles` RLS policy is enforced; the `employer_id` column is
 // pinned to the signed-in user's employer scope server-side.
 //
+// SP7 Phase G rebuild: MetaStrip in PageHead shows the parent Employer name
+// (sourced from the layout outlet context — no additional DB round-trip),
+// matching the admin role-new pattern.
+//
 // Auth is enforced by the parent `employer.tsx` layout; the
 // `!auth?.employerId` guard here is for TypeScript narrowing.
 
-import { data, Form, Link, redirect, useActionData, useNavigation } from 'react-router';
+import {
+  data,
+  Form,
+  Link,
+  redirect,
+  useActionData,
+  useNavigation,
+  useOutletContext,
+} from 'react-router';
 import type { Route } from './+types/employer.roles.new';
 import { createSupabaseServerClient, getAuthContext } from '~/lib/auth.server';
 import { errorsByField, optionalString, parseFormFields, requireString } from '~/lib/validation';
 import { PageHead } from '~/components/PageHead';
+import { MetaStrip } from '~/components/MetaStrip';
 import { IdentityCard } from '~/components/IdentityCard';
 import { ActionBar } from '~/components/ActionBar';
 
-export const meta: Route.MetaFunction = () => [{ title: 'New Role · IMPACT Employer' }];
+export const meta: Route.MetaFunction = () => [{ title: 'New Role — IMPACT Employer' }];
+
+type EmployerCtx = { employer: { id: string; name: string }; userEmail: string };
 
 export async function action({ request }: Route.ActionArgs) {
   const headers = new Headers();
@@ -49,6 +64,7 @@ export async function action({ request }: Route.ActionArgs) {
 export default function NewEmployerRole() {
   const actionData = useActionData<typeof action>();
   const nav = useNavigation();
+  const { employer } = useOutletContext<EmployerCtx>();
   const errs = errorsByField(actionData?.errors ?? []);
   const v = (actionData?.values ?? {}) as Partial<Record<string, string | null>>;
   const formError = errs._form;
@@ -65,7 +81,9 @@ export default function NewEmployerRole() {
         }
         title="NEW ROLE."
         sub="Define a role template. Your program admin can attach it to a cohort."
-      />
+      >
+        <MetaStrip items={[{ label: 'Employer', value: employer.name }]} />
+      </PageHead>
       <section>
         <div className="container">
           {formError ? (
