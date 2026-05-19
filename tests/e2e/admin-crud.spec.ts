@@ -74,7 +74,11 @@ test('admin can create employer -> cohort -> intern, then edit the intern', asyn
   await page.getByLabel(/^Cohort$/).selectOption({ label: cohortName });
   await page.getByLabel(/Start Date/i).fill('2026-04-01');
   await page.getByLabel(/End Date/i).fill('2026-09-30');
+  // SP7 Phase F — the New Intern form now wraps the action bar's "Save
+  // Changes" button in a ConfirmModal ("Save this intern record?"). Click
+  // the button to open the modal, then click the modal's "Save" confirm.
   await page.getByRole('button', { name: /save changes/i }).click();
+  await page.getByRole('button', { name: /^Save$/ }).click();
 
   // Action redirects to /admin/interns/<uuid>?created=1 (the edit page). Use
   // a UUID-shaped path segment so we don't accidentally match /admin/interns/new
@@ -89,6 +93,8 @@ test('admin can create employer -> cohort -> intern, then edit the intern', asyn
   // name="employed90".
   await page.locator('#o1-check').check();
   await page.locator('#o1-notes').fill('Hired full-time at Acme.');
+  // The edit form's Save Changes button submits directly (no confirm modal
+  // on edit — only the New form added it in Phase F).
   await page.getByRole('button', { name: /save changes/i }).click();
 
   // --- Return to interns list and confirm the new intern shows there ------

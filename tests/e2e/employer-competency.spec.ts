@@ -55,13 +55,22 @@ test.describe('Employer competency form mount', () => {
       .getByRole('link', { name: /open/i })
       .click();
 
-    // Intern record renders with a "Submit Competency" affordance.
+    // Intern record renders with a "Submit Competency" affordance. SP7
+    // Phase G — the actions row has both "Submit Exit Survey" and "Submit
+    // Competency"; match by the full unambiguous prefix and wait for
+    // hydration before clicking.
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await page.getByRole('link', { name: /submit competency/i }).click();
+    const submitCompetencyLink = page.getByRole('link', { name: /^Submit Competency/i });
+    await submitCompetencyLink.waitFor({ state: 'visible' });
+    await submitCompetencyLink.click();
 
-    // Lands on the employer competency-new route with the internId in the query.
+    // Lands on the employer competency-new route with the internId in the
+    // query. Bump the URL-wait timeout above the default 5s — client-side
+    // RR navigation off a `<Link>` click can take a beat to settle on a
+    // cold dev server.
     await expect(page).toHaveURL(
       /\/employer\/competency\/new\?internId=[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/,
+      { timeout: 15_000 },
     );
 
     // Phase dropdown is mounted (and named "phase" so it submits as such).

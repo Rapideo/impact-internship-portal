@@ -64,8 +64,18 @@ test.describe('Admin question editor', () => {
     await newRow.locator('input[id$="-label"]').fill(newRowLabel);
 
     // Save. The action redirects to /admin/settings/questions?updated=1.
-    await page.getByRole('button', { name: /^Save Changes$/ }).click();
-    await expect(page).toHaveURL(/\/admin\/settings\/questions(\?|$)/);
+    // SP7 Phase C — Save Changes button is rendered with a `&rarr;` arrow
+    // span appended to the visible text, so the accessible name is "Save
+    // Changes →" not exactly "Save Changes". Drop the `^...$` anchors so
+    // the regex matches the leading "Save Changes" prefix.
+    //
+    // The editor's save handler does a `fetch(...)` POST then `navigate(res.url)`
+    // on the JS side (NOT a synchronous form submit). The client-side
+    // navigation has to complete after the fetch resolves, which can take
+    // 1–2s on a cold dev server — bump the toHaveURL timeout above the
+    // default 5s.
+    await page.getByRole('button', { name: /Save Changes/ }).click();
+    await expect(page).toHaveURL(/\/admin\/settings\/questions(\?|$)/, { timeout: 15_000 });
 
     // Reload + re-enter the editor; verify both edits persisted.
     await page.reload();
@@ -86,7 +96,12 @@ test.describe('Admin question editor', () => {
     // The new likert question should now be present. Its question id is
     // generated client-side, so search by the visible label text in the row
     // head; the label text is the most stable thing about a row.
-    await expect(page.getByText(newRowLabel)).toBeVisible();
+    //
+    // NOTE: The personal-goals set persists writes across e2e runs (no
+    // teardown — the seeded set isn't restored between specs), so re-runs
+    // can accumulate multiple "How prepared do you feel…" rows. Match the
+    // first one with `.first()` to stay green across repeated local runs.
+    await expect(page.getByText(newRowLabel).first()).toBeVisible();
   });
 
   test('competency landing renders the 3-tier layout', async ({ page }) => {
@@ -133,8 +148,12 @@ test.describe('Admin question editor', () => {
     await newRow.locator('input[id$="-label"]').fill('Site safety');
 
     // Save. The action redirects to /admin/settings/questions/competency?updated=1.
-    await page.getByRole('button', { name: /^Save Changes$/ }).click();
-    await expect(page).toHaveURL(/\/admin\/settings\/questions\/competency(\?|$)/);
+    // Same client-side fetch-then-navigate pattern as the personal-goals
+    // editor — bump the URL-wait timeout above the default.
+    await page.getByRole('button', { name: /Save Changes/ }).click();
+    await expect(page).toHaveURL(/\/admin\/settings\/questions\/competency(\?|$)/, {
+      timeout: 15_000,
+    });
 
     // Back on the competency index, the Riverbend row should now show up in
     // the Cohort Questions table. Match by the cohort name rather than the
