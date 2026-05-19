@@ -46,11 +46,37 @@ async function cleanupSubmissions(): Promise<void> {
 // pattern doesn't race with admin-competency.spec.ts on the same Test1 row.
 test.describe.configure({ mode: 'serial' });
 
-// SP7 Phase H known flake — see admin-competency.spec.ts for the full
-// note. The SubmitConfirmModal that gates Save Survey is reproducibly
-// flaky on Windows/Chromium dev server. Manual Phase F walk (PR #98)
-// validated this flow end-to-end and the underlying RLS write is covered
-// by tests/rls/assessment-submissions.test.ts. Tracked in BACKLOG.md.
+// SP7 Phase H spec fixes (post-Gate-G8 audit):
+// The previously "flaky" status was four spec/code mismatches stacked, not a
+// runtime race. Each one alone would deterministically fail the test:
+//  1. The SubmitConfirmModal's confirm button on <AssessmentForm> is labeled
+//     "Submit" (AssessmentForm uses `confirmLabel="Submit"`), not "Save".
+//     The earlier spec asserted `/^Save$/` and would time out waiting for a
+//     button that doesn't exist on this form. CompetencyAssessmentForm uses
+//     `confirmLabel="Save"` — that's why the sister `admin-competency.spec`
+//     passes against the same modal primitive. The "modal auto-unmounts"
+//     symptom was just Playwright's auto-wait expiring on a no-match locator.
+//  2. SP7 Phase F (PR #98) changed the action redirect target from
+//     `/admin/interns/<id>?ees=saved` to `/admin/assessments?submitted=
+//     exit-survey` (UX fix — bounce back to the picker hub instead of the
+//     intern detail page). The spec was never updated.
+//  3. The exit-employer-survey question set has `minRequired: 4` (see
+//     db/seed-data/question-sets.ts:307). The earlier spec only answered 3
+//     distinct questions (outcome + performance + readiness), so the action
+//     returned a 400 with `__minRequired` validation error and the form
+//     re-rendered in place — URL never changed, looking like the submit
+//     "didn't fire." Added `ees-offered` answer below to reach 4.
+//  4. The Likert renderer hides its native radio inputs via `display: none`
+//     (see admin.css `.assessment-likert__input`). Playwright's `getByRole`
+//     accessibility filter skips inputs with `display: none`, so the
+//     post-save restore assertion on `ees-performance` Likert "4" failed
+//     to find the element. The CLICK side already worked around this by
+//     targeting the wrapping <label> — for the ASSERT side we query the
+//     input by value attribute directly, which `toBeChecked` reads from
+//     the DOM property (independent of visibility).
+// All four are spec-text bugs; the underlying submission flow is the same
+// upsert covered by tests/rls/assessment-submissions.test.ts and the SP7
+// Phase F manual walk (Gate G6 sign-off PR #98).
 
 test.beforeEach(cleanupSubmissions);
 test.afterAll(cleanupSubmissions);
@@ -111,18 +137,32 @@ test('admin can submit and re-edit an exit employer survey', async ({ page }) =>
   await readinessRow.getByRole('checkbox', { name: /Reliable and punctual/i }).check();
   await readinessRow.getByRole('checkbox', { name: /Takes initiative/i }).check();
 
+  // The set has `minRequired: 4` (see db/seed-data/question-sets.ts).
+  // Outcome + performance + readiness counts as 3 distinct questions
+  // answered; tick the optional `ees-offered` Yes/No radio to satisfy
+  // the set-level minimum and avoid a "Please answer at least 4 of 9"
+  // validation rejection on submit.
+  const offeredRow = page.locator('[data-qid="ees-offered"]');
+  await offeredRow.getByRole('radio', { name: 'Yes' }).check();
+
   // Save → confirm modal → confirm.
   // SP7 Phase F — submit button copy is now just "Save Survey" (the
   // prototype's exact wording; "Exit" was dropped to avoid redundancy
   // with the page title). Clicking opens the SubmitConfirmModal whose
-  // confirm button is labeled "Save"; wait for the modal's title to
-  // confirm it's mounted before clicking the confirm button.
+  // confirm button on <AssessmentForm> is labeled "Submit" (see
+  // AssessmentForm.tsx — `confirmLabel="Submit"`); the modal title is
+  // "Save this Exit Employer Survey?" (the page-supplied modalTitle
+  // prop). Wait for the title to confirm the modal is mounted before
+  // clicking the confirm button.
   await page.getByRole('button', { name: /Save Survey/i }).click();
   await expect(page.getByText('Save this Exit Employer Survey?')).toBeVisible();
-  await page.getByRole('button', { name: /^Save$/ }).click();
+  await page.getByRole('button', { name: /^Submit$/ }).click();
 
-  // The action redirects to /admin/interns/<internId>?ees=saved.
-  await expect(page).toHaveURL(new RegExp(`/admin/interns/${TEST_INTERN_ID}\\?ees=saved`), {
+  // SP7 Phase F — the action redirects to the admin assessments hub. The
+  // hub's mount-time useEffect strips `?submitted=exit-survey` after toasting
+  // (see admin.assessments._index.tsx), so by the time Playwright polls the
+  // URL settles at `/admin/assessments` (no query). Match either state.
+  await expect(page).toHaveURL(/\/admin\/assessments(?:\?|$)/, {
     timeout: 15_000,
   });
 
@@ -131,8 +171,14 @@ test('admin can submit and re-edit an exit employer survey', async ({ page }) =>
   await expect(
     page.locator('[data-qid="ees-outcome"]').getByRole('radio', { name: 'Hired by this employer' }),
   ).toBeChecked();
+  // The Likert renderer hides its native radio inputs via `display: none`
+  // (see admin.css `.assessment-likert__input`). Playwright's `getByRole`
+  // skips role=radio elements that aren't accessible — so query the input
+  // directly by value to bypass the accessibility filter for the restore
+  // assertion. (The CLICK earlier uses the wrapping <label> for the same
+  // reason; assertions need this path.)
   await expect(
-    page.locator('[data-qid="ees-performance"]').getByRole('radio', { name: '4' }),
+    page.locator('[data-qid="ees-performance"] input[type="radio"][value="4"]'),
   ).toBeChecked();
   await expect(
     page
@@ -146,15 +192,13 @@ test('admin can submit and re-edit an exit employer survey', async ({ page }) =>
     .getByRole('radio', { name: 'Completed — not hired' })
     .check();
 
-  // SP7 Phase F — submit button copy is now just "Save Survey" (the
-  // prototype's exact wording; "Exit" was dropped to avoid redundancy
-  // with the page title). Clicking opens the SubmitConfirmModal whose
-  // confirm button is labeled "Save"; wait for the modal's title to
-  // confirm it's mounted before clicking the confirm button.
+  // Same Save Survey → modal → Submit pattern for the re-save round-trip.
+  // Confirm button is "Submit" (see comment above); redirect lands on the
+  // assessments hub, which strips `?submitted=exit-survey` after toasting.
   await page.getByRole('button', { name: /Save Survey/i }).click();
   await expect(page.getByText('Save this Exit Employer Survey?')).toBeVisible();
-  await page.getByRole('button', { name: /^Save$/ }).click();
-  await expect(page).toHaveURL(new RegExp(`/admin/interns/${TEST_INTERN_ID}\\?ees=saved`), {
+  await page.getByRole('button', { name: /^Submit$/ }).click();
+  await expect(page).toHaveURL(/\/admin\/assessments(?:\?|$)/, {
     timeout: 15_000,
   });
 
