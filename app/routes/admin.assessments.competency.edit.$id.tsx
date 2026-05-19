@@ -148,13 +148,19 @@ export default function AdminCompetencyEdit() {
             <Link to="/admin/assessments" style={{ color: 'inherit', textDecoration: 'none' }}>
               ADMIN / ASSESSMENTS
             </Link>{' '}
-            / COMPETENCY / EDIT
+            / EDIT
           </>
         }
-        title="EDIT COMPETENCY ASSESSMENT."
-        sub="Adjust the phase or answers below. Saving updates the existing record in place."
+        title={
+          <>
+            EDIT COMPETENCY
+            <br />
+            ASSESSMENT.
+          </>
+        }
+        sub="Amend ratings or notes on a submitted record. Identity fields are locked to preserve the unique participant/phase key."
       />
-      <section>
+      <section className="assessment-wrap">
         <div className="container">
           <CompetencyAssessmentForm
             internId={intern.id}
@@ -166,8 +172,9 @@ export default function AdminCompetencyEdit() {
             errors={errors}
             setLevelError={setLevelError}
             actionPath={`/admin/assessments/competency/edit/${submission.id}`}
-            submitLabel="Save Changes"
+            submitLabel="Submit Changes"
             readOnly={false}
+            cancelHref={`/admin/assessments/competency/${submission.id}`}
             meta={{
               internName: `${intern.firstInitial}. ${intern.lastName}`,
               cohortName: cohort?.name ?? '—',

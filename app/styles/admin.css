@@ -377,6 +377,55 @@
   color: #6a4f00;
 }
 
+/* Result pills (competency detail page-head — ported from prototype) */
+.pill--pass {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--navy);
+  color: var(--gold);
+  border: 1px solid var(--navy);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.pill--pass::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--gold);
+  border-radius: 50%;
+}
+.pill--fail {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.pill--fail::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--danger);
+  border-radius: 50%;
+}
+
+/* Detail actions row (competency detail + self-assessment detail — ported from prototype) */
+.detail-actions {
+  display: flex;
+  gap: 12px;
+  padding: 40px 0 120px;
+  flex-wrap: wrap;
+}
+.detail-actions .btn--primary {
+  margin-left: auto;
+}
+
 /* Filters */
 .filters {
   display: flex;

@@ -5,17 +5,22 @@
 // live filter on last name + cohort name. Selecting a row navigates to the
 // task-specific admin route with `?internId=<id>`.
 //
-// Loader returns all interns + their cohort/employer for picker display.
-// Admin auth is enforced both by the parent `admin.tsx` layout and locally
-// via `requireAdmin` (defence-in-depth).
+// SP7 Phase F rewrite — markup now matches `assessments.html` byte-for-byte:
+// dedicated `.assessment-grid` + `<AssessmentCard>` (not `.kpi-grid` +
+// `.identity-card`), two-line `START AN<br/>ASSESSMENT.` title, picker
+// modal uses the prototype's `<table class="picker-list">` via `<PickerList>`
+// inside `.modal__card--wide`.
 
 import { useEffect, useMemo, useState } from 'react';
-import { data, useLoaderData, useNavigate } from 'react-router';
+import { data, Link, useLoaderData, useNavigate } from 'react-router';
 import type { Route } from './+types/admin.assessments._index';
 import { requireAdmin } from '~/lib/admin-guard.server';
 import { db } from '~/lib/db.server';
 import { listInternsForListing } from '~/lib/admin-queries.server';
 import { PageHead } from '~/components/PageHead';
+import { AssessmentCard } from '~/components/AssessmentCard';
+import { PickerList } from '~/components/PickerList';
+import { initials, formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Assessments · IMPACT Admin' }];
 
@@ -26,11 +31,12 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 type PickerTarget = 'competency' | 'exit-employer-survey';
+type InternRow = Awaited<ReturnType<typeof listInternsForListing>>[number];
 
 export default function AdminAssessmentsHub() {
   const { interns } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
-  const [picker, setPicker] = useState<{ target: PickerTarget } | null>(null);
+  const [picker, setPicker] = useState<{ target: PickerTarget; title: string } | null>(null);
   const [search, setSearch] = useState('');
 
   const filtered = useMemo(() => {
@@ -44,9 +50,9 @@ export default function AdminAssessmentsHub() {
     );
   }, [interns, search]);
 
-  const open = (target: PickerTarget) => {
+  const open = (target: PickerTarget, title: string) => {
     setSearch('');
-    setPicker({ target });
+    setPicker({ target, title });
   };
   const close = () => setPicker(null);
 
@@ -59,12 +65,12 @@ export default function AdminAssessmentsHub() {
     return () => window.removeEventListener('keydown', onKey);
   }, [picker]);
 
-  const onPick = (internId: string) => {
+  const onPick = (row: InternRow) => {
     if (!picker) return;
     const path =
       picker.target === 'competency'
-        ? `/admin/assessments/competency/new?internId=${internId}`
-        : `/admin/assessments/exit-employer-survey?internId=${internId}`;
+        ? `/admin/assessments/competency/new?internId=${row.id}`
+        : `/admin/assessments/exit-employer-survey?internId=${row.id}`;
     close();
     navigate(path);
   };
@@ -73,122 +79,114 @@ export default function AdminAssessmentsHub() {
     <>
       <PageHead
         breadcrumb="ADMIN / ASSESSMENTS"
-        title="ASSESSMENTS."
-        sub="Begin a competency assessment or exit employer survey for any active intern."
+        title={
+          <>
+            START AN
+            <br />
+            ASSESSMENT.
+          </>
+        }
+        sub="Pick the assessment type, then choose the intern you're capturing it for. All completed assessments aggregate to the intern's record under Interns."
       />
-      <section className="container" style={{ padding: '24px 0 48px' }}>
-        <div className="kpi-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
-          <article className="identity-card">
-            <span className="micro-label">COMPETENCY ASSESSMENT</span>
-            <h2 className="kpi-card__value" style={{ fontSize: '1.6rem', marginTop: 8 }}>
-              Competency
-            </h2>
-            <p style={{ marginTop: 8 }}>
-              Phase-by-phase rubric covering core, cohort, and intern-specific competencies.
-            </p>
-            <button
-              type="button"
-              className="btn btn--primary"
-              style={{ marginTop: 16 }}
-              onClick={() => open('competency')}
-            >
-              Begin Competency Assessment <span className="btn__arrow">&rarr;</span>
-            </button>
-          </article>
+      <section>
+        <div className="container">
+          <div className="assessment-grid">
+            <AssessmentCard
+              stage="PER INTERN · PHASED"
+              meta="COMPETENCY ASSESSMENT"
+              title="Rate competency on the rubric."
+              body="Capture a phase-specific competency evaluation on behalf of the employer: 7 shared professional domains plus role-specific skills for the placement."
+              action={
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  onClick={() => open('competency', 'Pick an intern for Competency')}
+                >
+                  Begin Competency <span className="btn__arrow">&rarr;</span>
+                </button>
+              }
+            />
+            <AssessmentCard
+              stage="PER INTERN · AT EXIT"
+              meta="EXIT EMPLOYER SURVEY"
+              title="Capture exit outcomes."
+              body="Record the employer's evaluation at the close of placement: outcome status, performance rating, strengths, work-readiness indicators, and barriers observed."
+              action={
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  onClick={() => open('exit-employer-survey', 'Pick an intern for Exit Survey')}
+                >
+                  Begin Exit Survey <span className="btn__arrow">&rarr;</span>
+                </button>
+              }
+            />
+          </div>
 
-          <article className="identity-card">
-            <span className="micro-label">EXIT EMPLOYER SURVEY</span>
-            <h2 className="kpi-card__value" style={{ fontSize: '1.6rem', marginTop: 8 }}>
-              Exit Survey
-            </h2>
-            <p style={{ marginTop: 8 }}>
-              Employer-completed outcomes and performance survey at end of internship.
-            </p>
-            <button
-              type="button"
-              className="btn btn--primary"
-              style={{ marginTop: 16 }}
-              onClick={() => open('exit-employer-survey')}
-            >
-              Begin Exit Employer Survey <span className="btn__arrow">&rarr;</span>
-            </button>
-          </article>
+          <p className="assessment-foot-note">
+            To review what an intern has already completed, open their record from{' '}
+            <Link to="/admin/interns">Interns</Link>.
+          </p>
         </div>
       </section>
 
       {picker ? (
         <div className="modal" role="dialog" aria-modal="true" aria-label="Select intern">
           <div className="modal__overlay" onClick={close} />
-          <div
-            className="modal__card"
-            style={{
-              maxWidth: 'min(640px, 92vw)',
-              width: 'min(640px, 92vw)',
-              maxHeight: '80vh',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'baseline',
-                marginBottom: 12,
-              }}
-            >
-              <h3 style={{ margin: 0 }}>
-                Select an intern —{' '}
-                {picker.target === 'competency' ? 'Competency' : 'Exit Employer Survey'}
-              </h3>
+          <div className="modal__card modal__card--wide">
+            <span className="modal__label">SELECT INTERN</span>
+            <h3 className="modal__title">{picker.title}</h3>
+            <p className="modal__body" style={{ marginBottom: 16 }}>
+              Choose the intern you&apos;re creating this assessment for. The form will open with
+              their identity pre-filled.
+            </p>
+
+            <div className="field" style={{ marginBottom: 12 }}>
+              <input
+                className="input"
+                type="text"
+                aria-label="Filter interns"
+                placeholder="Search last name or cohort…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                autoFocus
+              />
+            </div>
+
+            <PickerList<InternRow>
+              columns={[
+                {
+                  label: 'Last Name',
+                  width: '30%',
+                  render: (i) => (
+                    <div className="col-name">
+                      <span className="name-initial">{initials(i.lastName)}</span>
+                      {i.lastName}
+                    </div>
+                  ),
+                },
+                { label: 'Cohort', width: '30%', render: (i) => i.cohortName ?? '—' },
+                {
+                  label: 'Start',
+                  width: '20%',
+                  render: (i) => <span className="col-date">{formatDate(i.startDate)}</span>,
+                },
+                {
+                  label: 'Current Phase',
+                  width: '20%',
+                  render: () => <span className="col-phase">—</span>,
+                },
+              ]}
+              rows={filtered}
+              rowKey={(i) => i.id}
+              onSelect={onPick}
+              emptyMessage="No interns match."
+            />
+
+            <div className="modal__actions">
               <button type="button" className="btn btn--outline" onClick={close}>
                 Cancel
               </button>
-            </div>
-            <input
-              type="text"
-              className="input"
-              aria-label="Filter interns"
-              placeholder="Filter by last name, cohort, or employer…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              autoFocus
-              style={{ marginBottom: 12 }}
-            />
-            <div style={{ overflowY: 'auto', flex: 1 }}>
-              {filtered.length === 0 ? (
-                <p style={{ padding: '12px 4px', color: 'var(--ink-muted, var(--navy))' }}>
-                  No interns match this filter.
-                </p>
-              ) : (
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                  {filtered.map((i) => (
-                    <li key={i.id}>
-                      <button
-                        type="button"
-                        className="record-link"
-                        style={{
-                          width: '100%',
-                          textAlign: 'left',
-                          marginBottom: 6,
-                          cursor: 'pointer',
-                        }}
-                        onClick={() => onPick(i.id)}
-                      >
-                        <div className="record-link__head">
-                          <span className="record-link__label">
-                            {i.firstInitial}. {i.lastName.toUpperCase()}
-                          </span>
-                          <span className="record-link__title">
-                            {i.employerName ?? '—'} · {i.cohortName ?? '—'}
-                          </span>
-                        </div>
-                        <span className="record-link__status">Select &rarr;</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
           </div>
         </div>

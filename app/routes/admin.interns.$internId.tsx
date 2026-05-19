@@ -223,7 +223,7 @@ export default function EditIntern() {
       setSearchParams(searchParams, { replace: true });
     }
     if (actionData && 'ok' in actionData && actionData.ok) {
-      toast.show({ kind: 'success', label: 'UPDATED', message: 'Intern record updated.' });
+      toast.show({ kind: 'success', label: 'SAVED', message: 'Intern record saved.' });
     }
     if (actionData && 'errors' in actionData && actionData.errors.length > 0) {
       toast.show({
