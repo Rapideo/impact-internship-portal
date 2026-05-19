@@ -2213,3 +2213,24 @@
 .competency-form--readonly .competency-form__phase-select {
   background: var(--canvas-alt);
 }
+
+/* ---------- Rubric notes (label stacked above textarea) ----------
+   Ported from Prototypes/PROTOTYPE/styles.css lines 1114-1128.
+   Used by intern-record Entry Assessment + Outcomes panels;
+   without these rules the <label> defaults to inline and sits
+   next to the textarea instead of above it. */
+.rubric-notes {
+  padding: 20px 28px 24px;
+  border-top: 1px solid var(--rule);
+  background: rgba(239, 241, 245, 0.4);
+}
+
+.rubric-notes__label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}

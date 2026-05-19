@@ -339,10 +339,7 @@ export default function NewIntern() {
                 meta="Barriers to entry identified at intake. Notes feed support planning."
               >
                 <BarrierCheckList barriers={barriers} checkedIds={barrierIds} />
-                <div
-                  className="rubric-notes"
-                  style={{ padding: '22px 28px', borderTop: '1px solid var(--rule)' }}
-                >
+                <div className="rubric-notes">
                   <label className="rubric-notes__label" htmlFor="barrier-notes">
                     Notes
                   </label>
