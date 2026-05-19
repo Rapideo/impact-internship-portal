@@ -12,7 +12,7 @@
 // inside `.modal__card--wide`.
 
 import { useEffect, useMemo, useState } from 'react';
-import { data, Link, useLoaderData, useNavigate } from 'react-router';
+import { data, Link, useLoaderData, useNavigate, useSearchParams } from 'react-router';
 import type { Route } from './+types/admin.assessments._index';
 import { requireAdmin } from '~/lib/admin-guard.server';
 import { db } from '~/lib/db.server';
@@ -20,6 +20,7 @@ import { listInternsForListing } from '~/lib/admin-queries.server';
 import { PageHead } from '~/components/PageHead';
 import { AssessmentCard } from '~/components/AssessmentCard';
 import { PickerList } from '~/components/PickerList';
+import { useToast } from '~/components/toast/ToastProvider';
 import { initials, formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Assessments · IMPACT Admin' }];
@@ -36,8 +37,37 @@ type InternRow = Awaited<ReturnType<typeof listInternsForListing>>[number];
 export default function AdminAssessmentsHub() {
   const { interns } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const toast = useToast();
   const [picker, setPicker] = useState<{ target: PickerTarget; title: string } | null>(null);
   const [search, setSearch] = useState('');
+
+  // Toast on arrival from a post-submit/delete redirect (SP7 Phase F UX fix).
+  // Strip the query param after showing so a refresh doesn't re-toast.
+  useEffect(() => {
+    const submitted = searchParams.get('submitted');
+    const deleted = searchParams.get('deleted');
+    if (submitted === 'exit-survey') {
+      toast.show({ kind: 'success', label: 'Submitted', message: 'Exit Employer Survey saved.' });
+    } else if (submitted === 'competency') {
+      toast.show({ kind: 'success', label: 'Submitted', message: 'Competency assessment saved.' });
+    } else if (deleted === 'competency') {
+      toast.show({ kind: 'success', label: 'Deleted', message: 'Competency assessment deleted.' });
+    } else {
+      return;
+    }
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete('submitted');
+        next.delete('deleted');
+        return next;
+      },
+      { replace: true },
+    );
+    // toast + setSearchParams are stable refs; intentional one-shot on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();

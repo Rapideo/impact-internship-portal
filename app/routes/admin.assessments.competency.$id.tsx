@@ -117,7 +117,9 @@ export async function action({ request, params }: Route.ActionArgs) {
     .set({ deletedAt: new Date() })
     .where(eq(assessmentSubmissions.id, submission.id));
 
-  throw redirect(`/admin/interns/${submission.internId}?competencyDeleted=1`, { headers });
+  // Back to the assessments hub (SP7 Phase F UX fix — was bouncing into
+  // the unrelated intern record edit page).
+  throw redirect(`/admin/assessments?deleted=competency`, { headers });
 }
 
 export default function AdminCompetencyDetail() {

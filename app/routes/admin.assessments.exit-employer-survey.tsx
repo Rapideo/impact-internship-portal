@@ -114,9 +114,10 @@ export async function action({ request }: Route.ActionArgs) {
     submittedBy,
   });
 
-  // Redirect back to the intern detail page (added in SP2) so the admin
-  // sees the survey marked as Submitted alongside the other records.
-  throw redirect(`/admin/interns/${internId}?ees=saved`, { headers });
+  // Back to the assessments hub (SP7 Phase F UX fix) so the admin can
+  // pick a different intern + assessment next, rather than bouncing into
+  // the unrelated intern record edit page.
+  throw redirect(`/admin/assessments?submitted=exit-survey`, { headers });
 }
 
 export default function AdminExitEmployerSurvey() {
