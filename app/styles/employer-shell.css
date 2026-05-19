@@ -1,113 +1,12 @@
 /* Employer shell styles.
  *
- * The .kpi-card / .kpi-card__label / __value / __sub classes are intentionally
- * NOT redefined here — they already live in admin.css (the source of truth) and
- * are shared between the admin and employer shells. If the employer dashboard
- * later needs a different accent, add a `.kpi-card--employer` modifier rather
- * than duplicating the base rules.
+ * SP7 Phase G note: most employer-shell visual rules now live in admin.css
+ * (`.admin-chip--employer` cyan-accent variant for the nav chip, `.kpi-card`
+ * + variants for the dashboard tiles, table primitives, etc.). The employer
+ * shell is intentionally a thin role-distinction layer over the admin shell.
  *
- * The rgba(255,255,255, …) values below are transparency variants of --white
- * scoped to nav-chip elements rendered on the navy header. They are kept as
- * literals (rather than new tokens) to avoid scope creep — see SP5 Phase E.
+ * This file is reserved for any small overrides specific to the employer
+ * surface that don't make sense in admin.css. Currently empty (everything
+ * needed is provided by admin.css's shared rules). Kept for forward-compat
+ * so future cyan-accent fold-ins have a single place to land.
  */
-
-.employer-chip {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--white);
-  font-size: 13px;
-}
-.employer-chip__name {
-  font-weight: 600;
-  color: var(--gold);
-  font-family: 'IBM Plex Mono', monospace;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  font-size: 12px;
-}
-.employer-chip__email {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 12px;
-}
-.employer-chip__logout {
-  background: transparent;
-  color: var(--white);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-  font-family: 'IBM Plex Sans', sans-serif;
-}
-.employer-chip__logout:hover {
-  color: var(--gold);
-  border-color: var(--gold);
-}
-
-.employer-dashboard__kpis {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin: 24px 0 32px;
-}
-@media (max-width: 760px) {
-  .employer-dashboard__kpis {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Employer KPI caption — muted prose paragraph below the value. Distinct
- * from admin.css's `.kpi-card__delta` (uppercased mono) so the employer
- * dashboard reads as plain language rather than telemetry. */
-.kpi-card__sub {
-  display: block;
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 6px;
-  line-height: 1.4;
-}
-
-/* Employer "Your cohorts" card — small "view all →" link mounted in the
- * identity-card head. Inline text link, not a button; aligns to the right
- * via the existing .identity-card__head flex container. */
-.identity-card__link {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--cyan);
-  text-decoration: none;
-}
-.identity-card__link:hover {
-  text-decoration: underline;
-}
-
-/* Employer "Your cohorts" list — unstyled <ul> with a per-row meta line. */
-.employer-cohort-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.employer-cohort-list__row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--rule);
-}
-.employer-cohort-list__row:last-child {
-  border-bottom: 0;
-}
-.employer-cohort-list__name {
-  color: var(--navy);
-  font-weight: 600;
-}
-.employer-cohort-list__meta {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  color: var(--muted);
-}

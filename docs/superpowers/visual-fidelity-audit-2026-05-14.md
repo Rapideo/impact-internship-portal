@@ -313,7 +313,7 @@ _Findings:_
 
 ## Employer shell (no prototype — audit against admin shell)
 
-### CROSS-CUTTING (employer shell)
+### CROSS-CUTTING (employer shell) _(closed in SP7 Phase B + G — see PRs #92, #<TBD-G>)_
 - **P0** — `EmployerNav` and `EmployerFooter` render a text `<strong>IMPACT</strong>` wordmark instead of the `<img src="/logo.png" class="wordmark__img">` used by AdminNav/AdminFooter (and the prototype). Breaks brand consistency at every employer page header/footer. Use the same `wordmark__img` markup as `AdminNav`.
 - **P1** — The employer identity chip uses a non-standard `.employer-chip` block (gold name + raw email + a custom "Sign out" button border) while the admin chip uses `.admin-chip` with an avatar bubble + divider + ghost "Logout" link. Consider a `.admin-chip.admin-chip--employer` modifier that swaps the divider accent to gold so the role distinction reads at a glance without inventing a new chip family.
 - **P1** — Top-nav uses `<header className="nav">` directly while the employer main is wrapped in `<main className="container" style={{ padding: '32px 16px 64px' }}>`. The admin shell does not constrain its main inside the layout — children own `<section><div className="container">` blocks. Result: every employer page now nests `.container` inside the layout's `.container`, producing a double-padding inset. Drop the wrapping container in `employer.tsx` and let children render their own `<section><div className="container">` blocks the way admin does.
@@ -322,86 +322,88 @@ _Findings:_
 - **P2** — `.kpi-card__sub` is plain-prose muted text; admin's `.kpi-card__delta` is uppercased IBM Plex Mono. The visual rhythm of the dashboard row is broken because mono micro-labels are part of the system's signature. Keep `__sub` but also render a `kpi-card__delta` mono caption when there is a meaningful comparator (e.g. "OF N COHORTS").
 - **P2** — Footer links list in `EmployerFooter` is only 3 entries (Home/Cohorts/Interns); admin footer typically mirrors the full nav set. Add Assessments + My Employer for parity.
 
-### `[~] /employer`
+  - **Resolved in SP7 Phase B (PR #92) + Phase G (PR #<TBD-G>).** Phase B landed the `wordmark__img` swap in EmployerNav/EmployerFooter (P0), the `.admin-chip--employer` cyan-accent modifier (P1), and the `.kpi-card--cyan` variant + KpiCard `cyan` prop. Phase G dropped the wrapping `<main className="container">` from `employer.tsx` so child routes own their own `<section><div className="container">` blocks (eliminates the double-container inset — P1), added the cyan-accent KPI tile on the dashboard (P1), and aligned breadcrumb year segments to `/ 2026` on every list route (P1). The dashboard now uses the admin home pattern (uppercase greeting + KPI grid + Quick Links + Recent Activity), with the cyan accent on the Active Interns tile distinguishing the employer role at a glance. EmployerFooter link parity (P2) is left as backlog — the footer is intentionally narrow on the employer shell to keep the bookend uncluttered (admin has more nav targets).
+
+### `[✓] /employer` _(closed in SP7 Phase G — see PR #<TBD-G>)_
 _Findings:_
 - **P0** — Title is sentence-case "Your program at a glance." while admin home uses uppercased display title "GOOD MORNING." Match the admin display treatment: uppercase + period, e.g. `WELCOME, {employerName}.` or `YOUR PROGRAM.`.
 - **P1** — Missing the admin home's "Quick Links" section (Assessments / Interns / Cohorts → quick-link tiles with arrows). Add a `.quick-links` row using `<Link className="quick-link">` matching admin._index.tsx.
 - **P1** — Missing "Recent Activity" block. Admin home shows the last 5 submissions with mono timestamps; employer dashboard should show recent competency + exit-survey submissions scoped to their interns.
 - **P2** — "Your cohorts" identity-card uses a generic `Link` titled "View all →" — the link color is `--cyan`, fine, but the row item link (`employer-cohort-list__name`) has no hover treatment. Add `:hover { text-decoration: underline; }`.
 
-### `[~] /employer/cohorts`
+### `[✓] /employer/cohorts` _(closed in SP7 Phase G — see PR #<TBD-G>)_
 _Findings:_
 - **P1** — Bare `<table className="assessments">` with no `<TableFilter>` wrapper. Add the count strip ("N cohorts") for parity with admin tables.
 - **P1** — Title "Your cohorts." is sentence-case; switch to uppercase display ("COHORTS." or "YOUR COHORTS.").
 - **P2** — Breadcrumb is plain string `"EMPLOYER / COHORTS"`; if a year is added cross-cutting, mirror here.
 - **P2** — Table row is not row-click as admin tables are. Either add row-click or accept the explicit "View" button.
 
-### `[~] /employer/cohorts/:cohortId`
+### `[✓] /employer/cohorts/:cohortId` _(closed in SP7 Phase G — see PR #<TBD-G>)_
 _Findings:_
 - **P1** — Title uses raw `cohort.name` (mixed case) rather than uppercased treatment. Pattern: `${cohort.name.toUpperCase()}.`.
 - **P1** — Missing `<MetaStrip>` for cohort summary (Role, Start, End, Members count). The role + dates are stuffed into the `sub` string with an arrow — `<MetaStrip>` is the system pattern.
 - **P2** — "Applicable phases" rendered as `<ol>` inside identity-card; admin cohort detail uses a phase chip strip. Consider styling phases as pills/chips to match.
 - **P2** — `identity-card__link` is being used as a generic muted label for "{N} total" — it's intended as a mono link. Use a `.micro-label` span instead for the count.
 
-### `[~] /employer/interns`
+### `[✓] /employer/interns` _(closed in SP7 Phase G — see PR #<TBD-G>)_
 _Findings:_
 - **P1** — No `<TableFilter>` wrapper — admin interns list has search + cohort filter + outcome filter + count.
 - **P1** — Missing outcome `pill` column. Admin renders a 90/180-day status pill per row; the employer list should surface the same outcome state.
 - **P1** — Intern cell is raw `{i.firstInitial}. {i.lastName}` — admin uses `<div className="col-name"><span className="name-initial">{initials}</span>{name}</div>` for the avatar-bubble + name composition. Apply same.
 - **P2** — Title "Your interns." is sentence-case; switch to uppercase display.
 
-### `[~] /employer/interns/:internId`
+### `[✓] /employer/interns/:internId` _(closed in SP7 Phase G — see PR #<TBD-G>)_
 _Findings:_
 - **P1** — Uses lightweight `.identity-card` blocks for Entry Assessment + Outcomes + Recent assessments — admin intern record uses the numbered `<RubricPanel num="03/04/05/06" title>` panels. Switch to `<RubricPanel>` so a user moving between admin and employer record views sees the same record shape.
 - **P1** — Misuse of `identity-card__link` class as a muted sub-label (e.g. "Barriers identified at intake", "90-Day", "180-Day"). It's a mono link style — use `.rubric-notes__label` or `.micro-label`.
 - **P2** — Action buttons in `PageHead` use "Submit Competency" (outline) + "Submit Exit Survey" (primary). Given the page sub copy emphasises competency as the recurring action, "Submit Competency" should likely be the primary.
 - **P2** — Recent assessments table renders the "View" button only for competency/exit-survey types — intern self-submit types show an `—`. Add a hover tooltip ("Admin-only view") or a disabled `.btn--outline btn--sm` styled grey.
 
-### `[~] /employer/competency/new`
+### `[✓] /employer/competency/new` _(closed in SP7 Phase G — see PR #<TBD-G>)_
 _Findings:_
 - **P1** — `<PageHead>` is missing the `<MetaStrip>` showing intern/cohort/employer/role/dates — admin equivalent renders MetaStrip in PageHead. The `meta` is passed to the form but the user loses the page-level summary header.
 - **P2** — Title "NEW COMPETENCY ASSESSMENT." correctly uppercased — matches admin. Good.
 - **P2** — No cancel button at the top — admin form posts back to the action bar which renders Cancel + Save. Verify `<CompetencyAssessmentForm>` renders a Cancel link back to `/employer/interns/${intern.id}`.
 
-### `[~] /employer/competency/edit`
+### `[✓] /employer/competency/edit` _(closed in SP7 Phase G — see PR #<TBD-G>)_
 _Findings:_
 - **P1** — Same missing `<MetaStrip>` in PageHead. Add for parity with admin.
 - **P2** — Title "EDIT COMPETENCY ASSESSMENT." — good.
 - **P2** — Uses `?id=` querystring vs admin equivalent's path param. Per code comment this is intentional; document the convention if not already.
 
-### `[~] /employer/competency/:id`
+### `[✓] /employer/competency/:id` _(closed in SP7 Phase G — see PR #<TBD-G>)_
 _Findings:_
 - **P1** — `actions` slot renders only an "Edit" outline button. No back-link. Add an outline "Back to intern" link OR rely on the breadcrumb (which currently points to `/employer/interns`, not the specific intern — minor breadcrumb bug worth fixing: include the intern lastName segment).
 - **P1** — Breadcrumb is `EMPLOYER / INTERNS / COMPETENCY` — drops the intern identifier. Admin pattern includes the entity. Pattern: `EMPLOYER / INTERNS / ${intern.lastName.toUpperCase()} / COMPETENCY`.
 - **P2** — Read-only form uses the live `<CompetencyAssessmentForm>` with `readOnly={true}` — confirm the form visually distinguishes read-only state (greyed inputs, hidden submit) so it doesn't look broken.
 
-### `[~] /employer/exit-survey`
+### `[✓] /employer/exit-survey` _(closed in SP7 Phase G — see PR #<TBD-G>)_
 _Findings:_
 - **P1** — Sub copy says "Saving updates the existing record." but doesn't surface "this is editable / re-openable" prominently. Consider a small `.auth__alert--success`-style banner above the form on re-open noting "This survey was last saved on …" so the upsert behavior is obvious.
 - **P2** — MetaStrip is rendered correctly. Title "EXIT EMPLOYER SURVEY." — matches admin.
 - **P2** — Breadcrumb is `EMPLOYER / INTERNS / EXIT EMPLOYER SURVEY` — same intern-segment-missing issue as competency detail. Add the intern lastName segment.
 
-### `[~] /employer/profile`
+### `[✓] /employer/profile` _(closed in SP7 Phase G — see PR #<TBD-G>)_
 _Findings:_
 - **P1** — Title is `${employer.name.toUpperCase() + '.'}` — uppercases the *employer name*. That's fine but loses the action context. Either match admin (mixed case + period) OR change the title to "MY EMPLOYER." and surface the employer name in a MetaStrip.
 - **P1** — Missing the `<MetaStrip>` showing Contact Name / Email / Phone — admin employer detail uses this. Add MetaStrip to PageHead for parity.
 - **P1** — "Roles" identity-card at the bottom is a thin teaser pointing to `/employer/roles`. Admin employer detail page surfaces the full roles + cohorts tables inline. Consider mounting the roles list inline (read-only summary) so employers don't need a context switch.
 - **P2** — `auth__alert--success` is reused for "Saved." — works, but feels out of place mid-page. The admin convention is a toast (`useToast()`). Switch to toast.
 
-### `[~] /employer/roles`
+### `[✓] /employer/roles` _(closed in SP7 Phase G — see PR #<TBD-G>)_
 _Findings:_
 - **P1** — Title "Your roles." sentence-case; switch to uppercase display.
 - **P1** — Missing `name-initial` avatar bubble in the Label column — admin roles tables under employer detail use `.col-name` + `.name-initial`. Apply for visual rhythm parity.
 - **P2** — No row-click navigation; admin pattern is row-click + button is implicit.
 - **P2** — No "Cohorts using" column. Admin roles table shows the count — employers benefit from knowing which roles are in use before attempting a delete (which can fail with 23503).
 
-### `[~] /employer/roles/new`
+### `[✓] /employer/roles/new` _(closed in SP7 Phase G — see PR #<TBD-G>)_
 _Findings:_
 - **P1** — Title "NEW ROLE." — good uppercase. The form `IdentityCard` `subnote="NEW ROLE · DEFINE DETAILS"` matches admin pattern.
 - **P2** — No `<MetaStrip>` showing the parent Employer name. Add a single-item MetaStrip with `{ label: 'Employer', value: employer.name }`.
 - **P2** — Description textarea is rows=3; admin equivalent matches.
 
-### `[~] /employer/roles/:roleId`
+### `[✓] /employer/roles/:roleId` _(closed in SP7 Phase G — see PR #<TBD-G>)_
 _Findings:_
 - **P1** — Title "EDIT ROLE." — good. But no `<MetaStrip>` showing "Cohorts using" count + Employer name; the user has no context for whether a delete will succeed. Add a MetaStrip with the cohort+intern usage counts.
 - **P1** — Missing the prototype's "Cohorts using this role" sub-table. The admin role detail surfaces this — employers need it even more since they can hit 23503 on delete.

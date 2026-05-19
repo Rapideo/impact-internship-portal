@@ -1,6 +1,10 @@
 // Employer cohort detail. Read-only view of a single cohort owned by the
 // signed-in employer: applicable phases + enrolled (non-deleted) interns.
 //
+// SP7 Phase G rebuild: uppercase title, MetaStrip in PageHead for the cohort
+// summary (Role / Start / End / Members), Applicable Phases rendered as
+// `.col-phase` chips, enrolled-interns table uses NameInitial chip.
+//
 // Cross-employer protection: the cohort query filters by employerId, so an
 // employer who knows another tenant's cohortId still hits a 404 here. The
 // parent `employer.tsx` layout guards auth; the `!auth?.employerId` line is
@@ -13,10 +17,12 @@ import { getAuthContext } from '~/lib/auth.server';
 import { db } from '~/lib/db.server';
 import { cohortPhases, cohorts, interns, phases, roles } from '../../db/schema';
 import { PageHead } from '~/components/PageHead';
+import { MetaStrip } from '~/components/MetaStrip';
+import { NameInitial } from '~/components/tables/NameInitial';
 import { EmptyRow } from '~/components/EmptyRow';
-import { formatDate } from '~/lib/format';
+import { formatDate, initials } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Cohort - IMPACT Employer' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Cohort — IMPACT Employer' }];
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const headers = new Headers();
@@ -37,7 +43,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!cohort) throw new Response('Not found', { status: 404 });
 
   const phaseRows = await db
-    .select({ label: phases.label, sortOrder: cohortPhases.sortOrder })
+    .select({ id: phases.id, label: phases.label, sortOrder: cohortPhases.sortOrder })
     .from(cohortPhases)
     .innerJoin(phases, eq(phases.id, cohortPhases.phaseId))
     .where(eq(cohortPhases.cohortId, cohortId))
@@ -65,10 +71,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 export default function EmployerCohortDetail() {
   const { cohort, role, phases, interns } = useLoaderData<typeof loader>();
 
-  const subParts: string[] = [];
-  subParts.push(role ? `Role: ${role.label}.` : 'No role assigned.');
-  subParts.push(`${formatDate(cohort.startDate)} → ${formatDate(cohort.endDate)}`);
-
   return (
     <>
       <PageHead
@@ -76,73 +78,89 @@ export default function EmployerCohortDetail() {
           <>
             <Link to="/employer/cohorts" style={{ color: 'inherit', textDecoration: 'none' }}>
               EMPLOYER / COHORTS
-            </Link>{' '}
-            / {cohort.name.toUpperCase()}
+            </Link>
+            {' / '}
+            {cohort.name.toUpperCase()}
           </>
         }
-        title={cohort.name}
-        sub={subParts.join(' ')}
-      />
+        title={`${cohort.name.toUpperCase()}.`}
+        sub="Cohort detail. Applicable phases and enrolled interns are scoped to your employer."
+      >
+        <MetaStrip
+          items={[
+            { label: 'Role', value: role?.label ?? '—' },
+            { label: 'Start', value: formatDate(cohort.startDate), mono: true },
+            { label: 'End', value: formatDate(cohort.endDate), mono: true },
+            { label: 'Members', value: String(interns.length).padStart(2, '0'), mono: true },
+          ]}
+        />
+      </PageHead>
 
       <section>
         <div className="container">
-          <article className="identity-card">
-            <header className="identity-card__head">
-              <h2 className="identity-card__title">Applicable phases</h2>
-            </header>
-            {phases.length === 0 ? (
-              <p style={{ color: 'var(--muted)', margin: 0 }}>None configured.</p>
-            ) : (
-              <ol style={{ margin: 0, paddingLeft: '20px' }}>
-                {phases.map((p) => (
-                  <li key={p.label}>{p.label}</li>
-                ))}
-              </ol>
-            )}
-          </article>
+          <div className="detail-header">
+            <h2 className="detail-header__title">Applicable Phases</h2>
+            <span className="micro-label">
+              {String(phases.length).padStart(2, '0')} PHASE{phases.length === 1 ? '' : 'S'}
+            </span>
+          </div>
+          {phases.length === 0 ? (
+            <p style={{ color: 'var(--muted)', margin: 0 }}>None configured.</p>
+          ) : (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {phases.map((p) => (
+                <span key={p.id} className="col-phase">
+                  {p.label}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
-      <section style={{ marginTop: '24px' }}>
+      <section style={{ marginTop: '40px' }}>
         <div className="container">
-          <article className="identity-card">
-            <header className="identity-card__head">
-              <h2 className="identity-card__title">Enrolled interns</h2>
-              <span className="identity-card__link" style={{ color: 'var(--muted)' }}>
-                {interns.length} total
-              </span>
-            </header>
-            <table className="assessments">
-              <thead>
-                <tr>
-                  <th style={{ width: '40%' }}>Intern</th>
-                  <th style={{ width: '20%' }}>Start</th>
-                  <th style={{ width: '20%' }}>End</th>
-                  <th style={{ width: '20%' }}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {interns.length === 0 ? (
-                  <EmptyRow colSpan={4} message="No interns enrolled." />
-                ) : (
-                  interns.map((i) => (
-                    <tr key={i.id}>
-                      <td>
-                        {i.firstInitial}. {i.lastName}
-                      </td>
-                      <td className="col-date">{formatDate(i.startDate)}</td>
-                      <td className="col-date">{formatDate(i.endDate)}</td>
-                      <td>
-                        <Link to={`/employer/interns/${i.id}`} className="btn btn--outline btn--sm">
+          <div className="detail-header">
+            <h2 className="detail-header__title">Enrolled Interns</h2>
+            <span className="micro-label">
+              {String(interns.length).padStart(2, '0')} INTERN{interns.length === 1 ? '' : 'S'}
+            </span>
+          </div>
+          <table className="assessments">
+            <thead>
+              <tr>
+                <th style={{ width: '40%' }}>Intern</th>
+                <th style={{ width: '20%' }}>Start</th>
+                <th style={{ width: '20%' }}>End</th>
+                <th style={{ width: '20%' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {interns.length === 0 ? (
+                <EmptyRow colSpan={4} message="No interns enrolled." />
+              ) : (
+                interns.map((i) => (
+                  <tr key={i.id}>
+                    <td>
+                      <NameInitial
+                        initials={initials(i.lastName)}
+                        name={`${i.firstInitial}. ${i.lastName}`}
+                      />
+                    </td>
+                    <td className="col-date">{formatDate(i.startDate)}</td>
+                    <td className="col-date">{formatDate(i.endDate)}</td>
+                    <td>
+                      <div className="col-actions">
+                        <Link to={`/employer/interns/${i.id}`} className="action-link">
                           Open
                         </Link>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </article>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </section>
     </>

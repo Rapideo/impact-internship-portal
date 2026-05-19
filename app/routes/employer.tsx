@@ -6,9 +6,10 @@
 //     should make this unreachable, but the runtime guard remains as a defense
 //     in depth).
 //
-// The loader returns the signed-in user's email and the employer name; both
-// are passed to the nav and forwarded via Outlet context so nested employer
-// routes can read them without an extra round-trip query.
+// SP7 Phase G: dropped the wrapping `<main className="container">` so child
+// routes own their own `<section><div className="container">` blocks (matches
+// admin shell pattern; eliminates double-container nesting flagged by the
+// visual-fidelity audit cross-cutting P1).
 
 import { Outlet, redirect, useLoaderData } from 'react-router';
 import { eq } from 'drizzle-orm';
@@ -60,9 +61,7 @@ export default function EmployerLayout() {
     <ToastProvider>
       <div className="employer-shell">
         <EmployerNav employerName={employer.name} userEmail={userEmail} />
-        <main className="container" style={{ padding: '32px 16px 64px' }}>
-          <Outlet context={{ employer, userEmail }} />
-        </main>
+        <Outlet context={{ employer, userEmail }} />
         <EmployerFooter />
       </div>
     </ToastProvider>

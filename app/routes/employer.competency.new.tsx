@@ -35,6 +35,7 @@ import type { SerializedAnswers } from '~/lib/question-types';
 import { UUID_RE } from '~/lib/validation';
 import { CompetencyAssessmentForm } from '~/components/forms/CompetencyAssessmentForm';
 import { PageHead } from '~/components/PageHead';
+import { MetaStrip } from '~/components/MetaStrip';
 import { useToast } from '~/components/ToastProvider';
 import { formatDate } from '~/lib/format';
 
@@ -158,7 +159,7 @@ export async function action({ request }: Route.ActionArgs) {
     );
   }
 
-  throw redirect(`/employer/competency/${inserted.id}?saved=1`, { headers });
+  throw redirect(`/employer/interns/${internId}?submitted=competency`, { headers });
 }
 
 export default function EmployerCompetencyNew() {
@@ -186,14 +187,38 @@ export default function EmployerCompetencyNew() {
           <>
             <Link to="/employer/interns" style={{ color: 'inherit', textDecoration: 'none' }}>
               EMPLOYER / INTERNS
-            </Link>{' '}
-            / COMPETENCY / NEW
+            </Link>
+            {' / '}
+            <Link
+              to={`/employer/interns/${intern.id}`}
+              style={{ color: 'inherit', textDecoration: 'none' }}
+            >
+              {intern.lastName.toUpperCase()}
+            </Link>
+            {' / COMPETENCY / NEW'}
           </>
         }
-        title="NEW COMPETENCY ASSESSMENT."
+        title={
+          <>
+            NEW COMPETENCY
+            <br />
+            ASSESSMENT.
+          </>
+        }
         sub="Select the phase, score the rubric, and save. Multiple phases per intern are supported."
-      />
-      <section>
+      >
+        <MetaStrip
+          items={[
+            { label: 'Intern', value: `${intern.firstInitial}. ${intern.lastName}` },
+            { label: 'Cohort', value: cohort?.name ?? '—' },
+            { label: 'Role', value: role?.label ?? '—' },
+            { label: 'Employer', value: employer?.name ?? '—' },
+            { label: 'Start', value: formatDate(intern.startDate), mono: true },
+            { label: 'End', value: formatDate(intern.endDate), mono: true },
+          ]}
+        />
+      </PageHead>
+      <section className="assessment-wrap">
         <div className="container">
           <CompetencyAssessmentForm
             internId={intern.id}
@@ -207,6 +232,7 @@ export default function EmployerCompetencyNew() {
             actionPath={`/employer/competency/new?internId=${intern.id}`}
             submitLabel="Save Competency Assessment"
             readOnly={false}
+            cancelHref={`/employer/interns/${intern.id}`}
             meta={{
               internName: `${intern.firstInitial}. ${intern.lastName}`,
               cohortName: cohort?.name ?? '—',

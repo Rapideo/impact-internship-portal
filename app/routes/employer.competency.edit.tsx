@@ -28,6 +28,7 @@ import type { SerializedAnswers } from '~/lib/question-types';
 import { UUID_RE } from '~/lib/validation';
 import { CompetencyAssessmentForm } from '~/components/forms/CompetencyAssessmentForm';
 import { PageHead } from '~/components/PageHead';
+import { MetaStrip } from '~/components/MetaStrip';
 import { useToast } from '~/components/ToastProvider';
 import { formatDate } from '~/lib/format';
 
@@ -156,7 +157,7 @@ export async function action({ request }: Route.ActionArgs) {
     return data({ errors: { __form: error.message } }, { status: 500, headers });
   }
 
-  throw redirect(`/employer/competency/${submission.id}?saved=1`, { headers });
+  throw redirect(`/employer/interns/${submission.internId}?submitted=competency`, { headers });
 }
 
 export default function EmployerCompetencyEdit() {
@@ -184,14 +185,38 @@ export default function EmployerCompetencyEdit() {
           <>
             <Link to="/employer/interns" style={{ color: 'inherit', textDecoration: 'none' }}>
               EMPLOYER / INTERNS
-            </Link>{' '}
-            / COMPETENCY / EDIT
+            </Link>
+            {' / '}
+            <Link
+              to={`/employer/interns/${intern.id}`}
+              style={{ color: 'inherit', textDecoration: 'none' }}
+            >
+              {intern.lastName.toUpperCase()}
+            </Link>
+            {' / COMPETENCY / EDIT'}
           </>
         }
-        title="EDIT COMPETENCY ASSESSMENT."
+        title={
+          <>
+            EDIT COMPETENCY
+            <br />
+            ASSESSMENT.
+          </>
+        }
         sub="Adjust the phase or answers below. Saving updates the existing record in place."
-      />
-      <section>
+      >
+        <MetaStrip
+          items={[
+            { label: 'Intern', value: `${intern.firstInitial}. ${intern.lastName}` },
+            { label: 'Cohort', value: cohort?.name ?? '—' },
+            { label: 'Role', value: role?.label ?? '—' },
+            { label: 'Employer', value: employer?.name ?? '—' },
+            { label: 'Start', value: formatDate(intern.startDate), mono: true },
+            { label: 'End', value: formatDate(intern.endDate), mono: true },
+          ]}
+        />
+      </PageHead>
+      <section className="assessment-wrap">
         <div className="container">
           <CompetencyAssessmentForm
             internId={intern.id}
@@ -205,6 +230,7 @@ export default function EmployerCompetencyEdit() {
             actionPath={`/employer/competency/edit?id=${submission.id}`}
             submitLabel="Save Changes"
             readOnly={false}
+            cancelHref={`/employer/interns/${intern.id}`}
             meta={{
               internName: `${intern.firstInitial}. ${intern.lastName}`,
               cohortName: cohort?.name ?? '—',
