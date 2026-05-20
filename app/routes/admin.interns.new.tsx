@@ -25,7 +25,6 @@ import {
   requireString,
   requireUuid,
   requireDate,
-  requireSingleCharUpper,
   optionalUuid,
   optionalString,
   errorsByField,
@@ -73,14 +72,12 @@ export async function action({ request }: Route.ActionArgs) {
     endDate: requireDate('End Date'),
     entryNotes: optionalString('Notes'),
   });
-  if (values.firstName) {
-    const initial = requireSingleCharUpper('First Name')(values.firstName, 'firstName');
-    if ('error' in initial) {
-      // Only push the initial-shape error if the raw firstName didn't already
-      // fail requireString (would duplicate "First Name is required").
-      errors.push({ field: 'firstName', message: initial.error });
-    }
-  }
+  // First-name field accepts a full name for usability; the action below
+  // slices to the first character before persisting (line ~92). This
+  // matches the hint shown to the user ("Only the first initial is
+  // saved") and the minimum-PII policy. The previous `requireSingleCharUpper`
+  // gate was the CLAUDE.md SP2 carry-over — rejected any multi-char input
+  // and contradicted the hint copy.
   const barrierIds = formData
     .getAll('barrierIds')
     .map((v) => String(v))

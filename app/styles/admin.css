@@ -1510,9 +1510,15 @@
   min-width: 150px;
 }
 
-.meta-strip__item:first-child {
-  padding-left: 0;
-}
+/* Visually-first item on each wrapped row gets no left-edge gutter. The
+   previous `:first-child` rule applied to the DOM-first item only, which
+   meant row 1's first column had no left padding while every other column
+   (including the visually-first column on wrapped rows) had 28px — leaving
+   the first column's label + value crowded against the page edge. Using
+   the right-side `+` sibling combinator from a vertical-divider context
+   isn't possible in pure CSS for wrapped flex children, so the simpler
+   correct answer is: give every item equal padding. The strip is now
+   inset 28px from its container's left edge, but every column matches. */
 .meta-strip__item:last-child {
   border-right: none;
 }
