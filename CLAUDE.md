@@ -97,8 +97,8 @@ Branch `main` (renamed from `master` 2026-05-11). GitHub remote: `https://github
 - **`Rapideo/impact-prototype`** (public) — frozen 34-page prototype, full 177-commit history. Local clone at `C:\Projects\impact-prototype\`. Rare maintenance edits only.
 
 **Netlify (2 projects):**
-- **Prototype**: `impact-internship-portal.netlify.app` (`65497097-8b5c-471e-a0c9-dc7ddea0fb2c`). Watches `Rapideo/impact-prototype`, publishes `Prototypes/PROTOTYPE/`.
-- **App**: `impact-portal-app.netlify.app` (`6e071577-7adb-4cae-82d6-b2b2b66a47aa`). Watches this repo. Env vars per-context: production → impact-prod values; deploy-preview + branch-deploy → impact-dev values.
+- **Prototype**: `impact-internship-portal.netlify.app` (`65497097-8b5c-471e-a0c9-dc7ddea0fb2c`). Watches `Rapideo/impact-prototype`, publishes `Prototypes/PROTOTYPE/`. **Live since SP0.**
+- **App**: `impact-portal-app.netlify.app` (`6e071577-7adb-4cae-82d6-b2b2b66a47aa`). **GitHub watcher was never wired** despite SP0's "verify existing infrastructure" claim — the site was created May 11 with empty `build_settings: {}` and stayed that way until the SP7 walkthrough deploy on 2026-05-19. Adapter (`@netlify/vite-plugin-react-router`) added in PR #102. Env vars: production has `SUPABASE_URL/ANON_KEY/SERVICE_ROLE_KEY/DATABASE_URL/SESSION_SECRET` set (impact-prod values) but is **missing `DATABASE_POOL_URL`** — app would crash on production load until that's added. Deploy-preview context populated 2026-05-19 with all 6 impact-dev vars via `netlify env:set --context deploy-preview`. Auto-deploy on `main` push **still requires the GitHub repo connection to be added in the Netlify UI** — tracked in SP6 Phase J.
 
 **Supabase (2 projects):**
 - **`impact-dev`** — ref `zdrxxcbhiovoaubkcqfj`, `us-east-2`. Local dev + Netlify previews + branch deploys.
