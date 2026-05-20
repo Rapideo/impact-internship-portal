@@ -10,7 +10,7 @@
 
 ## 1. The URL
 
-🔗 **https://6a0cfda9a4b1a35342dfeb91--impact-portal-app.netlify.app**
+🔗 **https://6a0d10a7f08723831e4f9a7f--impact-portal-app.netlify.app**
 
 This is a Netlify **draft deploy** — separate from `impact-portal-app.netlify.app` (which won't be live until SP6 Phase J wires the GitHub auto-deploy). The URL is shareable, no auth gate; bookmark it for the duration of the walkthrough.
 
@@ -22,11 +22,11 @@ This is a Netlify **draft deploy** — separate from `impact-portal-app.netlify.
 
 Three personas to walk through. The first two are real Supabase Auth accounts; the third is anonymous (no login).
 
-| Role | Email | Password | Notes |
-|---|---|---|---|
-| **Admin** | `admin@example.com` | `DevPassword123!` | Full access to every surface |
-| **Employer** | `employer1@example.com` | `DevPassword123!` | Scoped to the seeded `Northside Hospital Network` employer |
-| **Intern** | _(no login)_ | _(no password)_ | Identifies by first initial + last name + cohort at the chooser page |
+| Role         | Email                   | Password          | Notes                                                                |
+| ------------ | ----------------------- | ----------------- | -------------------------------------------------------------------- |
+| **Admin**    | `admin@example.com`     | `DevPassword123!` | Full access to every surface                                         |
+| **Employer** | `employer1@example.com` | `DevPassword123!` | Scoped to the seeded `Northside Hospital Network` employer           |
+| **Intern**   | _(no login)_            | _(no password)_   | Identifies by first initial + last name + cohort at the chooser page |
 
 **Intern identity used by the chooser:** First initial `T` · Last name `Test1` · Employer `Northside Hospital Network` · Cohort `Northside — Winter 2026 CNA Track`. This is one of the seeded intern records you can submit self-assessments as.
 
@@ -47,6 +47,7 @@ For **every** screen you visit:
 ✅ **Empty states** — When a list has no data, does it say so gracefully? (Some seeded routes may have empty sections — that's the data, not the surface.)
 
 ❌ **What's still known to be incomplete / not a bug:**
+
 - **"Pass" pill on competency detail always shows "Pass"** — the real pass/fail rule is pending program-staff input.
 - **"Current Phase" column on intern lists shows `—`** — needs phase-window schema work, deferred.
 - **No emails actually send** — Resend is wrapped in a no-op fallback (`console.warn`) until SP6 Phase D wires the API key. So invite/reset flows won't send a real email; the form just succeeds.
@@ -61,49 +62,51 @@ Sign in as `admin@example.com` / `DevPassword123!`. You'll land on `/admin`.
 
 ### 4.1 Home dashboard
 
-- [ ] KPI tiles at the top (Active interns, Active cohorts, Recent submissions, etc.) — numbers look reasonable
-- [ ] Quick Links rail on the right
-- [ ] Recent Activity feed at the bottom shows assessment submissions
-- [ ] Admin chip in the nav (top-right) shows the gold avatar `A` + `admin@example.com` + Logout button
+- [x] KPI tiles at the top (Active interns, Active cohorts, Recent submissions, etc.) — numbers look reasonable
+- [x] Quick Links rail on the right
+- [x] Recent Activity feed at the bottom shows assessment submissions
+- [x] Admin chip in the nav (top-right) shows the gold avatar `A` + `admin@example.com` + Logout button
 
 ### 4.2 Interns
 
 Click **Interns** in the top nav.
 
-- [ ] List of interns with search, cohort filter, outcome filter
-- [ ] Each row shows NameInitial chip + cohort + start date + role + outcome pill
-- [ ] Click a row → opens that intern's record (URL: `/admin/interns/<uuid>`)
-- [ ] Intern record has 6 numbered RubricPanel sections (Personal Info, Internship Details, Entry Assessment, Self-Assessments, Evaluations, Employment Outcomes)
+- [x] List of interns with search, cohort filter, outcome filter
+- [x] Each row shows NameInitial chip + cohort + start date + role + outcome pill
+- [x] Click a row → opens that intern's record (URL: `/admin/interns/<uuid>`)
+- [x] Intern record has 6 numbered RubricPanel sections (Personal Info, Internship Details, Entry Assessment, Self-Assessments, Evaluations, Employment Outcomes)
 - [ ] Click **+ New intern** → form. Fill it out (use any first initial, last name; pick a cohort; pick a role). Save. The new intern appears in the list.
+  
+  *ERROR: First Name does NOT Accept Full Name*
 
 ### 4.3 Assessments hub
 
 Click **Assessments** in the top nav.
 
-- [ ] Two cards: **Competency Assessment** and **Exit Employer Survey**
-- [ ] Click **Begin Competency** → intern-picker modal opens
-- [ ] Search/filter the picker. Pick the seeded `T. Test1` row.
-- [ ] Lands on `/admin/assessments/competency/new?internId=<uuid>` — the competency form
-- [ ] MetaStrip at top shows intern name, cohort, employer, role, dates
-- [ ] Phase dropdown filters to phases for this intern's cohort
-- [ ] Rating pills (Ready / Developing / Emerging) per rubric row
-- [ ] Notes textarea per row
-- [ ] Submit → modal confirm → save → lands on `/admin/assessments/competency/<uuid>?saved=1` (detail view)
-- [ ] Detail page shows the saved assessment read-only, with **Edit Assessment** link
-- [ ] Edit → flip a rating → Save → back to detail
-- [ ] Repeat for **Exit Employer Survey** (same picker pattern, different form)
+- [x] Two cards: **Competency Assessment** and **Exit Employer Survey**
+- [x] Click **Begin Competency** → intern-picker modal opens
+- [x] Search/filter the picker. Pick the seeded `T. Test1` row.
+- [x] Lands on `/admin/assessments/competency/new?internId=<uuid>` — the competency form
+- [x] MetaStrip at top shows intern name, cohort, employer, role, dates
+- [x] Phase dropdown filters to phases for this intern's cohort
+- [x] Rating pills (Ready / Developing / Emerging) per rubric row
+- [x] Notes textarea per row
+- [x] Submit → modal confirm → save → lands on `/admin/assessments/competency/<uuid>?saved=1` (detail view)
+- [x] Detail page shows the saved assessment read-only, with **Edit Assessment** link
+- [x] Edit → flip a rating → Save → back to detail
+- [x] Repeat for **Exit Employer Survey** (same picker pattern, different form)
 
 ### 4.4 Settings
 
 Click **Settings** in the top nav. Walk each rail item:
 
-- [ ] **Employers** — list, click into one, see contact info + cohort list + role list + admin invite controls
-- [ ] **Cohorts** (via an employer detail page) — list, click into one, see role assignment + phase set + enrolled interns
-- [ ] **Roles** (via an employer detail page) — list, click into one, see "Cohorts using this role" sub-table
-- [ ] **Phases** — inline-editable list (add a row, edit a label, delete a row, save)
-- [ ] **Barriers** — inline-editable list (same pattern)
-- [ ] **Program Info** — singleton form with a Danger Zone "Reseed dev data" button
-- [ ] **Questions** — list of 4 standard question sets + Competency Rubric aggregate row
+- [x] **Employers** — list, click into one, see contact info + cohort list + role list + admin invite controls
+- [x] **Cohorts** (via an employer detail page) — list, click into one, see role assignment + phase set + enrolled interns
+- [x] **Roles** (via an employer detail page) — list, click into one, see "Cohorts using this role" sub-table
+- [x] **Phases** — inline-editable list (add a row, edit a label, delete a row, save)
+- [x] **Barriers** — inline-editable list (same pattern)
+- [x] **Program Info** — singleton form with a Danger Zone "Reseed dev data" button
+- [x] **Questions** — list of 4 standard question sets + Competency Rubric aggregate row
   - Click a standard set (e.g., **Personal Goals**) → per-question accordion editor with type-specific config sub-forms
   - Click **Competency Rubric** → 3-tier (Core + per-cohort + per-intern) view
 
@@ -113,9 +116,11 @@ Click **Reports** in the top nav.
 
 - [ ] Stub page renders with CSS-bar-chart placeholders. **Not a real report yet** (SP6 Phase C). Just confirm the page loads without errors.
 
+*ERROR: There is NOT a "Report" option in the top Nav*
+
 ### 4.6 Log out
 
-- [ ] Click **Logout** in the admin chip → returns to `/login`.
+- [x] Click **Logout** in the admin chip → returns to `/login`.
 
 ---
 
@@ -127,53 +132,59 @@ Sign in as `employer1@example.com` / `DevPassword123!`. You'll land on `/employe
 
 ### 5.1 Employer dashboard
 
-- [ ] Uppercase greeting (e.g., `GOOD MORNING.` or `GOOD AFTERNOON.`)
-- [ ] 3 KPI tiles: Active cohorts · **Active interns (cyan accent)** · Assessments needed
-- [ ] Quick Links rail · Recent Activity feed scoped to this employer's interns
+- [x] Uppercase greeting (e.g., `GOOD MORNING.` or `GOOD AFTERNOON.`)
+- [x] 3 KPI tiles: Active cohorts · **Active interns (cyan accent)** · Assessments needed
+- [x] Quick Links rail · Recent Activity feed scoped to this employer's interns
 
 ### 5.2 Assessments
 
 Click **Assessments** in the nav.
 
-- [ ] Same two-card chooser hub as admin (Competency + Exit Survey), but the picker is **scoped** to this employer's interns only
-- [ ] Pick an intern → form opens with `?internId=<uuid>`
+- [x] Same two-card chooser hub as admin (Competency + Exit Survey), but the picker is **scoped** to this employer's interns only
+- [x] Pick an intern → form opens with `?internId=<uuid>`
 - [ ] Submit a competency or exit survey → redirects to the **intern's record** with a toast (not back to the assessments hub — this is the employer's intern-first design)
+
+*ERRROR: Role "Employer" Does Not Exist upon Save*
 
 ### 5.3 Cohorts
 
 Click **Cohorts** in the nav.
 
-- [ ] List of cohorts under this employer
-- [ ] Click a row → cohort detail with MetaStrip + phase chips + enrolled interns table
+- [x] List of cohorts under this employer
+- [x] Click a row → cohort detail with MetaStrip + phase chips + enrolled interns table
 
 ### 5.4 Interns
 
 Click **Interns** in the nav.
 
-- [ ] List of interns across all this employer's cohorts (same TableFilter + outcome pill pattern as admin)
-- [ ] Click a row → intern record with **3 numbered RubricPanel sections** (employer sees the assessment-launch panels at numbers `03 / 04 / 05`; `01 / 02` — Personal Info + Internship Details — are surfaced via a MetaStrip at the top instead)
+- [x] List of interns across all this employer's cohorts (same TableFilter + outcome pill pattern as admin)
+- [x] Click a row → intern record with **3 numbered RubricPanel sections** (employer sees the assessment-launch panels at numbers `03 / 04 / 05`; `01 / 02` — Personal Info + Internship Details — are surfaced via a MetaStrip at the top instead)
 
 ### 5.5 My Employer (profile)
 
 Click **My Employer** in the nav.
 
-- [ ] Title: `MY EMPLOYER.`
-- [ ] MetaStrip with Contact / Email / Phone
-- [ ] Editable fields below
-- [ ] Save → toast confirmation (no inline alert)
+- [x] Title: `MY EMPLOYER.`
+- [x] MetaStrip with Contact / Email / Phone
+- [x] Editable fields below
+- [x] Save → toast confirmation (no inline alert)
+
+
+
+*NOTES: This needs to be called something else. Org Details or My Details might work*
 
 ### 5.6 Roles
 
 There's no explicit Roles nav item — reach roles via either My Employer or directly at `/employer/roles`.
 
-- [ ] List of this employer's roles + "Cohorts using" count
-- [ ] Click into a role → MetaStrip with usage counts
-- [ ] If a role has cohorts/interns assigned, **Delete button is disabled** with explanatory text (avoids 23503 FK errors)
-- [ ] If a role is unused, Delete works → toast on the roles list
+- [x] List of this employer's roles + "Cohorts using" count
+- [x] Click into a role → MetaStrip with usage counts
+- [x] If a role has cohorts/interns assigned, **Delete button is disabled** with explanatory text (avoids 23503 FK errors)
+- [x] If a role is unused, Delete works → toast on the roles list
 
 ### 5.7 Log out
 
-- [ ] Sign out from the employer chip → returns to `/login`.
+- [x] Sign out from the employer chip → returns to `/login`.
 
 ---
 
@@ -181,12 +192,32 @@ There's no explicit Roles nav item — reach roles via either My Employer or dir
 
 Public flow — no login required. Visit `/intern/assessments` directly.
 
+### Available test intern identities
+
+The seed has **three Test interns in the same cohort** specifically for this walkthrough. Pick any one:
+
+| First initial | Last name | Employer | Cohort |
+|---|---|---|---|
+| `T` | `Test1` | `Northside Hospital Network` | `Northside — Winter 2026 CNA Track` |
+| `T` | `Test2` | `Northside Hospital Network` | `Northside — Winter 2026 CNA Track` |
+| `T` | `Test3` | `Northside Hospital Network` | `Northside — Winter 2026 CNA Track` |
+
+### One-shot rule
+
+Each of the three intern self-assessments (Personal Goals · Midpoint Reflection · Participant Feedback) is **one submission per intern per assessment type**. Once submitted, that combination is locked. The chooser shows a `submitted on …` pill for any already-completed slot.
+
+That gives the team **9 fresh submission slots total** (3 interns × 3 assessments). If you hit a "submitted on …" pill, just **click "Not you? Switch →"** on the chooser to clear the identity cookie and try a different Test intern.
+
+### Walkthrough
+
 - [ ] Lands on the **identity chooser** — three cards (Personal Goals, Midpoint Reflection, Participant Feedback). Each shows a "submit" CTA OR a "submitted on …" pill if that intern has already submitted.
 - [ ] Click **Begin Personal Goals**. Identity form opens: First Initial · Last Name · Employer (dropdown) · Cohort (filtered by employer)
-- [ ] Enter `T` / `Test1` / `Northside Hospital Network` / `Northside — Winter 2026 CNA Track` → **Confirm Your Identity**
-- [ ] Should now show the chip "submitting as T. Test1" at the top + the Personal Goals form
+- [ ] Enter `T` / `Test1` (or `Test2`/`Test3`) / `Northside Hospital Network` / `Northside — Winter 2026 CNA Track` → **Confirm Your Identity**
+- [ ] Should now show the chip "submitting as T. Test1" (or whichever) at the top + the Personal Goals form
 - [ ] Fill in the 7 textareas → Submit → modal confirms → submits → lands on confirmation page
 - [ ] Try to re-open `/intern/personal-goals` — should bounce to the confirmation page (one-shot enforced)
+- [ ] Click **Not you? Switch →** on the chooser to clear the cookie and confirm-identity as a different Test intern
+- [ ] Optional: walk Midpoint Reflection (8 textareas) and Participant Feedback (7 mixed-format questions) the same way
 
 ---
 
