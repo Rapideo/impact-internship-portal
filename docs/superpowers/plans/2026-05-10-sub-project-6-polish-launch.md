@@ -2342,6 +2342,14 @@ Spec section 8.3 doesn't mandate a custom domain. This phase documents the path 
 
 The pre-launch checklist + the final docs pass + the post-launch smoke.
 
+> **2026-05-19 amendment — Netlify wiring discovered missing.** SP1 Phase A Task 5 was marked complete with "verify existing infrastructure" wording, but the `impact-portal-app` Netlify site was created May 11 with empty `build_settings: {}` and the GitHub repo connection was never actually wired. Discovered during the SP7 walkthrough-deploy on 2026-05-19. As a result the following must happen during Phase J cutover BEFORE Task 46's T-1 day items:
+>
+> 1. **Wire the GitHub repo connection in the Netlify UI** (Settings → Build & deploy → Continuous deployment → "Link repository" → select `Rapideo/impact-internship-portal`, set branch to `main`, build command `npm run build`, publish directory `build/client`). `@netlify/vite-plugin-react-router` is already installed (PR #102) so no further build config is needed.
+> 2. **Add `DATABASE_POOL_URL` to the production env-var context** (currently missing — only `DATABASE_URL`, `SESSION_SECRET`, `SUPABASE_*` are set; the app's `env.server.ts` requires both `DATABASE_URL` AND `DATABASE_POOL_URL`).
+> 3. **Verify deploy-preview / branch-deploy env vars** — populated 2026-05-19 with impact-dev values for the walkthrough deploy, but worth re-verifying before launch in case anything drifted.
+>
+> The original Phase H "Netlify production cutover" tasks (publish-dir flip from `Prototypes/PROTOTYPE/` to the React Router build) remain obsolete per the two-Netlify-project architecture.
+
 ### Task 46: Write the launch checklist
 
 **Files:**
