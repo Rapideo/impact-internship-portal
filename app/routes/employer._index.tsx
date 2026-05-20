@@ -28,7 +28,7 @@ export const meta: Route.MetaFunction = () => [{ title: 'Dashboard — IMPACT Em
 const QUICK_LINKS = [
   { to: '/employer/cohorts', label: 'Cohorts' },
   { to: '/employer/interns', label: 'Interns' },
-  { to: '/employer/profile', label: 'My Employer' },
+  { to: '/employer/profile', label: 'Org Details' },
 ] as const;
 
 function activityLabel(type: string, phase: string | null): string {

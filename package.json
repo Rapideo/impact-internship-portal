@@ -73,6 +73,7 @@
     "@netlify/vite-plugin-react-router": "^3.1.1",
     "@react-router/node": "^7.15.0",
     "@react-router/serve": "^7.15.0",
+    "@sentry/react-router": "^10.53.1",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.105.4",
     "drizzle-orm": "^0.36.4",
