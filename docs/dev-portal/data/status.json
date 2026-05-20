@@ -1,6 +1,6 @@
 {
   "$schema-comment": "Sub-project status seed. Updated on milestone-close PRs per spec §2.13. Statuses: not-started | in-progress | complete. Counts are taken from the implementation plans committed under docs/superpowers/plans/.",
-  "asOf": "2026-05-14",
+  "asOf": "2026-05-19",
   "subProjects": [
     {
       "id": 0,
@@ -53,10 +53,18 @@
     {
       "id": 6,
       "name": "Polish & Launch",
-      "status": "not-started",
+      "status": "in-progress",
       "taskCount": 52,
-      "prCount": 0,
-      "summary": "Visual fidelity to prototype, Resend wiring, Sentry, deferred Task 37 admin-invite E2E, fix _public.intern.assessments.tsx server-only import leak (build-blocker), a11y/perf, manual smoke, production deploy. (Netlify cutover task is obsolete — each repo has its own Netlify project.)"
+      "prCount": 1,
+      "summary": "Phases C-J remaining: Reports stub, Resend wiring, Sentry, Playwright CI un-gate (incl. deferred Task 37 admin-invite E2E), a11y audit, perf audit, prod seed, launch cutover. Visual fidelity to prototype now handled by SP7 (closed 2026-05-19). Phase J Netlify wiring partially pulled forward via PR #102 (adapter installed; GitHub auto-deploy connection still pending UI work). (Netlify publish-dir-flip cutover task is obsolete — each repo has its own Netlify project.)"
+    },
+    {
+      "id": 7,
+      "name": "Frontend Rebuild",
+      "status": "complete",
+      "taskCount": 30,
+      "prCount": 12,
+      "summary": "Pixel-for-pixel rebuild of every production route against the locked prototype, spanning 9 phases (A through I) shipped 2026-05-15 through 2026-05-19: foundation tokens/global/print, shared presentation primitives (20+ components + dev gallery), form primitives (AssessmentForm, CompetencyAssessmentForm, QuestionSetEditor, InlineEditableList), public+intern flow rebuild, admin shell+Settings (2 PRs), admin Interns+Assessments (10 routes), employer shell (14 routes), test-harness regression sweep (7 stacked spec bugs root-caused, 22/22 Playwright passing), close-out. Visual-fidelity audit doc closed with 75 side-by-side prototype/production screenshots in 2026-05-19-final/. Adapter wired (@netlify/vite-plugin-react-router) and first Netlify draft preview went live during the regression sweep. Two post-G8 walkthrough fixes shipped (meta-strip first-column padding + admin first-name validator). Subagent-driven phase execution with worktree isolation became the dominant workflow."
     }
   ]
 }
