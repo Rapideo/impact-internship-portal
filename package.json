@@ -70,6 +70,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@netlify/vite-plugin-react-router": "^3.1.1",
     "@react-router/node": "^7.15.0",
     "@react-router/serve": "^7.15.0",
     "@supabase/ssr": "^0.5.2",
