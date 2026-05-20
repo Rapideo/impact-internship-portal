@@ -10,7 +10,7 @@
 
 ## 1. The URL
 
-🔗 **https://6a0d10a7f08723831e4f9a7f--impact-portal-app.netlify.app**
+🔗 **https://6a0d196d36fd6796c43eab84--impact-portal-app.netlify.app**
 
 This is a Netlify **draft deploy** — separate from `impact-portal-app.netlify.app` (which won't be live until SP6 Phase J wires the GitHub auto-deploy). The URL is shareable, no auth gate; bookmark it for the duration of the walkthrough.
 
@@ -40,7 +40,7 @@ For **every** screen you visit:
 
 ✅ **Layout & spacing** — Container width feels right (~1240px), navbar and footer span the full viewport (no max-width inset), forms breathe, tables don't crowd.
 
-✅ **Copy & tone** — Headlines feel intentional (e.g., `START AN ASSESSMENT.`, `MY EMPLOYER.`, `YOUR INTERNS.`). Buttons say what they do. Helper text is human.
+✅ **Copy & tone** — Headlines feel intentional (e.g., `START AN ASSESSMENT.`, `ORG DETAILS.`, `YOUR INTERNS.`). Buttons say what they do. Helper text is human.
 
 ✅ **Flow correctness** — When you click a thing, the next thing happens. Forms save what you expect. Redirects land where they should.
 
@@ -53,6 +53,10 @@ For **every** screen you visit:
 - **No emails actually send** — Resend is wrapped in a no-op fallback (`console.warn`) until SP6 Phase D wires the API key. So invite/reset flows won't send a real email; the form just succeeds.
 - **No error monitoring** — Sentry isn't wired (SP6 Phase E). If something crashes, the page will show a generic RR error boundary.
 - **Reports page is a stub** — CSS-bar-chart placeholder (SP6 Phase C will fill it in).
+
+⚠ **Known launch-blocker (root-caused, fix scheduled):**
+
+- **Employer-side save actions error with "Role 'X' does not exist"** on the competency / exit-survey / profile / roles forms. Root cause: the JWT custom-access-token hook overwrites the top-level `role` claim, breaking PostgREST's `SET LOCAL ROLE` on writes. The same flows work fine on the admin side because admin saves go through Drizzle (not PostgREST). When walking the employer surface, **skip the final submit step** on §5.2 (Assessments) and §5.5 (Org Details edit) and §5.6 (Roles edit). Reading + navigating is unaffected. Full root-cause + fix path documented in `docs/BACKLOG.md` under "Gate G8 walkthrough findings."
 
 ---
 
@@ -160,22 +164,18 @@ Click **Interns** in the nav.
 - [x] List of interns across all this employer's cohorts (same TableFilter + outcome pill pattern as admin)
 - [x] Click a row → intern record with **3 numbered RubricPanel sections** (employer sees the assessment-launch panels at numbers `03 / 04 / 05`; `01 / 02` — Personal Info + Internship Details — are surfaced via a MetaStrip at the top instead)
 
-### 5.5 My Employer (profile)
+### 5.5 Org Details (profile)
 
-Click **My Employer** in the nav.
+Click **Org Details** in the nav. (Renamed from "My Employer" post-G8 walk per Matt's note.)
 
-- [x] Title: `MY EMPLOYER.`
+- [x] Title: `ORG DETAILS.`
 - [x] MetaStrip with Contact / Email / Phone
 - [x] Editable fields below
 - [x] Save → toast confirmation (no inline alert)
 
-
-
-*NOTES: This needs to be called something else. Org Details or My Details might work*
-
 ### 5.6 Roles
 
-There's no explicit Roles nav item — reach roles via either My Employer or directly at `/employer/roles`.
+There's no explicit Roles nav item — reach roles via either Org Details or directly at `/employer/roles`.
 
 - [x] List of this employer's roles + "Cohorts using" count
 - [x] Click into a role → MetaStrip with usage counts

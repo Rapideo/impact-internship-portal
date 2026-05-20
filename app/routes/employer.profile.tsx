@@ -38,7 +38,7 @@ import { ActionBar } from '~/components/ActionBar';
 import { useToast } from '~/components/ToastProvider';
 import { formatPhone } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'My Employer — IMPACT' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Org Details — IMPACT' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const headers = new Headers();
@@ -116,8 +116,8 @@ export default function EmployerProfile() {
   return (
     <>
       <PageHead
-        breadcrumb="EMPLOYER / MY EMPLOYER"
-        title="MY EMPLOYER."
+        breadcrumb="EMPLOYER / ORG DETAILS"
+        title="ORG DETAILS."
         sub="Update your contact details. Your employer name is set by your program admin."
       >
         <MetaStrip

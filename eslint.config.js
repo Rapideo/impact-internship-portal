@@ -36,4 +36,14 @@ export default tseslint.config(
     },
     settings: { react: { version: 'detect' } },
   },
+  // Plain ESM modules under app/ — currently just instrument.server.mjs
+  // (Sentry server-side init that loads before the app). Needs Node globals
+  // because it reads `process.env` directly without going through
+  // env.server.ts.
+  {
+    files: ['app/**/*.mjs'],
+    languageOptions: {
+      globals: { ...globals.node },
+    },
+  },
 );

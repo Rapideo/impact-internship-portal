@@ -129,13 +129,70 @@ jobs:
   e2e:
     name: Playwright
     runs-on: ubuntu-latest
-    if: ${{ false }}  # Gated to sub-project 6.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - name: Generate React Router route types
+        run: npx react-router typegen
+      - name: Start local Supabase stack
+        run: supabase start
+      - name: Export local Supabase credentials to env
+        # Mirrors test-integration's env-var bridge; aliases supabase status names
+        # (DB_URL, API_URL, ANON_KEY, SERVICE_ROLE_KEY) to what env.server.ts
+        # expects.
+        run: |
+          eval "$(supabase status -o env)"
+          {
+            echo "DATABASE_URL=${DB_URL}"
+            echo "DATABASE_POOL_URL=${DB_URL}"
+            echo "SUPABASE_URL=${API_URL}"
+            echo "SUPABASE_ANON_KEY=${ANON_KEY}"
+            echo "SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}"
+            echo "SESSION_SECRET=ci-only-not-secret-fffb413e27d12b2f96b2dd9d9cdf0f2888aacce86af2867eb55a0c0873d6803a"
+            echo "RESEND_API_KEY=fake"
+            echo "RESEND_FROM=fake@example.com"
+            echo "APP_URL=http://localhost:5173"
+          } >> "$GITHUB_ENV"
+      - name: Apply migrations + policies
+        run: |
+          npm run db:migrate
+          npm run db:apply-policies
+      - name: Create test auth users (admin + employer1)
+        # admin:create writes the auth.users entry; db:seed below restores
+        # the profile row with the correct role+employer_id based on email
+        # (see db/seed.ts:262 — the script branches on the email literal).
+        # Without these two calls, Playwright sign-in fails because the
+        # admin@example.com / employer1@example.com accounts don't exist in
+        # the local Supabase stack.
+        run: |
+          npm run admin:create -- --email=admin@example.com --password=DevPassword123!
+          npm run admin:create -- --email=employer1@example.com --password=DevPassword123!
+      - name: Seed dev data
+        run: npm run db:seed
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Run Playwright suite
+        run: npm run test:e2e
+        env:
+          CI: 'true'
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+      - name: Stop local Supabase stack
+        if: always()
+        run: supabase stop --no-backup
