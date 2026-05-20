@@ -162,11 +162,22 @@ jobs:
             echo "RESEND_FROM=fake@example.com"
             echo "APP_URL=http://localhost:5173"
           } >> "$GITHUB_ENV"
-      - name: Apply migrations + policies + seed
+      - name: Apply migrations + policies
         run: |
           npm run db:migrate
           npm run db:apply-policies
-          npm run db:seed
+      - name: Create test auth users (admin + employer1)
+        # admin:create writes the auth.users entry; db:seed below restores
+        # the profile row with the correct role+employer_id based on email
+        # (see db/seed.ts:262 — the script branches on the email literal).
+        # Without these two calls, Playwright sign-in fails because the
+        # admin@example.com / employer1@example.com accounts don't exist in
+        # the local Supabase stack.
+        run: |
+          npm run admin:create -- --email=admin@example.com --password=DevPassword123!
+          npm run admin:create -- --email=employer1@example.com --password=DevPassword123!
+      - name: Seed dev data
+        run: npm run db:seed
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
       - name: Run Playwright suite

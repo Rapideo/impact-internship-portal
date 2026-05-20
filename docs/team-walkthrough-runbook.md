@@ -54,6 +54,10 @@ For **every** screen you visit:
 - **No error monitoring** — Sentry isn't wired (SP6 Phase E). If something crashes, the page will show a generic RR error boundary.
 - **Reports page is a stub** — CSS-bar-chart placeholder (SP6 Phase C will fill it in).
 
+⚠ **Known launch-blocker (root-caused, fix scheduled):**
+
+- **Employer-side save actions error with "Role 'X' does not exist"** on the competency / exit-survey / profile / roles forms. Root cause: the JWT custom-access-token hook overwrites the top-level `role` claim, breaking PostgREST's `SET LOCAL ROLE` on writes. The same flows work fine on the admin side because admin saves go through Drizzle (not PostgREST). When walking the employer surface, **skip the final submit step** on §5.2 (Assessments) and §5.5 (Org Details edit) and §5.6 (Roles edit). Reading + navigating is unaffected. Full root-cause + fix path documented in `docs/BACKLOG.md` under "Gate G8 walkthrough findings."
+
 ---
 
 ## 4. Admin walkthrough (~15 minutes)
