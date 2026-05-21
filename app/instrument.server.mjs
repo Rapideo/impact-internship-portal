@@ -1,4 +1,3 @@
-/* eslint-env node */
 // Sentry server instrumentation — loads BEFORE any other app code via
 // react-router's server entry hook. Initialization is conditional on
 // SENTRY_DSN being set; missing DSN is a silent no-op so dev / CI / and
