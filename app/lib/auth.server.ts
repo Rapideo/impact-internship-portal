@@ -17,11 +17,16 @@ export interface AuthContext {
 /**
  * Pull the role + employer_id JWT claims out of a parsed payload.
  * Returns null for missing/unknown claims.
+ *
+ * Reads `user_role` (not the JWT's top-level `role` claim — that is reserved
+ * for PostgREST's `SET LOCAL ROLE` and stays at 'authenticated'). The custom
+ * access token hook (`db/policies/0004_jwt_hook.sql`) writes the application
+ * role into `user_role`.
  */
 export function decodeRoleFromJwtPayload(payload: unknown): AuthContext | null {
   if (!payload || typeof payload !== 'object') return null;
   const obj = payload as Record<string, unknown>;
-  const role = obj['role'];
+  const role = obj['user_role'];
   if (role !== 'admin' && role !== 'employer') return null;
   const employerId = typeof obj['employer_id'] === 'string' ? (obj['employer_id'] as string) : null;
   return { role, employerId };

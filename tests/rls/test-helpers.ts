@@ -37,13 +37,18 @@ export async function withClaims<T>(
   }
 }
 
+// Application role is in `user_role` (not the top-level `role` claim, which
+// PostgREST uses for `SET LOCAL ROLE` and stays at 'authenticated'). Matches
+// `db/policies/0004_jwt_hook.sql`.
 export const ADMIN_CLAIMS = (userId: string) => ({
   sub: userId,
-  role: 'admin',
+  role: 'authenticated',
+  user_role: 'admin',
 });
 
 export const EMPLOYER_CLAIMS = (userId: string, employerId: string) => ({
   sub: userId,
-  role: 'employer',
+  role: 'authenticated',
+  user_role: 'employer',
   employer_id: employerId,
 });
