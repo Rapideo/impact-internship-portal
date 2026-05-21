@@ -8,7 +8,10 @@ describe('decodeRoleFromJwtPayload', () => {
   });
 
   it('returns role and employerId from a well-formed payload', () => {
-    const payload = { role: 'employer', employer_id: '11111111-1111-1111-1111-111111111101' };
+    const payload = {
+      user_role: 'employer',
+      employer_id: '11111111-1111-1111-1111-111111111101',
+    };
     expect(decodeRoleFromJwtPayload(payload)).toEqual({
       role: 'employer',
       employerId: '11111111-1111-1111-1111-111111111101',
@@ -16,12 +19,18 @@ describe('decodeRoleFromJwtPayload', () => {
   });
 
   it('returns admin without employerId', () => {
-    const payload = { role: 'admin' };
+    const payload = { user_role: 'admin' };
     expect(decodeRoleFromJwtPayload(payload)).toEqual({ role: 'admin', employerId: null });
   });
 
   it('returns null for an unknown role', () => {
-    expect(decodeRoleFromJwtPayload({ role: 'superuser' })).toBeNull();
+    expect(decodeRoleFromJwtPayload({ user_role: 'superuser' })).toBeNull();
+  });
+
+  it('ignores top-level role claim (PostgREST role, not app role)', () => {
+    // The hook leaves the JWT top-level `role` at 'authenticated' for
+    // PostgREST. `decodeRoleFromJwtPayload` must not be fooled by it.
+    expect(decodeRoleFromJwtPayload({ role: 'admin' })).toBeNull();
   });
 });
 
@@ -51,7 +60,7 @@ describe('getAuthContext', () => {
       createServerClient: () => ({
         auth: {
           getClaims: async () => ({
-            data: { claims: { role: 'admin' } },
+            data: { claims: { role: 'authenticated', user_role: 'admin' } },
             error: null,
           }),
         },

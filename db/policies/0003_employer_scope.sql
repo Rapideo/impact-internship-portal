@@ -5,7 +5,7 @@
 DROP POLICY IF EXISTS employer_self_profile ON public.profiles;
 CREATE POLICY employer_self_profile ON public.profiles FOR SELECT TO authenticated
   USING (
-    (auth.jwt() ->> 'role') = 'employer'
+    (auth.jwt() ->> 'user_role') = 'employer'
     AND user_id = auth.uid()
   );
 
@@ -27,11 +27,11 @@ CREATE POLICY any_authenticated_reads_barriers ON public.barriers FOR SELECT TO 
 DROP POLICY IF EXISTS employer_own_employer ON public.employers;
 CREATE POLICY employer_own_employer ON public.employers FOR ALL TO authenticated
   USING (
-    (auth.jwt() ->> 'role') = 'employer'
+    (auth.jwt() ->> 'user_role') = 'employer'
     AND id = (auth.jwt() ->> 'employer_id')::uuid
   )
   WITH CHECK (
-    (auth.jwt() ->> 'role') = 'employer'
+    (auth.jwt() ->> 'user_role') = 'employer'
     AND id = (auth.jwt() ->> 'employer_id')::uuid
   );
 
@@ -39,11 +39,11 @@ CREATE POLICY employer_own_employer ON public.employers FOR ALL TO authenticated
 DROP POLICY IF EXISTS employer_own_roles ON public.roles;
 CREATE POLICY employer_own_roles ON public.roles FOR ALL TO authenticated
   USING (
-    (auth.jwt() ->> 'role') = 'employer'
+    (auth.jwt() ->> 'user_role') = 'employer'
     AND employer_id = (auth.jwt() ->> 'employer_id')::uuid
   )
   WITH CHECK (
-    (auth.jwt() ->> 'role') = 'employer'
+    (auth.jwt() ->> 'user_role') = 'employer'
     AND employer_id = (auth.jwt() ->> 'employer_id')::uuid
   );
 
@@ -51,7 +51,7 @@ CREATE POLICY employer_own_roles ON public.roles FOR ALL TO authenticated
 DROP POLICY IF EXISTS employer_read_own_cohorts ON public.cohorts;
 CREATE POLICY employer_read_own_cohorts ON public.cohorts FOR SELECT TO authenticated
   USING (
-    (auth.jwt() ->> 'role') = 'employer'
+    (auth.jwt() ->> 'user_role') = 'employer'
     AND employer_id = (auth.jwt() ->> 'employer_id')::uuid
   );
 
@@ -59,7 +59,7 @@ CREATE POLICY employer_read_own_cohorts ON public.cohorts FOR SELECT TO authenti
 DROP POLICY IF EXISTS employer_read_own_cohort_phases ON public.cohort_phases;
 CREATE POLICY employer_read_own_cohort_phases ON public.cohort_phases FOR SELECT TO authenticated
   USING (
-    (auth.jwt() ->> 'role') = 'employer'
+    (auth.jwt() ->> 'user_role') = 'employer'
     AND cohort_id IN (
       SELECT id FROM public.cohorts
       WHERE employer_id = (auth.jwt() ->> 'employer_id')::uuid
@@ -70,7 +70,7 @@ CREATE POLICY employer_read_own_cohort_phases ON public.cohort_phases FOR SELECT
 DROP POLICY IF EXISTS employer_read_own_interns ON public.interns;
 CREATE POLICY employer_read_own_interns ON public.interns FOR SELECT TO authenticated
   USING (
-    (auth.jwt() ->> 'role') = 'employer'
+    (auth.jwt() ->> 'user_role') = 'employer'
     AND cohort_id IN (
       SELECT id FROM public.cohorts
       WHERE employer_id = (auth.jwt() ->> 'employer_id')::uuid
@@ -81,7 +81,7 @@ CREATE POLICY employer_read_own_interns ON public.interns FOR SELECT TO authenti
 DROP POLICY IF EXISTS employer_read_entry_assessment ON public.intern_entry_assessment;
 CREATE POLICY employer_read_entry_assessment ON public.intern_entry_assessment FOR SELECT TO authenticated
   USING (
-    (auth.jwt() ->> 'role') = 'employer'
+    (auth.jwt() ->> 'user_role') = 'employer'
     AND intern_id IN (
       SELECT i.id FROM public.interns i
       JOIN public.cohorts c ON c.id = i.cohort_id
@@ -93,7 +93,7 @@ CREATE POLICY employer_read_entry_assessment ON public.intern_entry_assessment F
 DROP POLICY IF EXISTS employer_read_entry_barriers ON public.intern_entry_barriers;
 CREATE POLICY employer_read_entry_barriers ON public.intern_entry_barriers FOR SELECT TO authenticated
   USING (
-    (auth.jwt() ->> 'role') = 'employer'
+    (auth.jwt() ->> 'user_role') = 'employer'
     AND intern_id IN (
       SELECT i.id FROM public.interns i
       JOIN public.cohorts c ON c.id = i.cohort_id
@@ -105,7 +105,7 @@ CREATE POLICY employer_read_entry_barriers ON public.intern_entry_barriers FOR S
 DROP POLICY IF EXISTS employer_read_outcomes ON public.intern_employment_outcomes;
 CREATE POLICY employer_read_outcomes ON public.intern_employment_outcomes FOR SELECT TO authenticated
   USING (
-    (auth.jwt() ->> 'role') = 'employer'
+    (auth.jwt() ->> 'user_role') = 'employer'
     AND intern_id IN (
       SELECT i.id FROM public.interns i
       JOIN public.cohorts c ON c.id = i.cohort_id
@@ -117,7 +117,7 @@ CREATE POLICY employer_read_outcomes ON public.intern_employment_outcomes FOR SE
 DROP POLICY IF EXISTS employer_read_question_sets ON public.question_sets;
 CREATE POLICY employer_read_question_sets ON public.question_sets FOR SELECT TO authenticated
   USING (
-    (auth.jwt() ->> 'role') = 'employer'
+    (auth.jwt() ->> 'user_role') = 'employer'
     AND (
       kind IN ('standard', 'competency-core')
       OR (
@@ -142,7 +142,7 @@ CREATE POLICY employer_read_question_sets ON public.question_sets FOR SELECT TO 
 DROP POLICY IF EXISTS employer_read_questions ON public.questions;
 CREATE POLICY employer_read_questions ON public.questions FOR SELECT TO authenticated
   USING (
-    (auth.jwt() ->> 'role') = 'employer'
+    (auth.jwt() ->> 'user_role') = 'employer'
     AND question_set_id IN (
       SELECT id FROM public.question_sets WHERE
         kind IN ('standard', 'competency-core')
@@ -168,7 +168,7 @@ CREATE POLICY employer_read_questions ON public.questions FOR SELECT TO authenti
 DROP POLICY IF EXISTS employer_read_submissions ON public.assessment_submissions;
 CREATE POLICY employer_read_submissions ON public.assessment_submissions FOR SELECT TO authenticated
   USING (
-    (auth.jwt() ->> 'role') = 'employer'
+    (auth.jwt() ->> 'user_role') = 'employer'
     AND intern_id IN (
       SELECT i.id FROM public.interns i
       JOIN public.cohorts c ON c.id = i.cohort_id
@@ -179,7 +179,7 @@ CREATE POLICY employer_read_submissions ON public.assessment_submissions FOR SEL
 DROP POLICY IF EXISTS employer_write_submissions ON public.assessment_submissions;
 CREATE POLICY employer_write_submissions ON public.assessment_submissions FOR INSERT TO authenticated
   WITH CHECK (
-    (auth.jwt() ->> 'role') = 'employer'
+    (auth.jwt() ->> 'user_role') = 'employer'
     AND type IN ('competency', 'exit-employer-survey')
     AND intern_id IN (
       SELECT i.id FROM public.interns i
@@ -191,7 +191,7 @@ CREATE POLICY employer_write_submissions ON public.assessment_submissions FOR IN
 DROP POLICY IF EXISTS employer_update_submissions ON public.assessment_submissions;
 CREATE POLICY employer_update_submissions ON public.assessment_submissions FOR UPDATE TO authenticated
   USING (
-    (auth.jwt() ->> 'role') = 'employer'
+    (auth.jwt() ->> 'user_role') = 'employer'
     AND type IN ('competency', 'exit-employer-survey')
     AND intern_id IN (
       SELECT i.id FROM public.interns i
@@ -200,7 +200,7 @@ CREATE POLICY employer_update_submissions ON public.assessment_submissions FOR U
     )
   )
   WITH CHECK (
-    (auth.jwt() ->> 'role') = 'employer'
+    (auth.jwt() ->> 'user_role') = 'employer'
     AND type IN ('competency', 'exit-employer-survey')
     AND intern_id IN (
       SELECT i.id FROM public.interns i
