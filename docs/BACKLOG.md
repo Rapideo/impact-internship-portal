@@ -114,6 +114,18 @@ Surfaced during Matt's pre-team-test walk; some fixed in `fix/sp7-walkthrough-fi
   **Test-coverage gap (now closed):** No spec exercised the actual `supabase.from(...).insert/update(...)` path. `employer-competency.spec.ts` deliberately mounts the form only (per spec comments — UUID-stability concern), and `employer-scope.test.ts` uses `withClaims` which sets `SET LOCAL ROLE authenticated` directly, bypassing PostgREST's role-decision. CI was green throughout. Closed by `tests/rls/postgrest-write.test.ts` — a self-bootstrapping spec that signs in via `signInWithPassword` (real JWT through the hook) and runs an UPDATE through PostgREST. Runs in the existing `npm run test:rls` job.
 - **"My Employer" page title rename (UX, not a bug).** Matt's note on §5.5 of the runbook: "This needs to be called something else. Org Details or My Details might work." Affects: `employer.profile.tsx` page title + the EmployerNav link label at `app/components/nav/EmployerNav.tsx:20`. Pick a final label in the next planning conversation, then update both call sites + any breadcrumb text that includes "MY EMPLOYER".
 
+## Auth flow findings (added 2026-05-20 by F.2 spec attempt)
+
+- **Supabase invite/recovery flow uses implicit grant; callback expects PKCE (PRODUCTION BUG, LAUNCH BLOCKER for branded invite UX).** Discovered while writing the SP6 Phase F.2 admin-invite → employer-accept E2E. `supabase.auth.admin.generateLink({ type: 'invite' })` (and presumably `inviteUserByEmail`) returns a verify URL whose redirect drops the token in the URL hash fragment: `http://localhost:5173/login#access_token=…&type=invite&…`. Our `/auth/callback` route at `app/routes/_public.auth.callback.tsx` only handles PKCE (`?code=…` querystring): with no `?code`, it redirects to `/login`, leaving the token stranded in the URL hash. The user never reaches `/auth/accept`.
+
+  **Production impact:** Any real employer invite link behaves the same way. The Supabase-default plain-text invite email arrives, the user clicks it, lands on /login with a giant hash-fragment URL, and can't proceed. This is why the SP5 invite flow has never actually been validated end-to-end with a clicked link — only via direct-credential sign-in for the seeded `employer1@example.com`.
+
+  **Fix paths (either works):**
+  1. **PKCE everywhere.** Configure Supabase Auth to use PKCE for invites + recovery (admin client + project settings). Then the existing callback handles every flow.
+  2. **Hash-fragment bridge in `/auth/callback`.** Add a small client-side script (or a route-level `<script>`) that detects `window.location.hash` containing `access_token`, parses it, calls `supabase.auth.setSession({ access_token, refresh_token })`, then navigates to the `next` querystring target. The token comes off the URL on the client because hash fragments aren't sent to the server.
+
+  **Stashed spec:** `tests/e2e/admin-invite-accept.spec.ts` is fully written and would validate the fix end-to-end — currently wrapped in `test.describe.skip()` with a comment pointing back to this entry. Remove the `.skip` once the callback handles hash fragments OR Supabase is reconfigured to send PKCE.
+
 ## Original PRD non-goals (still out of scope)
 
 - Midpoint Performance Review form
