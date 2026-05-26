@@ -32,6 +32,14 @@ const LOGIN_FOOTER_LINKS = [
   { to: '/intern/assessments', label: 'Intern Assessments' },
 ] as const;
 
+export const meta: Route.MetaFunction = () => [
+  { title: 'Sign in · IMPACT Portal' },
+  {
+    name: 'description',
+    content: 'Administrator and employer sign-in for the IMPACT Internship Assessment Portal.',
+  },
+];
+
 export async function loader({ request }: Route.LoaderArgs) {
   const headers = new Headers();
   const auth = await getAuthContext(request, headers);

@@ -3,10 +3,20 @@
 // <PublicFooter>. Copy is verbatim from the prototype.
 
 import { Link } from 'react-router';
+import type { Route } from './+types/_public._index';
 import { HeroSection } from '~/components/HeroSection';
 import { PillarsSection } from '~/components/PillarsSection';
 import { PublicNav } from '~/components/nav/PublicNav';
 import { PublicFooter } from '~/components/nav/PublicFooter';
+
+export const meta: Route.MetaFunction = () => [
+  { title: 'IMPACT Internship Assessment Portal' },
+  {
+    name: 'description',
+    content:
+      'Assessment portal for the IMPACT internship program: intake, multi-phase competency reviews, intern self-assessments, and 90-day employment outcomes.',
+  },
+];
 
 const PILLARS = [
   {
