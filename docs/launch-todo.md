@@ -50,6 +50,26 @@ for how the pipeline works and `CLAUDE.md` for current infra state.
 - [ ] **Post-mortem.** Capture the prototype → planning → build playbook once
       launch settles (see `docs/methodology.md` as the starting point).
 
+## Tooling / developer experience
+
+Recommended CLIs/integrations to de-friction the ops we hit during launch
+(2026-05-26). The Supabase CLI is already installed (v2.98) but underused.
+
+- [ ] **Supabase + Netlify MCP servers** (highest leverage). Configure both in
+      Claude Code so DB queries + deploy inspection happen directly in-session,
+      replacing the temp-script + masked-env workarounds used during launch.
+- [ ] **Link the Supabase CLI** to both projects (`supabase link --project-ref
+      <ref>`) for direct DB access without juggling masked Netlify connection
+      strings; adopt **`supabase db dump`** as a pre-step before any destructive
+      DB op (prod migrations were run with no backup during launch).
+- [ ] **`dotenv-cli`** (dev dep) — `dotenv -e .env.prod -- npm run db:migrate`
+      to cleanly target a chosen env, replacing the dotenv no-override dance.
+- [ ] **`@sentry/vite-plugin`** (dev dep) — upload source maps at build so
+      Sentry shows real code, not minified stack traces (needs
+      `SENTRY_AUTH_TOKEN`). This is the "readable stack traces" Sentry follow-up.
+- [ ] **Nice-to-have:** `@lhci/cli` (Lighthouse CI perf budgets in CI), `act`
+      (run GitHub Actions workflows locally).
+
 ## Intentionally NOT doing
 
 - The `.kpi-card__delta` color-contrast a11y finding is **left as-is** by
