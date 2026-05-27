@@ -24,9 +24,11 @@ for how the pipeline works and `CLAUDE.md` for current infra state.
 
 - [ ] **Reports (Phase C).** Admin Reports is a "coming soon" placeholder; needs
       real aggregate queries + stakeholder input on which metrics to show.
-- [ ] **Sentry DSN (Phase E).** Server instrumentation is wired (PR #109) but
-      `SENTRY_DSN` is unset, so nothing is captured yet. Create a Sentry project
-      and set the DSN (per context) to activate error tracking.
+- [x] **Sentry (Phase E).** DSN set on the production context + `handleError`
+      wired (`createSentryHandleError`) so loader/action/render errors are
+      captured — `Sentry.init()` alone didn't do that. Active on prod after
+      deploy. Optional follow-ups: client-side browser errors, source-map upload
+      for readable stack traces, and request tracing via `wrapSentryHandleRequest`.
 - [ ] **Admin invite → accept E2E test (Phase F.2).** Deferred since SP5. Build
       via the Supabase admin API (`generateLink`) — no public `/dev` route.
 

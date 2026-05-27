@@ -3,6 +3,7 @@
 // is a no-op when SENTRY_DSN is unset, so the import is safe in every
 // environment (dev, CI, preview, production-without-Sentry).
 import './instrument.server.mjs';
+import * as Sentry from '@sentry/react-router';
 
 import { PassThrough } from 'node:stream';
 
@@ -14,6 +15,13 @@ import type { RenderToPipeableStreamOptions } from 'react-dom/server';
 import { renderToPipeableStream } from 'react-dom/server';
 
 export const streamTimeout = 5_000;
+
+// Report loader/action/render errors to Sentry via React Router's handleError
+// hook. Without this, Sentry.init() alone does NOT capture route-level errors
+// (the 500s that matter). When SENTRY_DSN is unset, Sentry.init() never ran so
+// captureException is inert — safe in dev/CI/preview. `logErrors` preserves the
+// console output that Netlify function logs rely on.
+export const handleError = Sentry.createSentryHandleError({ logErrors: true });
 
 export default function handleRequest(
   request: Request,
