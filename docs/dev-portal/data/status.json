@@ -1,6 +1,6 @@
 {
   "$schema-comment": "Sub-project status seed. Updated on milestone-close PRs per spec §2.13. Statuses: not-started | in-progress | complete. Counts are taken from the implementation plans committed under docs/superpowers/plans/.",
-  "asOf": "2026-05-19",
+  "asOf": "2026-05-26",
   "subProjects": [
     {
       "id": 0,
@@ -55,8 +55,8 @@
       "name": "Polish & Launch",
       "status": "in-progress",
       "taskCount": 52,
-      "prCount": 1,
-      "summary": "Phases C-J remaining: Reports stub, Resend wiring, Sentry, Playwright CI un-gate (incl. deferred Task 37 admin-invite E2E), a11y audit, perf audit, prod seed, launch cutover. Visual fidelity to prototype now handled by SP7 (closed 2026-05-19). Phase J Netlify wiring partially pulled forward via PR #102 (adapter installed; GitHub auto-deploy connection still pending UI work). (Netlify publish-dir-flip cutover task is obsolete — each repo has its own Netlify project.)"
+      "prCount": 8,
+      "summary": "Production launched on impact-prod 2026-05-26. Done: Playwright CI un-gate (#105), JWT-hook launch-blocker fix (#107), PostgREST write coverage (#108), Sentry server shell (#109), a11y/perf baselines (#110), logo perf + page metadata (#112), CI/CD overview doc (#113). Phase I (prod seed/bootstrap: schema + RLS + JWT hook + reference-data seed + admin) and Phase J (cutover: GitHub→Netlify auto-deploy wired, DATABASE_POOL_URL set, DB password rotated, APP_URL set per-context) complete. Remaining tracked in docs/launch-todo.md: custom SMTP + branded email templates, Reports content (C), Sentry DSN (E), admin invite→accept E2E (F.2), #77 DB-role hardening. (a11y contrast finding left as-is by stakeholder decision; no visual changes for accessibility.)"
     },
     {
       "id": 7,
