@@ -22,7 +22,13 @@ const FOOTER_LINKS = [
   { to: '/login', label: 'Sign in' },
 ] as const;
 
-export const meta: Route.MetaFunction = () => [{ title: 'Forgot password · IMPACT Portal' }];
+export const meta: Route.MetaFunction = () => [
+  { title: 'Forgot password · IMPACT Portal' },
+  {
+    name: 'description',
+    content: 'Request a password recovery link for your IMPACT Portal account.',
+  },
+];
 
 export async function action({ request }: Route.ActionArgs) {
   const headers = new Headers();
