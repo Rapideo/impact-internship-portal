@@ -77,3 +77,32 @@
   font-size: 11px;
   color: var(--muted);
 }
+
+/* Progress meters */
+.meterlist {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.meter__top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+.meter__pct {
+  font-family: var(--font-mono);
+  color: var(--navy);
+  font-weight: 600;
+}
+.meter__track {
+  height: 9px;
+  background: var(--canvas-alt);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.meter__fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--cyan), #5ec8ff);
+}
