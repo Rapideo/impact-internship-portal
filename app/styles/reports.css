@@ -1,0 +1,51 @@
+/* app/styles/reports.css */
+/* Reports dashboard — chart kit + layout. Dependency-free SVG/CSS, themed
+   with the brand tokens in tokens.css. Added in SP6 Phase C (Reports). */
+
+.chart-empty {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  padding: 18px 4px;
+  margin: 0;
+}
+
+/* Horizontal bars */
+.barlist {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+.barlist__row {
+  display: grid;
+  grid-template-columns: 130px 1fr 36px;
+  align-items: center;
+  gap: 12px;
+}
+.barlist__name {
+  font-size: 13px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.barlist__track {
+  height: 13px;
+  background: var(--canvas-alt);
+  border-radius: 7px;
+  overflow: hidden;
+}
+.barlist__fill {
+  height: 100%;
+  border-radius: 7px;
+  background: linear-gradient(90deg, var(--navy), var(--navy-mid));
+}
+.barlist__fill--gold {
+  background: linear-gradient(90deg, #e9b800, var(--gold));
+}
+.barlist__val {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-align: right;
+  color: var(--muted);
+}
