@@ -21,6 +21,9 @@ supabase/.branches/
 # Local backup archives
 *Backup*.zip
 
+# Visual brainstorming companion scratch dir
+.superpowers/
+
 # ---- sub-project 0: Node + build + env ----
 # Node
 node_modules/
