@@ -106,3 +106,8 @@
   border-radius: 6px;
   background: linear-gradient(90deg, var(--cyan), #5ec8ff);
 }
+
+/* Area trend */
+.areatrend {
+  display: block;
+}
