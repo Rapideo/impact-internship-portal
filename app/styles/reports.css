@@ -111,3 +111,45 @@
 .areatrend {
   display: block;
 }
+
+/* Scope filter bar */
+.reports-scopebar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  padding: 10px 14px;
+  margin: 16px 0 4px;
+  flex-wrap: wrap;
+}
+.reports-scopebar__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.reports-scopebar__select {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--canvas);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 7px 10px;
+}
+.reports-scopebar__select:disabled {
+  opacity: 0.5;
+}
+.reports-scopebar__chip {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  background: var(--navy);
+  color: var(--white);
+  border-radius: 20px;
+  padding: 6px 12px;
+}
