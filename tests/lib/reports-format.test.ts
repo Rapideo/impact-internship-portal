@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { pct } from '../app/lib/reports-format';
+import { pct } from '../../app/lib/reports-format';
 
 describe('pct', () => {
   it('returns a rounded percentage', () => {
