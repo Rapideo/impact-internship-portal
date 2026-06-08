@@ -7,7 +7,14 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import * as schema from '../../db/schema';
-import { getKpis, getInternsByGroup, getOutcomeRates } from '../../app/lib/reports-queries.server';
+import {
+  getKpis,
+  getInternsByGroup,
+  getOutcomeRates,
+  getAssessmentCompletion,
+  getBarrierDistribution,
+  getSubmissionsTrend,
+} from '../../app/lib/reports-queries.server';
 
 const RIVERBEND = '11111111-1111-1111-1111-111111111101';
 const NORTHSIDE = '11111111-1111-1111-1111-111111111102';
@@ -65,5 +72,32 @@ describe('reports-queries: getOutcomeRates', () => {
     const o = await getOutcomeRates(db, { level: 'global' });
     expect(o.ninetyDay).toEqual({ numerator: 0, denominator: 6 });
     expect(o.oneEightyDay).toEqual({ numerator: 0, denominator: 6 });
+  });
+});
+
+describe('reports-queries: completion / barriers / trend', () => {
+  it('returns all five assessment types with a zero seed', async () => {
+    const rows = await getAssessmentCompletion(db, { level: 'global' });
+    expect(rows).toHaveLength(5);
+    const competency = rows.find((r) => r.key === 'competency');
+    expect(competency).toMatchObject({ completed: 0, total: 6 });
+  });
+
+  it('counts distinct interns per barrier, desc', async () => {
+    const rows = await getBarrierDistribution(db, { level: 'global' });
+    expect(rows).toHaveLength(5); // 5 distinct barriers across seeded interns
+    rows.forEach((r) => expect(r.count).toBe(1));
+    expect(rows.map((r) => r.label)).toContain('Transportation');
+  });
+
+  it('scopes barriers to the employer', async () => {
+    const rows = await getBarrierDistribution(db, { level: 'employer', employerId: NORTHSIDE });
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ label: 'Childcare', count: 1 });
+  });
+
+  it('returns an empty trend when there are no submissions', async () => {
+    const rows = await getSubmissionsTrend(db, { level: 'global' });
+    expect(rows).toEqual([]);
   });
 });
