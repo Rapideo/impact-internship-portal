@@ -27,9 +27,16 @@ const COHORT_NORTHSIDE = '33333333-3333-3333-3333-333333333302';
 let sql: ReturnType<typeof postgres>;
 let db: ReturnType<typeof drizzle<typeof schema>>;
 
-beforeAll(() => {
+beforeAll(async () => {
   sql = postgres(process.env.DATABASE_URL!, { max: 1 });
   db = drizzle(sql, { schema });
+  // These assertions are anchored to the seed's baseline, which has zero
+  // assessment_submissions (db/seed.ts truncates the table and never refills
+  // it). The rls suite shares one database and runs serially; sibling files
+  // (e.g. employer-scope.test.ts) commit competency / exit-survey rows for
+  // seeded interns. This file runs last alphabetically, so reset to the seed
+  // baseline here to keep the submission-derived metrics deterministic.
+  await sql`DELETE FROM public.assessment_submissions`;
 });
 afterAll(async () => {
   await sql.end();
