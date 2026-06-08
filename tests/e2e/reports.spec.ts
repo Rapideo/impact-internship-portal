@@ -38,8 +38,9 @@ test.describe('Reports dashboard', () => {
 
     await page.goto('/admin/reports');
     await expect(page.getByRole('heading', { name: /program reports/i })).toBeVisible();
-    // Global scope shows the Employers KPI tile.
-    await expect(page.getByText('Employers')).toBeVisible();
+    // Global scope shows the Employers KPI tile. exact:true so we match the
+    // KPI label and not the scope bar's "All Employers" option.
+    await expect(page.getByText('Employers', { exact: true })).toBeVisible();
     await expect(page.locator('.reports-scopebar__chip')).toContainText(/program-wide/i);
 
     // Scope to one employer via the filter; the chart heading flips to cohort.
@@ -59,7 +60,7 @@ test.describe('Reports dashboard', () => {
     await expect(page).toHaveURL(/\/employer\/reports/);
     await expect(page.getByRole('heading', { name: /your reports/i })).toBeVisible();
     // Employer scope omits the global-only Employers KPI tile and pins scope.
-    await expect(page.getByText('Employers')).toHaveCount(0);
+    await expect(page.getByText('Employers', { exact: true })).toHaveCount(0);
     await expect(page.getByText('Interns by Cohort')).toBeVisible();
   });
 });
