@@ -6,7 +6,7 @@
 // the cohort select.
 
 import type { ChangeEvent } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 
 export interface ReportsScopeBarProps {
   mode: 'admin' | 'employer';
@@ -26,10 +26,11 @@ export function ReportsScopeBar({
   scopeLabel,
 }: ReportsScopeBarProps) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   function go(next: URLSearchParams) {
     const qs = next.toString();
-    navigate(qs ? `?${qs}` : '?');
+    navigate(qs ? `?${qs}` : location.pathname);
   }
 
   function onEmployer(e: ChangeEvent<HTMLSelectElement>) {
