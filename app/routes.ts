@@ -90,6 +90,7 @@ export default [
   layout('routes/employer.tsx', [
     route('employer', 'routes/employer._index.tsx'),
     route('employer/assessments', 'routes/employer.assessments._index.tsx'),
+    route('employer/reports', 'routes/employer.reports.tsx'),
     route('employer/cohorts', 'routes/employer.cohorts._index.tsx'),
     route('employer/cohorts/:cohortId', 'routes/employer.cohorts.$cohortId.tsx'),
     route('employer/interns', 'routes/employer.interns._index.tsx'),

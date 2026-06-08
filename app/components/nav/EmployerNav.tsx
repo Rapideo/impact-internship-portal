@@ -17,6 +17,7 @@ const LINKS: ReadonlyArray<{ to: string; label: string; end?: boolean }> = [
   { to: '/employer/cohorts', label: 'Cohorts' },
   { to: '/employer/interns', label: 'Interns' },
   { to: '/employer/assessments', label: 'Assessments' },
+  { to: '/employer/reports', label: 'Reports' },
   { to: '/employer/profile', label: 'Org Details' },
 ];
 
