@@ -26,7 +26,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const cohortIdRaw = url.searchParams.get('cohortId');
   if (cohortIdRaw && !UUID_RE.test(cohortIdRaw)) {
-    throw new Response('Bad Request', { status: 400 });
+    throw new Response('Bad Request', { status: 400, headers });
   }
 
   const resolved = await resolveEmployerScope(db, auth.employerId, cohortIdRaw);

@@ -20,10 +20,10 @@ export async function loader({ request }: Route.LoaderArgs) {
   const cohortIdRaw = url.searchParams.get('cohortId');
 
   if (employerIdRaw && !UUID_RE.test(employerIdRaw)) {
-    throw new Response('Bad Request', { status: 400 });
+    throw new Response('Bad Request', { status: 400, headers });
   }
   if (cohortIdRaw && !UUID_RE.test(cohortIdRaw)) {
-    throw new Response('Bad Request', { status: 400 });
+    throw new Response('Bad Request', { status: 400, headers });
   }
 
   const resolved = await resolveAdminScope(db, employerIdRaw, cohortIdRaw);
