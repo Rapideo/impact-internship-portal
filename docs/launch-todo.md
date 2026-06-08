@@ -22,8 +22,10 @@ for how the pipeline works and `CLAUDE.md` for current infra state.
 
 ## SP6 launch-plan phases still open
 
-- [ ] **Reports (Phase C).** Admin Reports is a "coming soon" placeholder; needs
-      real aggregate queries + stakeholder input on which metrics to show.
+- [x] **Reports (Phase C).** Admin + employer reports dashboards built — KPI
+      tiles, bars, gauges, meters, and an activity trend, with employer/cohort
+      scope filtering. Outcome denominator = all in-scope interns (v1 rule).
+      Stakeholder input on *which* metrics matter most can still refine it.
 - [x] **Sentry (Phase E).** DSN set on the production context + `handleError`
       wired (`createSentryHandleError`) so loader/action/render errors are
       captured — `Sentry.init()` alone didn't do that. Active on prod after
