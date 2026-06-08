@@ -16,13 +16,25 @@ const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD ?? 'DevPassword123!';
 const EMPLOYER_EMAIL = process.env.E2E_EMPLOYER_EMAIL ?? 'employer1@example.com';
 const EMPLOYER_PASSWORD = process.env.E2E_EMPLOYER_PASSWORD ?? 'DevPassword123!';
 
+async function signInAsAdmin(page: import('@playwright/test').Page) {
+  await page.goto('/login');
+  await page.getByLabel(/email/i).fill(ADMIN_EMAIL);
+  await page.getByLabel(/password/i).fill(ADMIN_PASSWORD);
+  await page.getByRole('button', { name: /sign in/i }).click();
+  await expect(page).toHaveURL(/\/admin$/);
+}
+
+async function signInAsEmployer(page: import('@playwright/test').Page) {
+  await page.goto('/login');
+  await page.getByLabel(/email/i).fill(EMPLOYER_EMAIL);
+  await page.getByLabel(/password/i).fill(EMPLOYER_PASSWORD);
+  await page.getByRole('button', { name: /sign in/i }).click();
+  await expect(page).toHaveURL(/\/employer$/);
+}
+
 test.describe('Reports dashboard', () => {
   test('admin sees the global reports dashboard and can scope by employer', async ({ page }) => {
-    await page.goto('/login');
-    await page.getByLabel(/email/i).fill(ADMIN_EMAIL);
-    await page.getByLabel(/password/i).fill(ADMIN_PASSWORD);
-    await page.getByRole('button', { name: /sign in/i }).click();
-    await expect(page).toHaveURL(/\/admin$/);
+    await signInAsAdmin(page);
 
     await page.goto('/admin/reports');
     await expect(page.getByRole('heading', { name: /program reports/i })).toBeVisible();
@@ -37,12 +49,9 @@ test.describe('Reports dashboard', () => {
   });
 
   test('employer sees only their own scoped reports', async ({ page }) => {
-    await page.goto('/login');
-    await page.getByLabel(/email/i).fill(EMPLOYER_EMAIL);
-    await page.getByLabel(/password/i).fill(EMPLOYER_PASSWORD);
-    await page.getByRole('button', { name: /sign in/i }).click();
-    await expect(page).toHaveURL(/\/employer$/);
+    await signInAsEmployer(page);
 
+    // Nav and Quick Links both render a "Reports" link; .first() picks the nav entry.
     await page
       .getByRole('link', { name: /^Reports$/ })
       .first()
