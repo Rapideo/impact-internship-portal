@@ -35,11 +35,16 @@ function internScopePredicate(scope: ReportsScope): SQL {
   return isNull(interns.deletedAt);
 }
 
-export async function getKpis(db: DB, scope: ReportsScope) {
+/** Count of in-scope, non-deleted interns — the shared denominator. */
+async function countActiveInterns(db: DB, scope: ReportsScope): Promise<number> {
+  const [row] = await db.select({ n: count() }).from(interns).where(internScopePredicate(scope));
+  return Number(row?.n ?? 0);
+}
+
+export async function getKpis(db: DB, scope: ReportsScope, activeInternsCount?: number) {
   const wherePred = internScopePredicate(scope);
 
-  const [activeRow] = await db.select({ n: count() }).from(interns).where(wherePred);
-  const activeInterns = Number(activeRow?.n ?? 0);
+  const activeInterns = activeInternsCount ?? (await countActiveInterns(db, scope));
 
   const [emp90Row] = await db
     .select({ n: count() })
@@ -107,10 +112,9 @@ export async function getInternsByGroup(db: DB, scope: ReportsScope) {
   };
 }
 
-export async function getOutcomeRates(db: DB, scope: ReportsScope) {
+export async function getOutcomeRates(db: DB, scope: ReportsScope, activeInternsCount?: number) {
   const wherePred = internScopePredicate(scope);
-  const [activeRow] = await db.select({ n: count() }).from(interns).where(wherePred);
-  const denominator = Number(activeRow?.n ?? 0);
+  const denominator = activeInternsCount ?? (await countActiveInterns(db, scope));
 
   const [n90] = await db
     .select({ n: count() })
@@ -138,10 +142,13 @@ const ASSESSMENT_TYPES = [
   { key: 'exit-employer-survey', label: 'Exit Employer Survey' },
 ] as const;
 
-export async function getAssessmentCompletion(db: DB, scope: ReportsScope) {
+export async function getAssessmentCompletion(
+  db: DB,
+  scope: ReportsScope,
+  activeInternsCount?: number,
+) {
   const wherePred = internScopePredicate(scope);
-  const [activeRow] = await db.select({ n: count() }).from(interns).where(wherePred);
-  const total = Number(activeRow?.n ?? 0);
+  const total = activeInternsCount ?? (await countActiveInterns(db, scope));
 
   const rows = await db
     .select({
@@ -198,12 +205,13 @@ export async function getSubmissionsTrend(db: DB, scope: ReportsScope) {
 }
 
 export async function getReportsData(db: DB, scope: ReportsScope): Promise<ReportsData> {
+  const activeInterns = await countActiveInterns(db, scope);
   const [kpis, internsByGroup, outcomes, assessmentCompletion, barrierRows, trend] =
     await Promise.all([
-      getKpis(db, scope),
+      getKpis(db, scope, activeInterns),
       getInternsByGroup(db, scope),
-      getOutcomeRates(db, scope),
-      getAssessmentCompletion(db, scope),
+      getOutcomeRates(db, scope, activeInterns),
+      getAssessmentCompletion(db, scope, activeInterns),
       getBarrierDistribution(db, scope),
       getSubmissionsTrend(db, scope),
     ]);
