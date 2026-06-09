@@ -154,6 +154,7 @@ npm run dev                 # http://localhost:5173
 ## SP2 (Admin core) — key carry-over
 
 - `app/routes/admin.interns.new.tsx` first-name hint says "Only the first initial is saved" but the validator (`requireSingleCharUpper`) rejects multi-character input. Either fix the hint to "Enter the intern's first initial (one letter)." or have the action accept full names and slice to `firstName.trim()[0]`. Test currently feeds a single letter.
+- **Admin User Management** lives at `/admin/settings/users` (`app/lib/users.server.ts`): create admin/employer accounts (password or invite), change role/employer, and reversibly deactivate via Supabase ban; account status is derived from `auth.users` fields at read time (no schema change).
 
 ## SP4 (Assessment forms) — contracts to preserve
 
