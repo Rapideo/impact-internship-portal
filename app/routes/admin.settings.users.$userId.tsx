@@ -45,7 +45,8 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   const supabase = createSupabaseServerClient(request, headers);
   const { data: claims } = await supabase.auth.getClaims();
-  const actingUserId = (claims?.claims?.sub as string | undefined) ?? '';
+  const actingUserId = claims?.claims?.sub as string | undefined;
+  if (!actingUserId) throw new Response('Unauthorized', { status: 401, headers });
 
   const form = await request.formData();
   const intent = String(form.get('intent') ?? '');

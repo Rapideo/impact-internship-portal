@@ -144,7 +144,8 @@ export default function NewUser() {
               <input
                 className="input"
                 name="password"
-                type="text"
+                type="password"
+                autoComplete="off"
                 minLength={8}
                 placeholder="At least 8 characters"
                 style={{ marginTop: 8 }}
