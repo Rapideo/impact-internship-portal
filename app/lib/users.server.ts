@@ -93,15 +93,16 @@ export function guardLockout(opts: {
 }): string | null {
   const { accounts, actingUserId, targetUserId, action, nextRole } = opts;
   const target = accounts.find((a) => a.userId === targetUserId);
+  if (!target) return 'Target account not found.';
   const losesAdmin =
     action === 'deactivate'
-      ? target?.role === 'admin'
-      : target?.role === 'admin' && nextRole !== 'admin';
+      ? target.role === 'admin'
+      : target.role === 'admin' && nextRole !== 'admin';
 
   if (targetUserId === actingUserId && (action === 'deactivate' || losesAdmin)) {
     return "You can't change your own account's access.";
   }
-  if (losesAdmin && target?.status === 'active') {
+  if (losesAdmin && target.status === 'active') {
     const remaining = accounts.filter(
       (a) => a.role === 'admin' && a.status === 'active' && a.userId !== targetUserId,
     ).length;
@@ -241,7 +242,8 @@ export async function cancelInvite(args: { userId: string }): Promise<void> {
 /** Resend an invite: delete + re-invite using the existing profile's role/employer. */
 export async function resendInvite(args: { userId: string }): Promise<void> {
   const account = await getAccount(args.userId);
-  if (!account || !account.email) throw new Error('Account not found');
+  if (!account) throw new Error('Account not found');
+  if (!account.email) throw new Error('Account has no email address; cannot resend invite');
   await cancelInvite({ userId: args.userId });
   await inviteAccount({ email: account.email, role: account.role, employerId: account.employerId });
 }

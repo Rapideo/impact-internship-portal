@@ -166,4 +166,14 @@ describe('guardLockout', () => {
       }),
     ).toBeNull();
   });
+  it('blocks an unknown target user', () => {
+    expect(
+      guardLockout({
+        accounts,
+        actingUserId: 'admin1',
+        targetUserId: 'nope',
+        action: 'deactivate',
+      }),
+    ).toMatch(/not found/i);
+  });
 });
