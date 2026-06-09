@@ -83,12 +83,25 @@ export async function action({ request, params }: Route.ActionArgs) {
       throw redirect(`${backTo}?updated=1`, { headers });
     }
     if (intent === 'resend') {
+      const target = await getAccount(userId);
+      if (!target) return data({ error: 'Account not found.' }, { headers });
+      if (target.status !== 'invited') {
+        return data(
+          { error: 'Only pending invite accounts can have their invite resent.' },
+          { headers },
+        );
+      }
       await resendInvite({ userId });
       throw redirect('/admin/settings/users?resent=1', { headers });
     }
     if (intent === 'cancel') {
       if (userId === actingUserId)
         return data({ error: "You can't remove your own account." }, { headers });
+      const target = await getAccount(userId);
+      if (!target) return data({ error: 'Account not found.' }, { headers });
+      if (target.status !== 'invited') {
+        return data({ error: 'Only pending invite accounts can be cancelled.' }, { headers });
+      }
       await cancelInvite({ userId });
       throw redirect('/admin/settings/users?cancelled=1', { headers });
     }
