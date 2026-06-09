@@ -23,6 +23,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx db/seed.ts",
+    "db:seed:demo": "tsx db/seed-demo.ts",
     "db:seed-prod": "tsx db/seed-prod.ts",
     "db:apply-policies": "tsx db/apply-policies.ts",
     "admin:create": "tsx scripts/create-admin.ts",
