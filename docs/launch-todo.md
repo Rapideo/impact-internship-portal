@@ -36,6 +36,15 @@ for how the pipeline works and `CLAUDE.md` for current infra state.
 
 ## Hardening / cleanup
 
+- [ ] **Stop impact-prod auto-pausing (free tier).** Both Supabase projects are
+      on the free tier, which **auto-pauses after ~7 days of inactivity** —
+      this took prod fully down on 2026-06-08 (~13 days after launch): paused =
+      `<ref>.supabase.co` drops from DNS, so every login returned "Invalid email
+      or password" and password reset silently no-op'd. Resuming in the
+      dashboard restored it. **Upgrade impact-prod off the free tier** (paid =
+      no auto-pause) before real use; a periodic keep-warm ping is a weaker
+      stopgap. Recognize the symptom fast: keyless `curl <ref>.supabase.co`
+      → "Could not resolve host" when paused, HTTP 401 when live.
 - [ ] **`#77` DB-role separation.** `db` and `dbService` still share one
       BYPASSRLS connection. Split `DATABASE_SERVICE_URL` from `DATABASE_POOL_URL`
       and downgrade the pool to a real `anon` Postgres role for genuine RLS.
