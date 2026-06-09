@@ -1,9 +1,16 @@
 import { NavLink } from 'react-router';
 
-export type SettingsTab = 'employers' | 'questions' | 'phases' | 'barriers' | 'program-info';
+export type SettingsTab =
+  | 'employers'
+  | 'users'
+  | 'questions'
+  | 'phases'
+  | 'barriers'
+  | 'program-info';
 
 const ITEMS: Array<{ tab: SettingsTab; to: string; label: string }> = [
   { tab: 'employers', to: '/admin/settings/employers', label: 'Employers' },
+  { tab: 'users', to: '/admin/settings/users', label: 'Users' },
   { tab: 'questions', to: '/admin/settings/questions', label: 'Assessments' },
   { tab: 'phases', to: '/admin/settings/phases', label: 'Assessment Phases' },
   { tab: 'barriers', to: '/admin/settings/barriers', label: 'Barriers' },

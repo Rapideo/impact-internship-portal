@@ -72,6 +72,9 @@ export default [
     route('admin/settings/phases', 'routes/admin.settings.phases.tsx'),
     route('admin/settings/barriers', 'routes/admin.settings.barriers.tsx'),
     route('admin/settings/program-info', 'routes/admin.settings.program-info.tsx'),
+    route('admin/settings/users', 'routes/admin.settings.users._index.tsx'),
+    route('admin/settings/users/new', 'routes/admin.settings.users.new.tsx'),
+    route('admin/settings/users/:userId', 'routes/admin.settings.users.$userId.tsx'),
     route('admin/settings/questions', 'routes/admin.settings.questions._index.tsx'),
     route(
       'admin/settings/questions/competency',
