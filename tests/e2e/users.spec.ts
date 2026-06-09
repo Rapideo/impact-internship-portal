@@ -30,8 +30,8 @@ test('admin creates an employer user via the password path and sees it listed', 
   await expect(page).toHaveURL(/\/admin\/settings\/users\/new/);
 
   const email = `e2e+${Date.now()}@example.com`;
-  await page.getByLabel(/email/i).fill(email);
-  await page.getByLabel(/role/i).selectOption('employer');
+  await page.getByLabel(/^Email$/i).fill(email);
+  await page.getByLabel(/^Role$/i).selectOption('employer');
   await page.getByLabel(/^Employer$/i).selectOption({ index: 1 });
   await page.getByLabel(/set a password now/i).check();
   await page.getByPlaceholder(/at least 8 characters/i).fill('Tk7mQ2x9pLa');
