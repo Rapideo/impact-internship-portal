@@ -45,8 +45,9 @@ for how the pipeline works and `CLAUDE.md` for current infra state.
       no auto-pause) before real use; a periodic keep-warm ping is a weaker
       stopgap. Recognize the symptom fast: keyless `curl <ref>.supabase.co`
       → "Could not resolve host" when paused, HTTP 401 when live.
-- [ ] **Enable the keep-alive cron (add anon-key secrets).** PR #122 adds a
-      scheduled GitHub Action that pings both projects every ~3 days, but it
+- [ ] **Enable the keep-alive cron (add anon-key secrets).** PR #122 (merged)
+      added a scheduled GitHub Action (`.github/workflows/keepalive.yml`) that
+      pings both projects every ~3 days, but it
       warn-and-skips until two repo secrets exist: `SUPABASE_DEV_ANON_KEY` +
       `SUPABASE_PROD_ANON_KEY` (the anon/public keys from Supabase → Project
       Settings → API). Add at GitHub → Settings → Secrets and variables →
