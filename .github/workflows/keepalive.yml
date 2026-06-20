@@ -1,0 +1,56 @@
+name: Supabase keep-alive
+
+# Free-tier Supabase projects auto-pause after ~7 days of inactivity (this took
+# impact-prod down on 2026-06-08: login + password reset failed because the
+# project endpoint was de-registered from DNS). This workflow pings both
+# projects every ~3 days so the inactivity timer never reaches the pause
+# threshold. It PREVENTS pausing — it cannot un-pause an already-paused project
+# (resume that from the Supabase dashboard).
+#
+# Setup: add two repo secrets, each project's anon (public) key:
+#   SUPABASE_DEV_ANON_KEY   (impact-dev,  ref zdrxxcbhiovoaubkcqfj)
+#   SUPABASE_PROD_ANON_KEY  (impact-prod, ref ptnhzdkspzquwcxdoqbt)
+# Until they're set, the steps warn-and-skip (the workflow stays green).
+# Scheduled workflows only run from the default branch (main) after merge.
+
+on:
+  schedule:
+    - cron: '17 7 */3 * *' # every ~3 days at 07:17 UTC (max gap < the 7-day window)
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping impact-dev
+        env:
+          KEY: ${{ secrets.SUPABASE_DEV_ANON_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "::warning::SUPABASE_DEV_ANON_KEY not set — skipping impact-dev"
+            exit 0
+          fi
+          code=$(curl -s -o /dev/null -w '%{http_code}' \
+            "https://zdrxxcbhiovoaubkcqfj.supabase.co/rest/v1/" \
+            -H "apikey: $KEY" -H "Authorization: Bearer $KEY")
+          echo "impact-dev REST ping -> HTTP $code"
+          if [ "$code" = "000" ]; then
+            echo "::error::impact-dev unreachable (paused or down)"
+            exit 1
+          fi
+      - name: Ping impact-prod
+        env:
+          KEY: ${{ secrets.SUPABASE_PROD_ANON_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "::warning::SUPABASE_PROD_ANON_KEY not set — skipping impact-prod"
+            exit 0
+          fi
+          code=$(curl -s -o /dev/null -w '%{http_code}' \
+            "https://ptnhzdkspzquwcxdoqbt.supabase.co/rest/v1/" \
+            -H "apikey: $KEY" -H "Authorization: Bearer $KEY")
+          echo "impact-prod REST ping -> HTTP $code"
+          if [ "$code" = "000" ]; then
+            echo "::error::impact-prod unreachable (paused or down)"
+            exit 1
+          fi

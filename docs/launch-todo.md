@@ -45,6 +45,13 @@ for how the pipeline works and `CLAUDE.md` for current infra state.
       no auto-pause) before real use; a periodic keep-warm ping is a weaker
       stopgap. Recognize the symptom fast: keyless `curl <ref>.supabase.co`
       → "Could not resolve host" when paused, HTTP 401 when live.
+- [ ] **Enable the keep-alive cron (add anon-key secrets).** PR #122 adds a
+      scheduled GitHub Action that pings both projects every ~3 days, but it
+      warn-and-skips until two repo secrets exist: `SUPABASE_DEV_ANON_KEY` +
+      `SUPABASE_PROD_ANON_KEY` (the anon/public keys from Supabase → Project
+      Settings → API). Add at GitHub → Settings → Secrets and variables →
+      Actions, then run it once (Actions → Supabase keep-alive → Run workflow)
+      and confirm both report HTTP 200. Stopgap until the free-tier upgrade above.
 - [ ] **`#77` DB-role separation.** `db` and `dbService` still share one
       BYPASSRLS connection. Split `DATABASE_SERVICE_URL` from `DATABASE_POOL_URL`
       and downgrade the pool to a real `anon` Postgres role for genuine RLS.
