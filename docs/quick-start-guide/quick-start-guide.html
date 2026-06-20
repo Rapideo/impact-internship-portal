@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>IMPACT Portal — Quick Start &amp; Testing Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --navy: #153a98;
+        --navy-deep: #051028;
+        --cyan: #00a6f6;
+        --gold: #ffd71f;
+        --canvas: #eff1f5;
+        --ink: #0d1830;
+        --muted: #5b6480;
+        --line: #d4d9e3;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: 'IBM Plex Sans', system-ui, sans-serif;
+        color: var(--ink);
+        background: #fff;
+        font-size: 11.5px;
+        line-height: 1.55;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      /* Each .page is one printed Letter page. */
+      .page {
+        position: relative;
+        width: 8.5in;
+        min-height: 10.4in; /* 11in page minus the 0.6in bottom margin Chromium reserves for the footer */
+        padding: 0.5in 0.7in 0.2in;
+        page-break-after: always;
+        break-after: page;
+      }
+      .page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      /* Typography */
+      h1,
+      h2,
+      h3 {
+        font-family: 'Archivo Black', 'IBM Plex Sans', sans-serif;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+        color: var(--ink);
+        margin: 0;
+      }
+      .eyebrow {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 9px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--cyan);
+        font-weight: 600;
+      }
+      .lead {
+        color: var(--muted);
+        font-size: 12px;
+        max-width: 64ch;
+      }
+      p {
+        margin: 0 0 8px;
+      }
+      strong {
+        color: var(--ink);
+      }
+      code {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.92em;
+        background: #eef1f7;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 1px 5px;
+        color: var(--navy);
+      }
+
+      /* Section header band */
+      .sec-head {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        border-bottom: 2px solid var(--navy);
+        padding-bottom: 10px;
+        margin-bottom: 14px;
+      }
+      .sec-num {
+        font-family: 'Archivo Black', sans-serif;
+        font-size: 30px;
+        line-height: 1;
+        color: var(--gold);
+        -webkit-text-stroke: 1px var(--navy);
+      }
+      .sec-head h2 {
+        font-size: 23px;
+        line-height: 1.05;
+        text-transform: uppercase;
+      }
+
+      /* Screenshot frames (cover-crop from top so the most important content shows) */
+      .frame {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        box-shadow: 0 8px 22px rgba(5, 16, 40, 0.13);
+        background: #fff;
+        overflow: hidden;
+        margin: 10px 0;
+      }
+      .frame img {
+        display: block;
+        width: 100%;
+        object-fit: cover;
+        object-position: top center;
+        height: 3.0in;
+      }
+      .frame--tall img {
+        height: 5.7in;
+      }
+      .frame--reports img {
+        height: 6.4in;
+      }
+      .frame--mid img {
+        height: 3.3in;
+      }
+      .frame--sm img {
+        height: 1.9in;
+      }
+      .frame--chooser img {
+        height: 2.9in;
+        object-position: top center;
+      }
+      .caption {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 8.5px;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        margin: 4px 2px 0;
+        text-transform: uppercase;
+      }
+      .cols {
+        display: flex;
+        gap: 12px;
+      }
+      .cols > * {
+        flex: 1;
+        min-width: 0;
+      }
+
+      /* Callouts */
+      .callout {
+        border-radius: 9px;
+        padding: 11px 13px;
+        margin: 11px 0;
+        font-size: 11px;
+        border: 1px solid var(--line);
+        background: #f6f8fc;
+      }
+      .callout .label {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 8.5px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 3px;
+      }
+      .callout--tip {
+        border-left: 4px solid var(--cyan);
+      }
+      .callout--tip .label {
+        color: var(--cyan);
+      }
+      .callout--note {
+        border-left: 4px solid var(--gold);
+        background: #fffdf2;
+      }
+      .callout--note .label {
+        color: #a9851a;
+      }
+
+      ul.clean,
+      ol.clean {
+        margin: 6px 0 8px;
+        padding-left: 18px;
+      }
+      ul.clean li,
+      ol.clean li {
+        margin-bottom: 5px;
+      }
+
+      /* Step pills */
+      .steps {
+        counter-reset: step;
+        margin: 10px 0;
+        padding: 0;
+        list-style: none;
+      }
+      .steps li {
+        position: relative;
+        padding: 2px 0 9px 30px;
+        margin: 0;
+      }
+      .steps li::before {
+        counter-increment: step;
+        content: counter(step);
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 20px;
+        height: 20px;
+        background: var(--navy);
+        color: #fff;
+        border-radius: 50%;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 10px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .pill {
+        display: inline-block;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 9px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        background: var(--navy);
+        color: #fff;
+        border-radius: 20px;
+        padding: 2px 9px;
+        margin: 0 3px 3px 0;
+      }
+      .pill--cyan {
+        background: var(--cyan);
+      }
+      .pill--ghost {
+        background: #fff;
+        color: var(--navy);
+        border: 1px solid var(--navy);
+      }
+
+      /* ===== Cover ===== */
+      .cover {
+        background:
+          radial-gradient(1200px 700px at 78% -8%, rgba(0, 166, 246, 0.28), transparent 60%),
+          radial-gradient(900px 600px at -5% 108%, rgba(21, 58, 152, 0.55), transparent 55%),
+          var(--navy-deep);
+        color: #fff;
+        padding: 0.9in 0.85in;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .cover .wordmark {
+        font-family: 'Archivo Black', sans-serif;
+        font-size: 40px;
+        letter-spacing: 0.01em;
+        line-height: 1;
+      }
+      .cover .wordmark .i {
+        color: #fff;
+      }
+      .cover .wordmark .accent {
+        color: var(--cyan);
+      }
+      .cover .tagline {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.34em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-top: 8px;
+      }
+      .cover .gold-rule {
+        width: 84px;
+        height: 6px;
+        background: var(--gold);
+        border-radius: 3px;
+        margin: 26px 0 20px;
+      }
+      .cover h1 {
+        color: #fff;
+        font-size: 50px;
+        line-height: 0.98;
+        letter-spacing: -0.02em;
+      }
+      .cover .sub {
+        color: #c6d2ec;
+        font-size: 15px;
+        max-width: 50ch;
+        margin-top: 16px;
+        line-height: 1.5;
+      }
+      .cover .meta {
+        display: flex;
+        gap: 30px;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        color: #9fb0d4;
+        text-transform: uppercase;
+      }
+      .cover .meta b {
+        color: #fff;
+        display: block;
+        font-weight: 600;
+        margin-top: 3px;
+        font-size: 11px;
+      }
+
+      /* Access card on page 2 */
+      .access {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .access .top {
+        background: var(--navy-deep);
+        color: #fff;
+        padding: 10px 14px;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 9px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      .access .rows {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .access .cell {
+        padding: 11px 14px;
+        border-top: 1px solid var(--line);
+      }
+      .access .cell:nth-child(odd) {
+        border-right: 1px solid var(--line);
+      }
+      .access .k {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 8.5px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .access .v {
+        font-size: 13px;
+        font-weight: 600;
+        margin-top: 2px;
+        word-break: break-all;
+      }
+
+      .role-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 12px 0;
+      }
+      .role {
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 11px 12px;
+      }
+      .role h3 {
+        font-size: 13px;
+        margin-bottom: 4px;
+      }
+      .role .tag {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 8px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #fff;
+        background: var(--navy);
+        border-radius: 12px;
+        padding: 1px 7px;
+      }
+      .role p {
+        font-size: 10px;
+        color: var(--muted);
+        margin: 6px 0 0;
+      }
+
+      .two {
+        display: grid;
+        grid-template-columns: 1.15fr 1fr;
+        gap: 16px;
+        align-items: start;
+      }
+      .mini {
+        font-size: 10.5px;
+      }
+      .checkgrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px 18px;
+        margin: 8px 0;
+        font-size: 10.5px;
+      }
+      .checkgrid div::before {
+        content: '☐';
+        color: var(--navy);
+        margin-right: 7px;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ============ PAGE 1 — COVER ============ -->
+    <section class="page cover">
+      <div>
+        <div class="wordmark"><span class="i">IM</span><span class="accent">P</span>ACT</div>
+        <div class="tagline">Expand Your Opportunities</div>
+      </div>
+      <div>
+        <div class="gold-rule"></div>
+        <h1>Quick&nbsp;Start<br />&amp; Testing Guide</h1>
+        <div class="sub">
+          A guided tour of the IMPACT Internship Assessment Portal for the program team —
+          everything you need to sign in, explore each area, and put it through its paces.
+        </div>
+      </div>
+      <div class="meta">
+        <div>Audience<b>Program Staff &amp; Testers</b></div>
+        <div>Environment<b>Staging / Test</b></div>
+        <div>Version<b>June 2026 · v1</b></div>
+      </div>
+    </section>
+
+    <!-- ============ PAGE 2 — WELCOME & ACCESS ============ -->
+    <section class="page">
+      <div class="sec-head">
+        <span class="sec-num">01</span>
+        <div>
+          <div class="eyebrow">Welcome</div>
+          <h2>Getting into the test environment</h2>
+        </div>
+      </div>
+
+      <p class="lead">
+        The IMPACT portal tracks interns through your program — from intake and entry assessment,
+        through competency and self-assessments, to 90- and 180-day employment outcomes. This guide
+        walks the <strong>admin (program-staff)</strong> experience so you can test every area.
+      </p>
+
+      <div class="access">
+        <div class="top">Test environment access</div>
+        <div class="rows">
+          <div class="cell">
+            <div class="k">Test URL</div>
+            <div class="v">Shared with your invite</div>
+          </div>
+          <div class="cell">
+            <div class="k">Sign-in</div>
+            <div class="v">Email + password</div>
+          </div>
+          <div class="cell">
+            <div class="k">Email</div>
+            <div class="v">admin@example.com</div>
+          </div>
+          <div class="cell">
+            <div class="k">Password</div>
+            <div class="v">DevPassword123!</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout--note">
+        <span class="label">This is a sandbox</span>
+        You're working against a <strong>test database seeded with realistic demo data</strong> —
+        ~25 employers, ~40 cohorts, and ~140 interns. Click freely: you can't hurt real program data,
+        and the dataset can be refreshed at any time. <strong>Do not use the live production site for
+        testing</strong> — intern submissions there are permanent.
+      </div>
+
+      <h3 style="font-size: 14px; margin: 14px 0 4px">The three kinds of user</h3>
+      <div class="role-grid">
+        <div class="role">
+          <span class="tag">Admin</span>
+          <h3>Program staff</h3>
+          <p>Full access — manages employers, cohorts, interns, assessments, reports, and accounts. This is the role you'll test with.</p>
+        </div>
+        <div class="role">
+          <span class="tag">Employer</span>
+          <h3>Partner orgs</h3>
+          <p>Signs in to see only their own cohorts and interns, and to complete competency &amp; exit surveys for them.</p>
+        </div>
+        <div class="role">
+          <span class="tag">Intern</span>
+          <h3>Anonymous</h3>
+          <p>No login. Confirms identity (initial + last name + cohort) and completes three one-time self-assessments.</p>
+        </div>
+      </div>
+
+      <div class="callout callout--tip">
+        <span class="label">How to read this guide</span>
+        Each section pairs a short explanation with a screenshot of the real screen. Things worth
+        trying are called out in blue; things to be aware of are in gold.
+      </div>
+    </section>
+
+    <!-- ============ PAGE 3 — SIGN IN & ORIENT ============ -->
+    <section class="page">
+      <div class="sec-head">
+        <span class="sec-num">02</span>
+        <div>
+          <div class="eyebrow">Sign in</div>
+          <h2>Logging in &amp; getting oriented</h2>
+        </div>
+      </div>
+
+      <ol class="steps">
+        <li>Open the test URL — you'll land on the branded <strong>Sign in</strong> screen.</li>
+        <li>Enter the admin email and password from the access card on the previous page.</li>
+        <li>You'll arrive at the <strong>admin home</strong> dashboard for the current cohort cycle.</li>
+      </ol>
+
+      <div class="cols">
+        <div>
+          <div class="frame frame--mid"><img src="screenshots/login.png" alt="Sign in screen" /></div>
+          <div class="caption">The sign-in screen</div>
+        </div>
+        <div>
+          <div class="frame frame--mid"><img src="screenshots/admin-home.png" alt="Admin home dashboard" /></div>
+          <div class="caption">Admin home — KPIs &amp; recent activity</div>
+        </div>
+      </div>
+
+      <p style="margin-top: 12px">
+        The top navigation is your map. Every admin area hangs off these five tabs:
+      </p>
+      <p>
+        <span class="pill">Home</span><span class="pill">Interns</span><span class="pill">Assessments</span><span class="pill">Reports</span><span class="pill">Settings</span>
+        <span class="pill--ghost pill">admin chip → log out</span>
+      </p>
+      <ul class="clean mini">
+        <li><strong>Home</strong> — program-at-a-glance: active cohorts, active interns, 90-day outcomes, and the latest submissions.</li>
+        <li><strong>Interns</strong> — the roster and each intern's full record.</li>
+        <li><strong>Assessments</strong> — start competency &amp; exit-employer surveys, and review intern self-assessments.</li>
+        <li><strong>Reports</strong> — program metrics with employer/cohort filters.</li>
+        <li><strong>Settings</strong> — employers, cohorts, users, phases, barriers, questions, and program info.</li>
+      </ul>
+
+      <div class="callout callout--tip">
+        <span class="label">Try this</span>
+        From Home, use the <strong>Quick Links</strong> to jump straight into Assessments, Interns,
+        or Employers, then use the browser back button to return.
+      </div>
+    </section>
+
+    <!-- ============ PAGE 4 — EMPLOYERS & COHORTS ============ -->
+    <section class="page">
+      <div class="sec-head">
+        <span class="sec-num">03</span>
+        <div>
+          <div class="eyebrow">Settings</div>
+          <h2>Employers &amp; cohorts</h2>
+        </div>
+      </div>
+
+      <p class="lead">
+        Your program's structure is built in <strong>Settings → Employers</strong>. An employer has
+        <strong>roles</strong> (the kinds of placement they offer) and <strong>cohorts</strong> (a
+        group of interns running over a date range). Cohorts are where interns live.
+      </p>
+
+      <div class="two">
+        <div>
+          <div class="frame frame--mid"><img src="screenshots/employer-detail.png" alt="Employer detail with cohorts and roles" /></div>
+          <div class="caption">Employer detail — cohorts, roles &amp; account access</div>
+        </div>
+        <div class="mini">
+          <p><strong>The hierarchy:</strong></p>
+          <p>
+            <span class="pill--cyan pill">Employer</span> → <span class="pill--cyan pill">Role</span>
+            → <span class="pill--cyan pill">Cohort</span> → <span class="pill--cyan pill">Intern</span>
+          </p>
+          <ul class="clean">
+            <li>Open any employer row to see its cohorts and roles.</li>
+            <li><strong>+ New Cohort</strong> / <strong>+ New Role</strong> add to that employer.</li>
+            <li>Each cohort selects which <strong>phases</strong> apply (see §7).</li>
+            <li><strong>Account access</strong> invites that employer to sign in and self-serve their assessments.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="frame frame--sm"><img src="screenshots/employers-list.png" alt="Employers list" /></div>
+      <div class="caption">Settings → Employers — the full partner list (rows are clickable)</div>
+
+      <div class="callout callout--tip">
+        <span class="label">Try this</span>
+        Click <strong>+ New Employer</strong>, add a fictional org, then open it and add a role and a
+        cohort. You've just built a place to put interns.
+      </div>
+    </section>
+
+    <!-- ============ PAGE 5 — INTERNS ============ -->
+    <section class="page">
+      <div class="sec-head">
+        <span class="sec-num">04</span>
+        <div>
+          <div class="eyebrow">Interns</div>
+          <h2>Interns &amp; their records</h2>
+        </div>
+      </div>
+
+      <p class="lead">
+        The <strong>Interns</strong> tab is the roster. Each intern record is a single page that holds
+        intake, the entry assessment, self-assessment status, evaluations, and employment outcomes.
+      </p>
+
+      <div class="two">
+        <div>
+          <div class="frame">
+            <img src="screenshots/intern-detail.png" alt="Intern record" style="height: 4.9in" />
+          </div>
+          <div class="caption">A full intern record</div>
+        </div>
+        <div class="mini">
+          <p><strong>On the record you'll find:</strong></p>
+          <ul class="clean">
+            <li><strong>Identity &amp; placement</strong> — locked after creation.</li>
+            <li><strong>Entry Assessment</strong> — barriers at intake + notes.</li>
+            <li><strong>Self-Assessments</strong> — which of the three the intern has submitted.</li>
+            <li><strong>Evaluations</strong> — competency &amp; exit-survey status.</li>
+            <li><strong>Employment Details</strong> — 90-day &amp; 180-day outcome checkboxes + notes.</li>
+          </ul>
+          <div class="callout callout--note" style="margin-top: 10px">
+            <span class="label">Minimum-PII by design</span>
+            Only <strong>first initial + last name + cohort</strong> are stored. The create form
+            accepts a first name for convenience but saves just the initial.
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout--tip">
+        <span class="label">Try this</span>
+        Open an intern, tick <strong>Employed at 90 days</strong>, add a note, and Save — then watch
+        the 90-day number move on Home and Reports.
+      </div>
+    </section>
+
+    <!-- ============ PAGE 6 — ASSESSMENTS I ============ -->
+    <section class="page">
+      <div class="sec-head">
+        <span class="sec-num">05</span>
+        <div>
+          <div class="eyebrow">Assessments</div>
+          <h2>Competency &amp; exit-employer surveys</h2>
+        </div>
+      </div>
+
+      <p class="lead">
+        From the <strong>Assessments</strong> tab, admins complete two kinds of evaluation
+        <em>on behalf of employers</em>: the <strong>Competency Rubric</strong> and the
+        <strong>Exit Employer Survey</strong>. You pick an intern, then fill the form.
+      </p>
+
+      <div class="frame frame--tall"><img src="screenshots/competency-new.png" alt="Competency assessment form" /></div>
+      <div class="caption">The competency rubric — 7 shared professional domains plus role-specific skills</div>
+
+      <div class="cols" style="margin-top: 10px">
+        <div class="callout callout--tip" style="margin: 0">
+          <span class="label">How it works</span>
+          Each domain is rated <strong>Emerging / Developing / Ready</strong> with room for notes.
+          Competency is <strong>phase-specific</strong> — the phase dropdown is filtered to the
+          intern's cohort.
+        </div>
+        <div class="callout callout--note" style="margin: 0">
+          <span class="label">Three-tier rubric</span>
+          Questions stitch together at assessment time: program-wide <strong>Core 7</strong> +
+          per-cohort role skills + any per-intern items (authored in Settings → Questions).
+        </div>
+      </div>
+
+      <div class="callout callout--tip">
+        <span class="label">Try this</span>
+        Start a competency assessment from the Assessments tab (pick any intern), rate a few domains,
+        and submit. Then reopen the intern to see the evaluation recorded.
+      </div>
+    </section>
+
+    <!-- ============ PAGE 7 — ASSESSMENTS II (SELF) ============ -->
+    <section class="page">
+      <div class="sec-head">
+        <span class="sec-num">06</span>
+        <div>
+          <div class="eyebrow">Assessments</div>
+          <h2>Intern self-assessments</h2>
+        </div>
+      </div>
+
+      <p class="lead">
+        Interns complete their own reflections through a <strong>public, login-free</strong> flow.
+        They confirm their identity once, then complete up to three one-time forms: Personal Goals,
+        Midpoint Reflection, and Participant Feedback.
+      </p>
+
+      <div class="two">
+        <div>
+          <div class="frame frame--chooser"><img src="screenshots/intern-chooser.png" alt="Intern identity chooser" /></div>
+          <div class="caption">The intern's identity chooser (public)</div>
+        </div>
+        <div class="mini">
+          <ul class="clean">
+            <li>Identity = <strong>first initial + last name + employer + cohort</strong>.</li>
+            <li>Each form is <strong>one submission per intern and immutable</strong> once sent.</li>
+            <li>Admins review every submission under <strong>Assessments → Self-assessment results</strong>.</li>
+          </ul>
+          <div class="callout callout--note" style="margin-top: 8px">
+            <span class="label">Heads up</span>
+            Because self-assessments are permanent, test them in staging only — never on the live site.
+          </div>
+        </div>
+      </div>
+
+      <div class="frame frame--sm"><img src="screenshots/self-assessment-results.png" alt="Self-assessment results" /></div>
+      <div class="caption">Admin view — submitted self-assessments</div>
+
+      <div class="callout callout--tip">
+        <span class="label">Try this</span>
+        From the test URL, open <code>/intern/assessments</code>, pick an employer and cohort, enter
+        an intern's initial + last name, and walk through Personal Goals.
+      </div>
+    </section>
+
+    <!-- ============ PAGE 8 — REPORTS ============ -->
+    <section class="page">
+      <div class="sec-head">
+        <span class="sec-num">07</span>
+        <div>
+          <div class="eyebrow">Reports</div>
+          <h2>The reports dashboard</h2>
+        </div>
+      </div>
+
+      <p class="lead">
+        <strong>Reports</strong> turns the data into program metrics. Use the
+        <strong>Viewing</strong> filters at the top to scope everything from program-wide down to a
+        single employer or cohort.
+      </p>
+
+      <div class="frame frame--reports"><img src="screenshots/reports.png" alt="Reports dashboard" /></div>
+      <div class="caption">Program reports — KPIs, employment gauges, completion meters, barriers &amp; submissions trend</div>
+
+      <ul class="clean mini">
+        <li><strong>KPI tiles</strong> — employers, active interns, 90-day employment, % assessed.</li>
+        <li><strong>Employment Outcomes</strong> — 90- and 180-day gauges.</li>
+        <li><strong>Assessment Completion</strong> — how far each assessment type has progressed.</li>
+        <li><strong>Entry Barriers</strong> &amp; <strong>Submissions Over Time</strong> round out the picture.</li>
+      </ul>
+
+      <div class="callout callout--tip">
+        <span class="label">Try this</span>
+        Set <strong>Viewing</strong> to a single employer and watch every chart re-scope; then click
+        <strong>Program-wide</strong> to reset.
+      </div>
+    </section>
+
+    <!-- ============ PAGE 9 — SETTINGS & USERS ============ -->
+    <section class="page">
+      <div class="sec-head">
+        <span class="sec-num">08</span>
+        <div>
+          <div class="eyebrow">Settings</div>
+          <h2>Settings &amp; user management</h2>
+        </div>
+      </div>
+
+      <p class="lead">
+        <strong>Settings</strong> is where you configure the program and manage who can sign in. The
+        left rail lists every area; <strong>Users</strong> is the newest.
+      </p>
+
+      <div class="two">
+        <div>
+          <div class="frame frame--mid"><img src="screenshots/users-list.png" alt="User management" /></div>
+          <div class="caption">Settings → Users — admin &amp; employer accounts</div>
+        </div>
+        <div class="mini">
+          <p><strong>Users lets you:</strong></p>
+          <ul class="clean">
+            <li>Create an <strong>admin</strong> or <strong>employer</strong> account (employer accounts attach to an employer).</li>
+            <li>Set a password now, or send an invite email.</li>
+            <li>Change a role and <strong>deactivate / reactivate</strong> an account (reversible).</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cols">
+        <div>
+          <div class="frame frame--sm"><img src="screenshots/phases.png" alt="Phases" /></div>
+          <div class="caption">Assessment Phases</div>
+        </div>
+        <div>
+          <div class="frame frame--sm"><img src="screenshots/barriers.png" alt="Barriers" /></div>
+          <div class="caption">Entry Barriers</div>
+        </div>
+        <div>
+          <div class="frame frame--sm"><img src="screenshots/questions.png" alt="Questions" /></div>
+          <div class="caption">Assessment Questions</div>
+        </div>
+      </div>
+
+      <div class="callout callout--note">
+        <span class="label">Good to know</span>
+        A role change takes effect the next time that user logs in. On staging, invite/reset
+        <strong>emails won't actually deliver yet</strong> (custom email is still being set up) — so
+        use <strong>“set a password now”</strong> when creating test accounts.
+      </div>
+    </section>
+
+    <!-- ============ PAGE 10 — TESTING & FEEDBACK ============ -->
+    <section class="page">
+      <div class="sec-head">
+        <span class="sec-num">09</span>
+        <div>
+          <div class="eyebrow">Wrap-up</div>
+          <h2>Testing checklist &amp; feedback</h2>
+        </div>
+      </div>
+
+      <p class="lead">
+        A suggested run-through that touches every area. Tick them off as you go — and tell us
+        anything that feels confusing, looks off, or doesn't behave as you'd expect.
+      </p>
+
+      <h3 style="font-size: 13px; margin: 8px 0 2px">Exercise the full loop</h3>
+      <div class="checkgrid">
+        <div>Sign in and tour all five nav tabs</div>
+        <div>Create a new employer, role &amp; cohort</div>
+        <div>Add a new intern to a cohort</div>
+        <div>Record entry barriers &amp; notes</div>
+        <div>Complete a competency assessment</div>
+        <div>Complete an exit-employer survey</div>
+        <div>Submit an intern self-assessment</div>
+        <div>Mark a 90-day employment outcome</div>
+        <div>Filter Reports by employer &amp; cohort</div>
+        <div>Create a test user in Settings → Users</div>
+        <div>Deactivate, then reactivate that user</div>
+        <div>Log out and back in</div>
+      </div>
+
+      <div class="callout callout--note">
+        <span class="label">Known limitations on staging</span>
+        <ul class="clean" style="margin: 4px 0 0">
+          <li>Invite &amp; password-reset <strong>emails don't deliver yet</strong> — use “set a password now.”</li>
+          <li>Role changes apply on the user's <strong>next login</strong>, not instantly.</li>
+          <li>Test data may be <strong>refreshed/reset</strong> between rounds — don't rely on anything you enter persisting.</li>
+        </ul>
+      </div>
+
+      <div class="callout callout--tip">
+        <span class="label">When something's wrong</span>
+        Note <strong>what you did</strong>, <strong>what you expected</strong>, and
+        <strong>what happened</strong> — a screenshot and the page URL help a lot. Send it to Matt by
+        your agreed channel.
+      </div>
+
+      <p style="margin-top: 16px; color: var(--muted); font-size: 10px; font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.05em">
+        IMPACT INTERNSHIP ASSESSMENT PORTAL · QUICK START &amp; TESTING GUIDE · JUNE 2026
+      </p>
+    </section>
+  </body>
+</html>
