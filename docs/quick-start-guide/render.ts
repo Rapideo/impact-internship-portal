@@ -34,6 +34,27 @@ async function main() {
     );
   });
   await page.emulateMedia({ media: 'print' });
+
+  // Pagination guard: each .page must fit the printable area (11in minus the
+  // 0.6in footer margin), or it spills a sliver onto a blank extra page.
+  const LIMIT = Math.round(10.4 * 96);
+  const heights = await page.evaluate(() =>
+    Array.from(document.querySelectorAll('.page')).map((el) =>
+      Math.round(el.getBoundingClientRect().height),
+    ),
+  );
+  const over = heights
+    .map((h, i) => ({ page: i + 1, h }))
+    .filter(({ h }) => h > LIMIT + 0.5);
+  if (over.length) {
+    console.warn(
+      `WARNING: ${over.length} page(s) exceed the ${LIMIT}px printable limit and will spill:`,
+    );
+    for (const o of over) console.warn(`  page ${o.page}: ${o.h}px (over by ${o.h - LIMIT}px)`);
+  } else {
+    console.log(`Pagination OK — all ${heights.length} pages within ${LIMIT}px.`);
+  }
+
   await page.pdf({
     path: PDF,
     format: 'Letter',
