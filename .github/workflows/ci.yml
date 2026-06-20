@@ -90,7 +90,12 @@ jobs:
       - name: Install Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: latest
+          # Pinned (was `latest`): the local Postgres stack in supabase CLI
+          # v2.106/v2.107 stopped auto-granting table privileges to anon/
+          # authenticated/service_role on freshly-migrated tables, which broke
+          # the RLS suite. db/policies/0000_grants.sql is the durable fix; this
+          # pin keeps the toolchain deterministic too. Bump deliberately.
+          version: 2.107.0
       - run: npm ci
       - name: Start local Supabase stack
         run: supabase start
@@ -139,7 +144,12 @@ jobs:
       - name: Install Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: latest
+          # Pinned (was `latest`): the local Postgres stack in supabase CLI
+          # v2.106/v2.107 stopped auto-granting table privileges to anon/
+          # authenticated/service_role on freshly-migrated tables, which broke
+          # the RLS suite. db/policies/0000_grants.sql is the durable fix; this
+          # pin keeps the toolchain deterministic too. Bump deliberately.
+          version: 2.107.0
       - run: npm ci
       - name: Generate React Router route types
         run: npx react-router typegen
