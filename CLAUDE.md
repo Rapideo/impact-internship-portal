@@ -24,7 +24,8 @@ The app tracks:
 - `docs/superpowers/plans/2026-05-10-sub-project-4-assessment-forms.md` — 31 tasks. **Complete**.
 - `docs/superpowers/plans/2026-05-10-sub-project-5-employer-shell.md` — 38 tasks. **Complete**.
 - `docs/superpowers/plans/2026-05-10-sub-project-6-polish-launch.md` — 52 tasks. **Remaining**. Phase H "Netlify cutover" tasks are obsolete (two-Netlify-project structure removes the publish-dir flip); left in place with obsolescence notes.
-- `docs/methodology.md` — 414-line replayable brainstorm → spec → plan → execute playbook.
+- `docs/methodology.md` — 414-line replayable brainstorm → spec → plan → execute playbook (prescriptive/generalized).
+- `docs/case-study-2026-08-02.md` — the post-mortem case study: what actually happened across the full arc (prototype 2026-04-16 → hardening 2026-06-19), with figures verified from git. Descriptive counterpart to `methodology.md`. Key claim: prototype-to-production fidelity came from promoting the prototype to *literal specification* (SP7's spec §1), not from care — SP1–SP5 treated it as reference and the 2026-05-18 audit found P0 gaps on nearly every route despite green tests. §9.1 is the recommended reorder (primitives before features); §8 lists what the process missed. A standalone brand-styled `docs/case-study-2026-08-02.html` carries the same content.
 - `docs/dev-portal/` — management dashboard at `https://rapideo.github.io/impact-internship-portal/dev-portal/`. 7 tabs; Status tab driven by `docs/dev-portal/data/status.json` (update on milestone-close PRs).
 
 **Prototype-era reference (still authoritative for prototype behavior; superseded by the production spec for production scope):**

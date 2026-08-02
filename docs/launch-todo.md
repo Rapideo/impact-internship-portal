@@ -66,8 +66,14 @@ for how the pipeline works and `CLAUDE.md` for current infra state.
 
 - [ ] **Netlify manual-publish gate.** Optionally lock auto-publishing so prod
       builds run on merge but a human clicks "Publish deploy" to go live.
-- [ ] **Post-mortem.** Capture the prototype → planning → build playbook once
-      launch settles (see `docs/methodology.md` as the starting point).
+- [x] **Post-mortem.** Done 2026-08-02 (PR #135) — `docs/case-study-2026-08-02.md`
+      plus a standalone `docs/case-study-2026-08-02.html`. Covers the full arc
+      (prototype 2026-04-16 → launch and hardening 2026-06-19) with figures
+      verified from git history. Central finding: fidelity came from promoting
+      the prototype to *literal specification* (SP7), not from careful work.
+      Top recommendation is a reorder — SP7's Phase A/B (tokens, then primitives
+      against a dev-only demo route, gated on sign-off) becomes SP1's Phase A/B.
+      §8 records what the process missed; §9 is the revised playbook.
 
 ## Tooling / developer experience
 

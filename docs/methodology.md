@@ -10,6 +10,12 @@ This document describes the planning and execution methodology used on the IMPAC
 
 The methodology is opinionated and procedural. It assumes you are working with Claude (or a similarly capable coding agent) and have access to the Superpowers skill library — those skills are referenced by name throughout. If you are working without an agent, the same four-stage structure still applies; you do the typing yourself instead of delegating, and the tooling references become "prompt yourself with these questions" rather than "invoke this skill."
 
+> **Read alongside [`docs/case-study-2026-08-02.md`](case-study-2026-08-02.md).** This
+> document says what to do; the case study reports what happened when it was done, and
+> amends it. Two corrections matter enough to apply from the start: build design
+> primitives before features (case study §9.1), and get a real user in at the first
+> demo-able milestone rather than at launch (§9.7).
+
 ---
 
 ## 2. When to apply this methodology
@@ -408,6 +414,20 @@ Other Superpowers skills that complement the methodology:
 - Workflow / infrastructure design spec: [`docs/superpowers/specs/2026-05-11-development-workflow-design.md`](superpowers/specs/2026-05-11-development-workflow-design.md)
 - Sub-project 0 implementation plan: [`docs/superpowers/plans/2026-05-11-sub-project-0-project-infrastructure.md`](superpowers/plans/2026-05-11-sub-project-0-project-infrastructure.md)
 - All six sub-project plans (1 through 6): [`docs/superpowers/plans/2026-05-10-sub-project-*.md`](superpowers/plans/)
+
+### The methodology applied, assessed honestly
+
+- [`docs/case-study-2026-08-02.md`](case-study-2026-08-02.md) — the post-mortem on this
+  methodology's first full run. Where this document is prescriptive and generalized, the
+  case study is descriptive and specific: real figures from git history, what the process
+  caught, and what it missed.
+
+  **Read §9 before applying this playbook again.** It amends the methodology in one
+  load-bearing way: stage 4 execution as run here was *function-first*, which cost an
+  entire sub-project to correct. The revised order builds design primitives from the
+  prototype before any feature work. The case study also argues for a stage the four
+  stages omit entirely — putting a real user in front of the product at the first
+  demo-able milestone rather than at launch.
 
 ### Management-facing artifact
 
