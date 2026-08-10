@@ -1,0 +1,55 @@
+name: Sync staging branch
+
+# Keeps the long-lived `staging` branch fast-forwarded to `main` so that
+# https://staging--impact-portal-app.netlify.app always serves current `main`
+# code against the impact-dev database.
+#
+# Why a branch at all: `main` is Netlify's *production* branch, so it has no
+# `main--…` branch-deploy URL of its own — its builds go to the production site
+# on impact-prod. A second branch is the only way to get a stable, always-current
+# preview URL on dev data from a single Netlify project. Netlify builds `staging`
+# under the `branch-deploy` context (allowed_branches = [main, staging]), which
+# carries impact-dev credentials and APP_URL.
+#
+# Deploy-preview URLs (deploy-preview-<PR#>--…) are NOT a substitute: they are
+# frozen at one PR's code and Netlify ages them out (previews for PRs #123/#130/
+# #131 were already 404 by 2026-08-10).
+#
+# The push is a plain fast-forward, never forced. If someone has deliberately
+# pointed `staging` at an unmerged branch to test it, this job FAILS rather than
+# clobbering their work — see the error message for the one-line reset.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+# Serialize so two quick merges to main can't race each other onto staging.
+concurrency:
+  group: sync-staging
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fast-forward staging to main
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          if git push origin "$SHA:refs/heads/staging"; then
+            echo "staging fast-forwarded to $SHA"
+            echo "Netlify will rebuild https://staging--impact-portal-app.netlify.app"
+            exit 0
+          fi
+          echo "::error::staging has diverged from main and was NOT updated."
+          echo "::error::It is probably pointed at an unmerged test branch."
+          echo "::error::Reset it once you're done: git push --force origin main:staging"
+          exit 1
