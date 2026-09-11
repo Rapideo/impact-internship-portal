@@ -1,9 +1,11 @@
-export interface SeedBarrier {
+export interface SeedParticipationFactor {
   label: string;
   sortOrder: number;
 }
 
-export const SEED_BARRIERS: SeedBarrier[] = [
+// Values are unchanged in PR 1 — this PR is a pure rename. The eight new
+// values land in PR 2.
+export const SEED_PARTICIPATION_FACTORS: SeedParticipationFactor[] = [
   { label: 'Transportation', sortOrder: 1 },
   { label: 'Childcare', sortOrder: 2 },
   { label: 'Housing instability', sortOrder: 3 },

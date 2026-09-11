@@ -161,7 +161,7 @@ export const cohorts = pgTable(
 );
 
 /* ============================================================ */
-/* Phases + Barriers (program-wide libraries)                    */
+/* Phases + Participation Factors (program-wide libraries)       */
 /* ============================================================ */
 
 export const phases = pgTable('phases', {
