@@ -79,7 +79,14 @@ async function main() {
       console.log('Seeding participation factors...');
       const insertedParticipationFactors = await db
         .insert(schema.participationFactors)
-        .values(SEED_PARTICIPATION_FACTORS.map((p) => ({ label: p.label, sortOrder: p.sortOrder })))
+        .values(
+          SEED_PARTICIPATION_FACTORS.map((p) => ({
+            label: p.label,
+            description: p.description,
+            code: p.code,
+            sortOrder: p.sortOrder,
+          })),
+        )
         .returning();
       const participationFactorByLabel = new Map(
         insertedParticipationFactors.map((p) => [p.label, p]),

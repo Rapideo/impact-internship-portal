@@ -789,18 +789,12 @@ function internsForCohortIdx(cohortGlobalIdx: number): number {
 /* ─── Participation factor label pool (match exactly what SEED_PARTICIPATION_FACTORS defines) ─ */
 
 const PARTICIPATION_FACTOR_LABELS = [
-  'Transportation',
-  'Childcare',
-  'Housing instability',
-  'Food insecurity',
-  'Mental health',
-  'Physical health',
-  'Substance use recovery',
-  'Justice-system involvement',
-  'Limited work history',
-  'Education / credential gap',
-  'Digital access',
-  'Other',
+  'Transportation/access',
+  'Schedule/availability',
+  'Attendance continuity',
+  'Communication',
+  'Workplace accommodation/access',
+  'Administrative requirements',
 ];
 
 /**
