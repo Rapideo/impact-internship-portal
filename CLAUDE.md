@@ -113,7 +113,8 @@ Branch `main` (renamed from `master` 2026-05-11). GitHub remote: `https://github
 - **Branch protection on `main`** — no direct pushes; squash-merge PRs only; required check is the CI workflow.
 - **Hook chain**: Husky 9 + commitlint 19 + lint-staged 15. `pre-commit` runs `npx lint-staged`.
 - **CI** (`.github/workflows/ci.yml`): runs on PRs to `main` and pushes to `main`. Five jobs — `Sanity checks (stub)` (required), `Lint & Typecheck`, `Vitest (unit)`, `Vitest (integration + RLS) on supabase start`, gated `Playwright`.
-- **PR workflow**: branch (`feat/`, `fix/`, `chore/`, `docs/`, `test/`, `refactor/`) → push → `gh pr create` → green CI → `gh pr merge --squash --delete-branch`.
+- **PR workflow**: branch (`feat/`, `fix/`, `chore/`, `docs/`, `test/`, `refactor/`) → push → `gh pr create` → green CI → **staging verification (see below)** → `gh pr merge --squash --delete-branch`.
+- **STAGING BEFORE PRODUCTION — standing rule.** Nothing reaches production until Matt has seen it working on staging. Applies to every change, however small or well-tested; green CI proves the code is correct, not that the change is *right*. **The normal flow cannot do this**: `main` IS Netlify's production branch and `staging` is fast-forwarded *from* `main`, so a plain merge hits prod first. Use the escape hatch — `git push --force origin <branch>:staging` parks the branch on the staging URL (branch-deploy context, impact-dev data) with production untouched; after merging, reset with `git push --force origin main:staging`. If the change needs a migration, apply it to impact-dev first, since staging runs on that database. Merging is a production deploy: get explicit approval every time, never carried over from a previous merge.
 - **Secrets**: `.env.local` (gitignored) with impact-dev values for local; Netlify env vars per-deploy-context; GitHub Secrets placeholder-only.
 
 ## Production app
