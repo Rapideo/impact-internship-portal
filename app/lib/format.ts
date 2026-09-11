@@ -88,3 +88,51 @@ export function formatCompletionDate(date: Date | null | undefined): string {
     return '';
   }
 }
+
+/**
+ * The program's timezone. IMPACT is Indiana-based and its staff are in-state,
+ * so time-of-day copy is pinned here rather than read off the server clock:
+ * Netlify Functions run on Lambda with TZ unset, which makes a bare
+ * `new Date().getHours()` return UTC. Using the IANA zone (not a fixed offset)
+ * keeps this correct across DST, which Indiana observes.
+ */
+const PROGRAM_TIME_ZONE = 'America/Indiana/Indianapolis';
+
+/**
+ * Time-of-day greeting for the dashboard headers, evaluated in the program's
+ * timezone: "Good morning" before noon, "Good afternoon" before 5pm,
+ * "Good evening" thereafter.
+ */
+export function greetingFor(date: Date = new Date()): string {
+  const hour = Number(
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: PROGRAM_TIME_ZONE,
+      hour: 'numeric',
+      hourCycle: 'h23',
+    }).format(date),
+  );
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+/**
+ * Format an activity timestamp as "MM.DD.YYYY · HH:MM" in the program's
+ * timezone. Shared by the admin and employer Recent Activity feeds. Pinned to
+ * PROGRAM_TIME_ZONE for the same reason as greetingFor: these render during
+ * SSR, where the server clock is UTC.
+ */
+export function formatActivityTime(d: Date | string): string {
+  const date = typeof d === 'string' ? new Date(d) : d;
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: PROGRAM_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(date);
+  const part = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
+  return `${part('month')}.${part('day')}.${part('year')} · ${part('hour')}:${part('minute')}`;
+}

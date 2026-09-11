@@ -8,6 +8,7 @@ import { PageHead } from '~/components/PageHead';
 import { KpiCard } from '~/components/KpiCard';
 import { QuickLinks } from '~/components/QuickLinks';
 import { RecentActivity, type ActivityEntry } from '~/components/RecentActivity';
+import { greetingFor, formatActivityTime } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Admin Home — IMPACT' }];
 
@@ -35,10 +36,13 @@ export async function loader({ request }: Route.LoaderArgs) {
     listRecentActivity(db, 5),
   ]);
   const firstName = deriveFirstName(userData?.user?.email);
+  // Evaluated server-side in the program's timezone and passed down, so SSR and
+  // hydration can never disagree about the time of day.
+  const greeting = greetingFor();
   // Use data() rather than Response.json() so the loader return is a typed
   // object useLoaderData<typeof loader>() can infer, while still forwarding
   // refreshed Supabase cookies via headers.
-  return data({ kpis, activity, firstName }, { headers });
+  return data({ kpis, activity, firstName, greeting }, { headers });
 }
 
 function activityLabel(type: string, phase: string | null): string {
@@ -50,12 +54,6 @@ function activityLabel(type: string, phase: string | null): string {
   return `submitted ${type}`;
 }
 
-function activityTime(d: Date | string): string {
-  const date = typeof d === 'string' ? new Date(d) : d;
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${pad(date.getMonth() + 1)}.${pad(date.getDate())}.${date.getFullYear()} · ${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
-
 // Quick Links — verbatim from admin.html (Assessments → Interns → Employers).
 const QUICK_LINKS = [
   { to: '/admin/assessments', label: 'Assessments' },
@@ -64,7 +62,7 @@ const QUICK_LINKS = [
 ] as const;
 
 export default function AdminHome() {
-  const { kpis, activity, firstName } = useLoaderData<typeof loader>();
+  const { kpis, activity, firstName, greeting } = useLoaderData<typeof loader>();
   const pad2 = (n: number) => String(n).padStart(2, '0');
 
   const entries: ActivityEntry[] =
@@ -77,7 +75,7 @@ export default function AdminHome() {
               {activityLabel(a.type, a.phase)} &mdash; {a.cohortName}
             </>
           ),
-          time: activityTime(a.submittedAt),
+          time: formatActivityTime(a.submittedAt),
         }));
 
   return (
@@ -86,7 +84,7 @@ export default function AdminHome() {
         breadcrumb="ADMIN / HOME / 2026"
         title={
           <>
-            GOOD MORNING,
+            {greeting.toUpperCase()},
             <br />
             {firstName}.
           </>
