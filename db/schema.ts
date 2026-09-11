@@ -174,6 +174,15 @@ export const phases = pgTable('phases', {
 export const participationFactors = pgTable('participation_factors', {
   id: uuid('id').primaryKey().defaultRandom(),
   label: text('label').notNull(),
+  // Explanatory clause shown as helper text beneath the label. Nullable:
+  // "Other participation-related factor" and "No participation factors
+  // identified" carry no description.
+  description: text('description'),
+  // Stable identity for report logic. Seeded as 'none' on the "No
+  // participation factors identified" row, null everywhere else. Never shown
+  // or editable in the UI; admin-created rows never receive one. The Reports
+  // rule cannot key off the label, because admins can rename any row.
+  code: text('code'),
   sortOrder: integer('sort_order').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });

@@ -25,7 +25,7 @@ export const SEED_INTERNS: SeedIntern[] = [
     endDate: null,
     entryNotes:
       'Coming off 8-month gap; reliable transportation via family member, needs schedule flexibility for custody hearings.',
-    entryParticipationFactorLabels: ['Transportation', 'Justice-system involvement'],
+    entryParticipationFactorLabels: ['Transportation/access', 'Administrative requirements'],
     employed90Day: false,
     employed90Notes: null,
     employed180Day: false,
@@ -40,7 +40,7 @@ export const SEED_INTERNS: SeedIntern[] = [
     startDate: '2026-01-19',
     endDate: null,
     entryNotes: 'High school + 2 yrs CC; lapsed CNA cert from 2022, intends to re-test in Phase 2.',
-    entryParticipationFactorLabels: ['Childcare'],
+    entryParticipationFactorLabels: ['Schedule/availability'],
     employed90Day: false,
     employed90Notes: null,
     employed180Day: false,
@@ -56,7 +56,7 @@ export const SEED_INTERNS: SeedIntern[] = [
     endDate: null,
     entryNotes:
       'Recent recovery; sponsor-supported. Open to forklift cert; ESL-supportive workplace preferred.',
-    entryParticipationFactorLabels: ['Substance use recovery', 'Limited work history'],
+    entryParticipationFactorLabels: ['Attendance continuity'],
     employed90Day: false,
     employed90Notes: null,
     employed180Day: false,

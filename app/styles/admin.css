@@ -758,6 +758,13 @@
   gap: 4px;
   padding: 14px 24px;
 }
+.participation-factor-check-list__desc {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted);
+}
 
 /* Settings list (inline editable) */
 .settings-list {
@@ -792,6 +799,16 @@
   border: 1px solid var(--rule);
   border-radius: 6px;
   font-size: 14px;
+}
+.settings-list__description-input {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  color: var(--muted);
 }
 .settings-list__remove-btn {
   background: transparent;

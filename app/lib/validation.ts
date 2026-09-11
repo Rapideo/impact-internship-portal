@@ -142,18 +142,20 @@ export function errorsByField(errors: FieldError[]): Record<string, string> {
 export interface ParsedInlineRow {
   id: string | null;
   label: string;
+  description: string | null;
 }
 
 /**
- * Parse rows posted by <InlineEditableList> (fields named `${name}[<i>].id`
- * and `${name}[<i>].label`). Returns rows in their submitted order plus
- * an array of FieldError messages — one per invalid row, indexed via
- * `errorIndices` on the component.
+ * Parse rows posted by <InlineEditableList> (fields named `${name}[<i>].id`,
+ * `${name}[<i>].label`, and optionally `${name}[<i>].description`). Returns
+ * rows in their submitted order plus an array of FieldError messages — one
+ * per invalid row, indexed via `errorIndices` on the component.
  *
  * Rules:
  * - At least one row.
  * - No empty labels (after trim).
  * - No duplicate labels (case-insensitive).
+ * - Description is always optional — a blank/absent description is valid.
  */
 export function parseInlineRows(
   formData: FormData,
@@ -161,7 +163,7 @@ export function parseInlineRows(
 ): { rows: ParsedInlineRow[]; errors: FieldError[]; errorIndices: number[] } {
   const indices = new Set<number>();
   const keyRe = new RegExp(
-    `^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\[(\\d+)\\]\\.(id|label)$`,
+    `^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\[(\\d+)\\]\\.(id|label|description)$`,
   );
   for (const key of formData.keys()) {
     const m = keyRe.exec(key);
@@ -171,6 +173,7 @@ export function parseInlineRows(
   const rows: ParsedInlineRow[] = ordered.map((i) => ({
     id: String(formData.get(`${name}[${i}].id`) ?? '').trim() || null,
     label: String(formData.get(`${name}[${i}].label`) ?? '').trim(),
+    description: String(formData.get(`${name}[${i}].description`) ?? '').trim() || null,
   }));
 
   const errors: FieldError[] = [];

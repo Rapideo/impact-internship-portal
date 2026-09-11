@@ -28,7 +28,10 @@ export const meta: Route.MetaFunction = () => [
 export async function loader({ request }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);
   const rows = await listParticipationFactors(db);
-  return data({ rows: rows.map((r) => ({ id: r.id, label: r.label })) }, { headers });
+  return data(
+    { rows: rows.map((r) => ({ id: r.id, label: r.label, description: r.description })) },
+    { headers },
+  );
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -57,10 +60,12 @@ export async function action({ request }: Route.ActionArgs) {
       if (r.id) {
         await tx
           .update(participationFactors)
-          .set({ label: r.label, sortOrder: i + 1 })
+          .set({ label: r.label, description: r.description, sortOrder: i + 1 })
           .where(eq(participationFactors.id, r.id));
       } else {
-        await tx.insert(participationFactors).values({ label: r.label, sortOrder: i + 1 });
+        await tx
+          .insert(participationFactors)
+          .values({ label: r.label, description: r.description, sortOrder: i + 1 });
       }
     }
   });
@@ -83,12 +88,15 @@ export default function ParticipationFactorsSettings() {
   }, [actionData, toast]);
   const initial = (
     actionData && 'rows' in actionData
-      ? actionData.rows.map((r: { id: string | null; label: string }) => ({
-          id: r.id ?? '',
-          label: r.label,
-        }))
+      ? actionData.rows.map(
+          (r: { id: string | null; label: string; description: string | null }) => ({
+            id: r.id ?? '',
+            label: r.label,
+            description: r.description,
+          }),
+        )
       : rows
-  ) as { id: string; label: string }[];
+  ) as { id: string; label: string; description: string | null }[];
   return (
     <>
       <PageHead
@@ -109,6 +117,7 @@ export default function ParticipationFactorsSettings() {
             addLabel="+ Add Participation Factor"
             name="participationFactors"
             errorIndices={actionData?.errorIndices}
+            withDescription
           />
           <ActionBar status="PARTICIPATION FACTORS · EDIT">
             <Link to="/admin/settings/employers" className="btn btn--outline">

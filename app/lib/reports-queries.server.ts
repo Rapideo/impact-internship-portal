@@ -172,6 +172,22 @@ export async function getAssessmentCompletion(
 export async function getParticipationFactorDistribution(db: DB, scope: ReportsScope) {
   const wherePred = internScopePredicate(scope);
   const cnt = sql<number>`count(distinct ${interns.id})::int`;
+  // Spec §7. Contradictory selections are permitted at entry, so an intern may
+  // carry both "No participation factors identified" and a real factor. Counting
+  // raw join rows would put them in both bars, over-summing the chart and making
+  // the none-count mean something untrue. Keyed on `code`, not the label, because
+  // admins can rename any row in Settings.
+  const noneOnlyWhenAlone = sql`(
+    ${participationFactors.code} is distinct from 'none'
+    or not exists (
+      select 1
+        from ${internParticipationFactors} ipf2
+        join ${participationFactors} pf2
+          on pf2.id = ipf2.participation_factor_id
+       where ipf2.intern_id = ${interns.id}
+         and pf2.code is distinct from 'none'
+    )
+  )`;
   const rows = await db
     .select({ id: participationFactors.id, label: participationFactors.label, count: cnt })
     .from(internParticipationFactors)
@@ -180,7 +196,7 @@ export async function getParticipationFactorDistribution(db: DB, scope: ReportsS
       participationFactors,
       eq(participationFactors.id, internParticipationFactors.participationFactorId),
     )
-    .where(wherePred)
+    .where(and(wherePred, noneOnlyWhenAlone)!)
     .groupBy(participationFactors.id, participationFactors.label)
     .orderBy(desc(cnt), asc(participationFactors.label));
   return rows.map((r) => ({ id: r.id, label: r.label, count: Number(r.count) }));

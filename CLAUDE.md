@@ -113,7 +113,8 @@ Branch `main` (renamed from `master` 2026-05-11). GitHub remote: `https://github
 - **Branch protection on `main`** — no direct pushes; squash-merge PRs only; required check is the CI workflow.
 - **Hook chain**: Husky 9 + commitlint 19 + lint-staged 15. `pre-commit` runs `npx lint-staged`.
 - **CI** (`.github/workflows/ci.yml`): runs on PRs to `main` and pushes to `main`. Five jobs — `Sanity checks (stub)` (required), `Lint & Typecheck`, `Vitest (unit)`, `Vitest (integration + RLS) on supabase start`, gated `Playwright`.
-- **PR workflow**: branch (`feat/`, `fix/`, `chore/`, `docs/`, `test/`, `refactor/`) → push → `gh pr create` → green CI → `gh pr merge --squash --delete-branch`.
+- **PR workflow**: branch (`feat/`, `fix/`, `chore/`, `docs/`, `test/`, `refactor/`) → push → `gh pr create` → green CI → **staging verification (see below)** → `gh pr merge --squash --delete-branch`.
+- **STAGING BEFORE PRODUCTION — standing rule.** Nothing reaches production until Matt has seen it working on staging. Applies to every change, however small or well-tested; green CI proves the code is correct, not that the change is *right*. **The normal flow cannot do this**: `main` IS Netlify's production branch and `staging` is fast-forwarded *from* `main`, so a plain merge hits prod first. Use the escape hatch — `git push --force origin <branch>:staging` parks the branch on the staging URL (branch-deploy context, impact-dev data) with production untouched; after merging, reset with `git push --force origin main:staging`. If the change needs a migration, apply it to impact-dev first, since staging runs on that database. Merging is a production deploy: get explicit approval every time, never carried over from a previous merge.
 - **Secrets**: `.env.local` (gitignored) with impact-dev values for local; Netlify env vars per-deploy-context; GitHub Secrets placeholder-only.
 
 ## Production app
@@ -131,7 +132,8 @@ npm install
 # .env.local already has impact-dev credentials (gitignored)
 npm run db:migrate          # apply schema (idempotent)
 npm run db:apply-policies   # apply RLS policies (idempotent, DROP IF EXISTS)
-npm run db:seed             # wipe + re-seed (refuses to run against impact-prod ref)
+npm run db:seed             # SMALL base seed: wipes + reseeds ~6 interns, ZERO submissions
+npm run db:seed:demo        # rich ADDITIVE demo data: ~140 interns, ~236 submissions
 npm run admin:create -- --email=admin@example.com --password=DevPassword123!
 npm run dev                 # http://localhost:5173
 ```
@@ -255,12 +257,54 @@ Plan docs frequently reference classes that don't exist. The real registry:
 - **Task 37 deferred** — admin invite → accept E2E (with a NODE_ENV-gated `/dev/invite-link` route) was skipped pending security review. SP6 should either build it with belt-and-suspenders gating (`if (process.env.NODE_ENV === 'production') return 404` PLUS a separate `vite.config` env check) or replace with a direct Supabase admin API call from the test (no public route at all).
 - **Playwright still skipping in CI** — every PR shows `Playwright    skipping`. Specs pass locally but no CI signal. SP6 either un-gates the job or documents permanent local-only. The 10 specs today (`auth`, `admin-crud`, `admin-competency`, `admin-exit-employer-survey`, `admin-question-editor`, `intern-self-submit`, `employer-login`, `employer-competency`) are the floor for launch.
 
+## Internship Participation Factors (2026-09-11) — contracts to preserve
+
+The Entry-Assessment "Barriers" list was renamed and its values replaced, after the client
+raised PII concerns: the old twelve named personal circumstances (`Housing instability`,
+`Mental health`, `Substance use recovery`, `Justice-system involvement`). The replacements
+describe **effects on participation**, never the underlying cause.
+
+- **Tables**: `participation_factors` (was `barriers`) and `intern_participation_factors`
+  (was `intern_entry_barriers`, column `participation_factor_id`, was `barrier_id`).
+  Route is `/admin/settings/participation-factors`. PR #139 (merged) was a **pure rename** —
+  values unchanged — so its green CI proved the rename alone. PR #140 brings the eight values.
+- **`participation_factors.description`** — nullable. Shown as helper text beneath each label
+  on the entry-assessment checklist and editable in Settings. Two of the eight values have none.
+- **`participation_factors.code`** — nullable, **invisible and non-editable in the UI**. Seeded
+  as `'none'` on the "No participation factors identified" row only. The Reports distribution
+  query keys on it, NOT on the label, because admins can rename any row in Settings and a
+  label-matched rule would silently stop working the first time someone did.
+- **Reports counting rule**: an intern counts toward the `code = 'none'` factor **only if they
+  have no other factor rows**. Data entry is deliberately unconstrained — admins may tick
+  contradictory combinations — so without this the bars over-sum and the "no factors" number
+  means something untrue.
+- **"Other participation-related factor" takes NO free text**, deliberately. The client asked to
+  shrink the PII surface; a prose field there would work against the request.
+- **Out of scope, flagged to the client**: `db/seed-data/question-sets.ts` still says "barriers"
+  in the Participant Feedback (`pf-barriers`, `pf-barriers-detail`) and Exit Employer Survey
+  (`ees-barriers`) question content. Those are user-facing survey copy, not this reference list —
+  and they contain the free-text fields this change was meant to avoid.
+
+### Migration gotchas learned here
+
+- `drizzle-kit generate` **guesses drop-and-recreate non-interactively** and will emit
+  `DROP TABLE`. Table/column renames must be generated interactively by a human. `--custom` is
+  not a workaround: it writes a journal entry but copies the PREVIOUS snapshot.
+- A drizzle snapshot records the **destination** schema, not the route taken — so a correct
+  snapshot plus hand-written SQL is consistent. Prove it by re-running `generate`: it must say
+  "No schema changes, nothing to migrate".
+- Postgres keeps **old constraint names** through a table rename, and **policies travel with the
+  renamed table**. So `DROP POLICY IF EXISTS x ON public.<oldname>` ERRORS afterwards —
+  `IF EXISTS` guards the policy, not the table. Drop stale policies inside the migration, on the
+  NEW table names, before `db:apply-policies` runs.
+
 ## Local development cheat-sheet (for SP6+)
 
 - `npm run dev` — Vite + RR v7 dev server.
-- `npm run db:seed` — refreshes DB (also re-upserts admin + employer1 profile rows after TRUNCATE CASCADE).
+- `npm run db:seed` — **small base seed** (~6 interns, **zero** assessment submissions). TRUNCATEs. Since 2026-09-11 it snapshots **all** `profiles` rows and restores them (pure `planProfileRestore()` in `db/profile-restore-plan.ts`); before that it restored only `admin@example.com` + `employer1@example.com` and silently locked out every other account.
+- `npm run db:seed:demo` — **the rich dataset** (~140 interns, ~236 submissions). Additive, idempotent, no TRUNCATE. This is what produces realistic Reports data — `db:seed` alone will leave the app looking empty.
 - `npm test -- --run` — vitest unit suite (196 tests today).
-- `npm run test:rls` — RLS integration; requires `supabase start`.
+- `npm run test:rls` — RLS integration; requires `supabase start`. **Guarded since 2026-09-11**: `tests/rls/setup.rls.ts` refuses to run unless `DATABASE_URL`'s host is local (`localhost`/`127.0.0.1`/`::1`/`host.docker.internal`). Every `tests/rls/*.ts` loads `.env.local` — i.e. **impact-dev cloud credentials** — and these specs DELETE rows; without `supabase start` the suite once connected straight to impact-dev and destroyed every `assessment_submissions` row (free tier, no backups). Never disable the guard.
 - `npm run test:e2e` — Playwright.
 - `npm run lint && npm run typecheck` — green on main today.
 - `npm run build` — green on main (PR #79, ~6s).

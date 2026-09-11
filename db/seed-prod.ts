@@ -69,9 +69,14 @@ async function main() {
   const existingParticipationFactors = await db.select().from(schema.participationFactors);
   if (existingParticipationFactors.length === 0) {
     console.log(`  Inserting ${SEED_PARTICIPATION_FACTORS.length} participation factors.`);
-    await db
-      .insert(schema.participationFactors)
-      .values(SEED_PARTICIPATION_FACTORS.map((p) => ({ label: p.label, sortOrder: p.sortOrder })));
+    await db.insert(schema.participationFactors).values(
+      SEED_PARTICIPATION_FACTORS.map((p) => ({
+        label: p.label,
+        description: p.description,
+        code: p.code,
+        sortOrder: p.sortOrder,
+      })),
+    );
   } else {
     console.log(
       `  ${existingParticipationFactors.length} participation factors already present; skipping.`,
