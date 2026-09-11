@@ -22,6 +22,7 @@ import { PageHead } from '~/components/PageHead';
 import { KpiCard } from '~/components/KpiCard';
 import { QuickLinks } from '~/components/QuickLinks';
 import { RecentActivity, type ActivityEntry } from '~/components/RecentActivity';
+import { formatActivityTime } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Dashboard — IMPACT Employer' }];
 
@@ -39,12 +40,6 @@ function activityLabel(type: string, phase: string | null): string {
   if (type === 'participant-feedback') return 'submitted Participant Feedback';
   if (type === 'exit-employer-survey') return 'Exit Employer Survey submitted';
   return `submitted ${type}`;
-}
-
-function activityTime(d: Date | string): string {
-  const date = typeof d === 'string' ? new Date(d) : d;
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${pad(date.getMonth() + 1)}.${pad(date.getDate())}.${date.getFullYear()} · ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -96,7 +91,7 @@ export default function EmployerDashboard() {
         {activityLabel(a.type, a.phase)} &mdash; {a.cohortName}
       </>
     ),
-    time: activityTime(a.submittedAt as Date | string),
+    time: formatActivityTime(a.submittedAt as Date | string),
   }));
 
   return (
