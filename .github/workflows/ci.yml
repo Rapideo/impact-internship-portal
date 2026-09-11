@@ -177,9 +177,10 @@ jobs:
           npm run db:migrate
           npm run db:apply-policies
       - name: Create test auth users (admin + employer1)
-        # admin:create writes the auth.users entry; db:seed below restores
-        # the profile row with the correct role+employer_id based on email
-        # (see db/seed.ts:262 — the script branches on the email literal).
+        # admin:create writes the auth.users entry (both accounts as role='admin');
+        # db:seed below unconditionally overrides these two emails to their
+        # mandated role+employer_id via planProfileRestore()'s devAccountOverrides,
+        # regardless of what admin:create or any snapshot recorded for them.
         # Without these two calls, Playwright sign-in fails because the
         # admin@example.com / employer1@example.com accounts don't exist in
         # the local Supabase stack.
