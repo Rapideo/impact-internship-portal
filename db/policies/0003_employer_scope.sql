@@ -14,13 +14,13 @@ DROP POLICY IF EXISTS any_authenticated_reads_program_info ON public.program_inf
 CREATE POLICY any_authenticated_reads_program_info ON public.program_info FOR SELECT TO authenticated
   USING (true);
 
--- phases + barriers: any authenticated user reads (libraries are shared)
+-- phases + participation factors: any authenticated user reads (libraries are shared)
 DROP POLICY IF EXISTS any_authenticated_reads_phases ON public.phases;
 CREATE POLICY any_authenticated_reads_phases ON public.phases FOR SELECT TO authenticated
   USING (true);
 
-DROP POLICY IF EXISTS any_authenticated_reads_barriers ON public.barriers;
-CREATE POLICY any_authenticated_reads_barriers ON public.barriers FOR SELECT TO authenticated
+DROP POLICY IF EXISTS any_authenticated_reads_participation_factors ON public.participation_factors;
+CREATE POLICY any_authenticated_reads_participation_factors ON public.participation_factors FOR SELECT TO authenticated
   USING (true);
 
 -- employers: employers see/update only their own employer row
@@ -89,9 +89,9 @@ CREATE POLICY employer_read_entry_assessment ON public.intern_entry_assessment F
     )
   );
 
--- intern_entry_barriers: read-only for employers
-DROP POLICY IF EXISTS employer_read_entry_barriers ON public.intern_entry_barriers;
-CREATE POLICY employer_read_entry_barriers ON public.intern_entry_barriers FOR SELECT TO authenticated
+-- intern_participation_factors: read-only for employers
+DROP POLICY IF EXISTS employer_read_participation_factors ON public.intern_participation_factors;
+CREATE POLICY employer_read_participation_factors ON public.intern_participation_factors FOR SELECT TO authenticated
   USING (
     (auth.jwt() ->> 'user_role') = 'employer'
     AND intern_id IN (
