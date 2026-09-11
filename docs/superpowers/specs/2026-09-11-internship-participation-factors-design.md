@@ -93,11 +93,24 @@ rule with nothing to apply, which is correct.
 
 ## 5. Migration
 
-Hand-written SQL, **not** `npm run db:generate`. Drizzle-kit cannot distinguish
-a rename from a drop-and-recreate without an interactive prompt; if it guesses
-wrong it emits `DROP TABLE`, which would cascade-delete every demo intern's
-selections on impact-dev. Hand-editing migrations is established practice here
-(the initial migration filters out `CREATE TABLE auth.users`).
+Drizzle-kit cannot distinguish a rename from a drop-and-recreate on its own.
+Run **non-interactively** it assumes drop-and-recreate and emits `DROP TABLE`,
+which would cascade-delete every demo intern's selections on impact-dev.
+
+Run **interactively** it asks ("is `participation_factors` created, or renamed
+from `barriers`?") and, given the right answer, emits correct `ALTER … RENAME`
+SQL *and* updates `meta/_journal.json` and the schema snapshot. That is the
+path to take: update `db/schema.ts` first, then have a human run
+`npx drizzle-kit generate` in a real terminal and answer the rename prompts.
+
+Hand-writing the `.sql` file instead is a trap. `drizzle-kit migrate` only runs
+migrations listed in `meta/_journal.json`, so a hand-added file silently never
+executes; and the `meta/000N_snapshot.json` files drive future diffs, so a
+snapshot that still describes `barriers` makes the *next* `db:generate` try to
+re-create the old table.
+
+The one thing drizzle cannot know about is policies, so the `DROP POLICY`
+statements below are appended to the generated file by hand.
 
 The work splits across the two pull requests in §9, so it is **two migrations**,
 not one.
@@ -136,8 +149,11 @@ policy, not the table, and `public.barriers` no longer exists. The migration
 must therefore drop the four stale policy names off the renamed tables before
 `db:apply-policies` runs.
 
-Affected policy files: `0000_grants.sql`, `0001_enable_rls.sql`,
-`0002_admin_all.sql`, `0003_employer_scope.sql`.
+Affected policy files: `0001_enable_rls.sql`, `0002_admin_all.sql`,
+`0003_employer_scope.sql`.
+
+`0000_grants.sql` is **not** affected — it grants via `GRANT ALL ON ALL TABLES
+IN SCHEMA public`, which names no table and so survives the rename untouched.
 
 ## 6. Application surface
 
