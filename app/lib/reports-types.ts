@@ -24,6 +24,6 @@ export interface ReportsData {
     oneEightyDay: { numerator: number; denominator: number };
   };
   assessmentCompletion: { key: string; label: string; completed: number; total: number }[];
-  barriers: { id: string; label: string; count: number }[]; // desc by count
+  participationFactors: { id: string; label: string; count: number }[]; // desc by count
   trend: { weekStart: string; count: number }[]; // ascending weeks
 }

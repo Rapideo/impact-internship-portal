@@ -2,7 +2,7 @@
  * db/seed-demo.ts — Additive, idempotent demo-data generator for impact-dev.
  *
  * Adds ~19 employers, ~34 cohorts, ~144 interns plus entry assessments,
- * barriers, employment outcomes, and a subset of assessment submissions
+ * participation factors, employment outcomes, and a subset of assessment submissions
  * so Reports charts show realistic, non-zero distributions.
  *
  * Rules:
@@ -786,9 +786,9 @@ function internsForCohortIdx(cohortGlobalIdx: number): number {
   return 2 + (cohortGlobalIdx % 5);
 }
 
-/* ─── Barrier label pool (match exactly what SEED_BARRIERS defines) ─ */
+/* ─── Participation factor label pool (match exactly what SEED_PARTICIPATION_FACTORS defines) ─ */
 
-const BARRIER_LABELS = [
+const PARTICIPATION_FACTOR_LABELS = [
   'Transportation',
   'Childcare',
   'Housing instability',
@@ -804,23 +804,24 @@ const BARRIER_LABELS = [
 ];
 
 /**
- * Returns 0-3 barrier labels for a given intern global index.
- * Pattern cycles so different interns get different barriers.
+ * Returns 0-3 participation factor labels for a given intern global index.
+ * Pattern cycles so different interns get different participation factors.
  */
-function barriersForIntern(internGlobalIdx: number): string[] {
-  // 0 barriers for ~30%, 1 for ~30%, 2 for ~25%, 3 for ~15%
+function participationFactorsForIntern(internGlobalIdx: number): string[] {
+  // 0 participation factors for ~30%, 1 for ~30%, 2 for ~25%, 3 for ~15%
   const pattern = internGlobalIdx % 10;
   if (pattern < 3) return [];
-  if (pattern < 6) return [BARRIER_LABELS[internGlobalIdx % BARRIER_LABELS.length]!];
+  if (pattern < 6)
+    return [PARTICIPATION_FACTOR_LABELS[internGlobalIdx % PARTICIPATION_FACTOR_LABELS.length]!];
   if (pattern < 9)
     return [
-      BARRIER_LABELS[internGlobalIdx % BARRIER_LABELS.length]!,
-      BARRIER_LABELS[(internGlobalIdx + 3) % BARRIER_LABELS.length]!,
+      PARTICIPATION_FACTOR_LABELS[internGlobalIdx % PARTICIPATION_FACTOR_LABELS.length]!,
+      PARTICIPATION_FACTOR_LABELS[(internGlobalIdx + 3) % PARTICIPATION_FACTOR_LABELS.length]!,
     ];
   return [
-    BARRIER_LABELS[internGlobalIdx % BARRIER_LABELS.length]!,
-    BARRIER_LABELS[(internGlobalIdx + 3) % BARRIER_LABELS.length]!,
-    BARRIER_LABELS[(internGlobalIdx + 7) % BARRIER_LABELS.length]!,
+    PARTICIPATION_FACTOR_LABELS[internGlobalIdx % PARTICIPATION_FACTOR_LABELS.length]!,
+    PARTICIPATION_FACTOR_LABELS[(internGlobalIdx + 3) % PARTICIPATION_FACTOR_LABELS.length]!,
+    PARTICIPATION_FACTOR_LABELS[(internGlobalIdx + 7) % PARTICIPATION_FACTOR_LABELS.length]!,
   ];
 }
 
@@ -872,19 +873,21 @@ async function main() {
     }
     console.log(`  Found ${phaseByLabel.size} phases: ${[...phaseByLabel.keys()].join(', ')}`);
 
-    /* ── 2. Look up existing barriers by label ───────────────────── */
-    console.log('Fetching existing barriers...');
-    const existingBarriers = await db.select().from(schema.barriers);
-    const barrierByLabel = new Map(existingBarriers.map((b) => [b.label, b]));
+    /* ── 2. Look up existing participation factors by label ──────── */
+    console.log('Fetching existing participation factors...');
+    const existingParticipationFactors = await db.select().from(schema.participationFactors);
+    const participationFactorByLabel = new Map(
+      existingParticipationFactors.map((p) => [p.label, p]),
+    );
 
-    if (barrierByLabel.size === 0) {
+    if (participationFactorByLabel.size === 0) {
       console.error(
-        'ERROR: No barriers found in the database. ' +
-          'Run `npm run db:seed` first to populate the barriers library.',
+        'ERROR: No participation factors found in the database. ' +
+          'Run `npm run db:seed` first to populate the participation factors library.',
       );
       process.exit(1);
     }
-    console.log(`  Found ${barrierByLabel.size} barriers.`);
+    console.log(`  Found ${participationFactorByLabel.size} participation factors.`);
 
     // Build an ordered array of phase ids (Phase 1, Phase 2, …)
     const orderedPhaseIds = ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4']
@@ -978,12 +981,13 @@ async function main() {
     console.log(`  Linked ${cohortPhaseRows.length} cohort-phase associations.`);
 
     /* ── 6. Insert interns ───────────────────────────────────────── */
-    console.log('Inserting demo interns, entry assessments, barriers, outcomes...');
+    console.log('Inserting demo interns, entry assessments, participation factors, outcomes...');
 
     let globalInternIdx = 0;
     let globalSubmissionIdx = 0;
 
-    // We'll collect unique barrier (internId, barrierId) pairs to avoid dupes within a single intern
+    // We'll collect unique participation factor (internId, participationFactorId) pairs to avoid
+    // dupes within a single intern
     const internRows: {
       id: string;
       cohortId: string;
@@ -995,7 +999,7 @@ async function main() {
     }[] = [];
 
     const entryAssessmentRows: { internId: string; notes: string | null; completedAt: Date }[] = [];
-    const entryBarrierRows: { internId: string; barrierId: string }[] = [];
+    const entryParticipationFactorRows: { internId: string; participationFactorId: string }[] = [];
     const outcomeRows: {
       internId: string;
       employed90Day: boolean;
@@ -1029,14 +1033,17 @@ async function main() {
           completedAt: new Date(),
         });
 
-        // Barriers — deduplicate within this intern
-        const barrierLabels = barriersForIntern(iIdx);
-        const seenBarrierIds = new Set<string>();
-        for (const label of barrierLabels) {
-          const barrier = barrierByLabel.get(label);
-          if (barrier && !seenBarrierIds.has(barrier.id)) {
-            seenBarrierIds.add(barrier.id);
-            entryBarrierRows.push({ internId: iId, barrierId: barrier.id });
+        // Participation factors — deduplicate within this intern
+        const participationFactorLabels = participationFactorsForIntern(iIdx);
+        const seenParticipationFactorIds = new Set<string>();
+        for (const label of participationFactorLabels) {
+          const participationFactor = participationFactorByLabel.get(label);
+          if (participationFactor && !seenParticipationFactorIds.has(participationFactor.id)) {
+            seenParticipationFactorIds.add(participationFactor.id);
+            entryParticipationFactorRows.push({
+              internId: iId,
+              participationFactorId: participationFactor.id,
+            });
           }
         }
 
@@ -1062,7 +1069,9 @@ async function main() {
     const filteredEntryAssessments = entryAssessmentRows.filter((r) =>
       insertedInternIdSet.has(r.internId),
     );
-    const filteredBarriers = entryBarrierRows.filter((r) => insertedInternIdSet.has(r.internId));
+    const filteredParticipationFactors = entryParticipationFactorRows.filter((r) =>
+      insertedInternIdSet.has(r.internId),
+    );
     const filteredOutcomes = outcomeRows.filter((r) => insertedInternIdSet.has(r.internId));
 
     if (filteredEntryAssessments.length > 0) {
@@ -1072,8 +1081,11 @@ async function main() {
         .onConflictDoNothing({ target: schema.internEntryAssessment.internId });
     }
 
-    if (filteredBarriers.length > 0) {
-      await db.insert(schema.internEntryBarriers).values(filteredBarriers).onConflictDoNothing();
+    if (filteredParticipationFactors.length > 0) {
+      await db
+        .insert(schema.internParticipationFactors)
+        .values(filteredParticipationFactors)
+        .onConflictDoNothing();
     }
 
     if (filteredOutcomes.length > 0) {
@@ -1084,7 +1096,9 @@ async function main() {
     }
 
     console.log(`  Entry assessments: ${filteredEntryAssessments.length} inserted.`);
-    console.log(`  Entry barrier links: ${filteredBarriers.length} inserted.`);
+    console.log(
+      `  Entry participation factor links: ${filteredParticipationFactors.length} inserted.`,
+    );
     console.log(`  Employment outcomes: ${filteredOutcomes.length} inserted.`);
 
     /* ── 7. Insert assessment submissions ────────────────────────── */

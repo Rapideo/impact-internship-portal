@@ -22,7 +22,7 @@ const PILLARS = [
   {
     num: '01 / Stage One',
     title: 'Intake',
-    body: 'A unified intern record captures personal information, internship assignment, entry barriers, and role-specific competencies at the start of placement.',
+    body: 'A unified intern record captures personal information, internship assignment, entry participation factors, and role-specific competencies at the start of placement.',
     metaLeft: 'At placement',
     metaRight: 'Admin',
   },

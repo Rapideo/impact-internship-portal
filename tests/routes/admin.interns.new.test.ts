@@ -7,7 +7,7 @@ import * as dbMod from '~/lib/db.server';
 describe('admin.interns.new', () => {
   beforeEach(() => vi.restoreAllMocks());
 
-  it('loader returns employers, cohorts, roles, barriers', async () => {
+  it('loader returns employers, cohorts, roles, participation factors', async () => {
     vi.spyOn(guard, 'requireAdmin').mockResolvedValue({
       auth: { role: 'admin', employerId: null },
       headers: new Headers(),
@@ -15,7 +15,7 @@ describe('admin.interns.new', () => {
     vi.spyOn(queries, 'listAllEmployers').mockResolvedValue([
       { id: 'e1', name: 'Eskenazi Health' },
     ] as never);
-    vi.spyOn(queries, 'listBarriers').mockResolvedValue([
+    vi.spyOn(queries, 'listParticipationFactors').mockResolvedValue([
       {
         id: 'b1',
         label: 'No reliable transportation to placement site',
@@ -35,12 +35,12 @@ describe('admin.interns.new', () => {
       res as {
         data: {
           employers: Array<{ id: string; name: string }>;
-          barriers: Array<{ id: string; label: string }>;
+          participationFactors: Array<{ id: string; label: string }>;
         };
       }
     ).data;
     expect(body.employers[0]!.name).toBe('Eskenazi Health');
-    expect(body.barriers[0]!.label).toMatch(/transportation/);
+    expect(body.participationFactors[0]!.label).toMatch(/transportation/);
   });
 
   it('action returns errors when required fields are missing', async () => {

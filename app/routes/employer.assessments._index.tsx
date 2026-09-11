@@ -125,7 +125,7 @@ export default function EmployerAssessmentsHub() {
               stage="PER INTERN · AT EXIT"
               meta="EXIT EMPLOYER SURVEY"
               title="Capture exit outcomes."
-              body="Record your evaluation at the close of placement: outcome status, performance rating, strengths, work-readiness indicators, and barriers observed."
+              body="Record your evaluation at the close of placement: outcome status, performance rating, strengths, work-readiness indicators, and participation factors observed."
               action={
                 <button
                   type="button"

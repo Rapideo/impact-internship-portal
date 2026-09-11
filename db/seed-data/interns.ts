@@ -7,7 +7,7 @@ export interface SeedIntern {
   startDate: string | null;
   endDate: string | null;
   entryNotes: string | null;
-  entryBarrierLabels: string[];
+  entryParticipationFactorLabels: string[];
   employed90Day: boolean;
   employed90Notes: string | null;
   employed180Day: boolean;
@@ -25,7 +25,7 @@ export const SEED_INTERNS: SeedIntern[] = [
     endDate: null,
     entryNotes:
       'Coming off 8-month gap; reliable transportation via family member, needs schedule flexibility for custody hearings.',
-    entryBarrierLabels: ['Transportation', 'Justice-system involvement'],
+    entryParticipationFactorLabels: ['Transportation', 'Justice-system involvement'],
     employed90Day: false,
     employed90Notes: null,
     employed180Day: false,
@@ -40,7 +40,7 @@ export const SEED_INTERNS: SeedIntern[] = [
     startDate: '2026-01-19',
     endDate: null,
     entryNotes: 'High school + 2 yrs CC; lapsed CNA cert from 2022, intends to re-test in Phase 2.',
-    entryBarrierLabels: ['Childcare'],
+    entryParticipationFactorLabels: ['Childcare'],
     employed90Day: false,
     employed90Notes: null,
     employed180Day: false,
@@ -56,7 +56,7 @@ export const SEED_INTERNS: SeedIntern[] = [
     endDate: null,
     entryNotes:
       'Recent recovery; sponsor-supported. Open to forklift cert; ESL-supportive workplace preferred.',
-    entryBarrierLabels: ['Substance use recovery', 'Limited work history'],
+    entryParticipationFactorLabels: ['Substance use recovery', 'Limited work history'],
     employed90Day: false,
     employed90Notes: null,
     employed180Day: false,
@@ -77,7 +77,7 @@ export const SEED_INTERNS: SeedIntern[] = [
     startDate: '2026-01-19',
     endDate: null,
     entryNotes: 'E2E fixture: targeted by Playwright intern-self-submit spec.',
-    entryBarrierLabels: [],
+    entryParticipationFactorLabels: [],
     employed90Day: false,
     employed90Notes: null,
     employed180Day: false,
@@ -92,7 +92,7 @@ export const SEED_INTERNS: SeedIntern[] = [
     startDate: '2026-01-19',
     endDate: null,
     entryNotes: 'E2E fixture: targeted by Playwright admin-competency spec.',
-    entryBarrierLabels: [],
+    entryParticipationFactorLabels: [],
     employed90Day: false,
     employed90Notes: null,
     employed180Day: false,
@@ -107,7 +107,7 @@ export const SEED_INTERNS: SeedIntern[] = [
     startDate: '2026-01-19',
     endDate: null,
     entryNotes: 'E2E fixture: targeted by Playwright admin-exit-employer-survey spec.',
-    entryBarrierLabels: [],
+    entryParticipationFactorLabels: [],
     employed90Day: false,
     employed90Notes: null,
     employed180Day: false,

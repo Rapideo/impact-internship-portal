@@ -24,11 +24,11 @@ import { db } from '~/lib/db.server';
 import { internInEmployerScope } from '~/lib/employer-scope.server';
 import {
   assessmentSubmissions,
-  barriers,
+  participationFactors,
   cohorts,
   internEmploymentOutcomes,
   internEntryAssessment,
-  internEntryBarriers,
+  internParticipationFactors,
   interns,
   roles,
 } from '../../db/schema';
@@ -81,11 +81,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     .limit(1);
   const [entry] = entryRows;
 
-  const entryBarrierRows = await db
-    .select({ id: barriers.id, label: barriers.label })
-    .from(internEntryBarriers)
-    .innerJoin(barriers, eq(barriers.id, internEntryBarriers.barrierId))
-    .where(eq(internEntryBarriers.internId, internId));
+  const entryParticipationFactorRows = await db
+    .select({ id: participationFactors.id, label: participationFactors.label })
+    .from(internParticipationFactors)
+    .innerJoin(
+      participationFactors,
+      eq(participationFactors.id, internParticipationFactors.participationFactorId),
+    )
+    .where(eq(internParticipationFactors.internId, internId));
 
   const outcomesRows = await db
     .select()
@@ -113,7 +116,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       cohort: cohort ?? null,
       role: role ?? null,
       entry: entry ?? null,
-      entryBarriers: entryBarrierRows,
+      entryParticipationFactors: entryParticipationFactorRows,
       outcomes: outcomes ?? null,
       submissions: submissionRows,
     },
@@ -137,7 +140,7 @@ function viewHrefFor(s: { id: string; type: string; phase: string | null }): str
 }
 
 export default function EmployerInternRecord() {
-  const { intern, cohort, role, entry, entryBarriers, outcomes, submissions } =
+  const { intern, cohort, role, entry, entryParticipationFactors, outcomes, submissions } =
     useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
   const toast = useToast();
@@ -212,16 +215,18 @@ export default function EmployerInternRecord() {
             <RubricPanel
               num="03"
               title="Entry Assessment"
-              meta="Barriers identified at intake. Notes capture additional context."
+              meta="Participation factors identified at intake. Notes capture additional context."
             >
               <div style={{ padding: '22px 28px' }}>
-                <span className="rubric-notes__label">Barriers identified at intake</span>
-                {entryBarriers.length === 0 ? (
+                <span className="rubric-notes__label">
+                  Participation factors identified at intake
+                </span>
+                {entryParticipationFactors.length === 0 ? (
                   <p style={{ margin: '6px 0 0', color: 'var(--muted)' }}>None recorded.</p>
                 ) : (
                   <ul style={{ margin: '6px 0 0', paddingLeft: '20px' }}>
-                    {entryBarriers.map((b) => (
-                      <li key={b.id}>{b.label}</li>
+                    {entryParticipationFactors.map((f) => (
+                      <li key={f.id}>{f.label}</li>
                     ))}
                   </ul>
                 )}

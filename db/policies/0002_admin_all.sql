@@ -35,8 +35,8 @@ CREATE POLICY admin_all_phases ON public.phases FOR ALL TO authenticated
   USING ((auth.jwt() ->> 'user_role') = 'admin')
   WITH CHECK ((auth.jwt() ->> 'user_role') = 'admin');
 
-DROP POLICY IF EXISTS admin_all_barriers ON public.barriers;
-CREATE POLICY admin_all_barriers ON public.barriers FOR ALL TO authenticated
+DROP POLICY IF EXISTS admin_all_participation_factors ON public.participation_factors;
+CREATE POLICY admin_all_participation_factors ON public.participation_factors FOR ALL TO authenticated
   USING ((auth.jwt() ->> 'user_role') = 'admin')
   WITH CHECK ((auth.jwt() ->> 'user_role') = 'admin');
 
@@ -50,8 +50,8 @@ CREATE POLICY admin_all_intern_entry_assessment ON public.intern_entry_assessmen
   USING ((auth.jwt() ->> 'user_role') = 'admin')
   WITH CHECK ((auth.jwt() ->> 'user_role') = 'admin');
 
-DROP POLICY IF EXISTS admin_all_intern_entry_barriers ON public.intern_entry_barriers;
-CREATE POLICY admin_all_intern_entry_barriers ON public.intern_entry_barriers FOR ALL TO authenticated
+DROP POLICY IF EXISTS admin_all_intern_participation_factors ON public.intern_participation_factors;
+CREATE POLICY admin_all_intern_participation_factors ON public.intern_participation_factors FOR ALL TO authenticated
   USING ((auth.jwt() ->> 'user_role') = 'admin')
   WITH CHECK ((auth.jwt() ->> 'user_role') = 'admin');
 

@@ -9,7 +9,7 @@ import { SEED_EMPLOYERS } from './seed-data/employers';
 import { SEED_ROLES } from './seed-data/roles';
 import { SEED_COHORTS } from './seed-data/cohorts';
 import { SEED_PHASES } from './seed-data/phases';
-import { SEED_BARRIERS } from './seed-data/barriers';
+import { SEED_PARTICIPATION_FACTORS } from './seed-data/participation-factors';
 import { SEED_INTERNS } from './seed-data/interns';
 import { SEED_QUESTION_SETS } from './seed-data/question-sets';
 import { SEED_PROGRAM_INFO } from './seed-data/program-info';
@@ -45,14 +45,14 @@ async function main() {
           public.questions,
           public.question_sets,
           public.intern_employment_outcomes,
-          public.intern_entry_barriers,
+          public.intern_participation_factors,
           public.intern_entry_assessment,
           public.interns,
           public.cohort_phases,
           public.cohorts,
           public.roles,
           public.employers,
-          public.barriers,
+          public.participation_factors,
           public.phases,
           public.program_info
         RESTART IDENTITY CASCADE;
@@ -76,12 +76,14 @@ async function main() {
         .returning();
       const phaseByLabel = new Map(insertedPhases.map((p) => [p.label, p]));
 
-      console.log('Seeding barriers...');
-      const insertedBarriers = await db
-        .insert(schema.barriers)
-        .values(SEED_BARRIERS.map((b) => ({ label: b.label, sortOrder: b.sortOrder })))
+      console.log('Seeding participation factors...');
+      const insertedParticipationFactors = await db
+        .insert(schema.participationFactors)
+        .values(SEED_PARTICIPATION_FACTORS.map((p) => ({ label: p.label, sortOrder: p.sortOrder })))
         .returning();
-      const barrierByLabel = new Map(insertedBarriers.map((b) => [b.label, b]));
+      const participationFactorByLabel = new Map(
+        insertedParticipationFactors.map((p) => [p.label, p]),
+      );
 
       console.log('Seeding employers...');
       await db.insert(schema.employers).values(
@@ -135,7 +137,7 @@ async function main() {
       }
       await db.insert(schema.cohortPhases).values(cohortPhaseRows);
 
-      console.log('Seeding interns + entry assessment + barriers + outcomes...');
+      console.log('Seeding interns + entry assessment + participation factors + outcomes...');
       await db.insert(schema.interns).values(
         SEED_INTERNS.map((i) => ({
           id: i.id,
@@ -156,17 +158,23 @@ async function main() {
         })),
       );
 
-      const entryBarrierRows: { internId: string; barrierId: string }[] = [];
+      const entryParticipationFactorRows: { internId: string; participationFactorId: string }[] =
+        [];
       for (const i of SEED_INTERNS) {
-        for (const label of i.entryBarrierLabels) {
-          const barrier = barrierByLabel.get(label);
-          if (!barrier) {
-            throw new Error(`Unknown barrier label "${label}" for intern ${i.lastName}`);
+        for (const label of i.entryParticipationFactorLabels) {
+          const participationFactor = participationFactorByLabel.get(label);
+          if (!participationFactor) {
+            throw new Error(
+              `Unknown participation factor label "${label}" for intern ${i.lastName}`,
+            );
           }
-          entryBarrierRows.push({ internId: i.id, barrierId: barrier.id });
+          entryParticipationFactorRows.push({
+            internId: i.id,
+            participationFactorId: participationFactor.id,
+          });
         }
       }
-      await db.insert(schema.internEntryBarriers).values(entryBarrierRows);
+      await db.insert(schema.internParticipationFactors).values(entryParticipationFactorRows);
 
       await db.insert(schema.internEmploymentOutcomes).values(
         SEED_INTERNS.map((i) => ({

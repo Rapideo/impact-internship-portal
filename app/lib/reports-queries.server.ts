@@ -16,8 +16,8 @@ import {
   employers,
   assessmentSubmissions,
   internEmploymentOutcomes,
-  internEntryBarriers,
-  barriers,
+  internParticipationFactors,
+  participationFactors,
 } from '../../db/schema';
 import { getEmployerOrNull, getCohortOrNull } from './admin-queries.server';
 
@@ -169,17 +169,20 @@ export async function getAssessmentCompletion(
   }));
 }
 
-export async function getBarrierDistribution(db: DB, scope: ReportsScope) {
+export async function getParticipationFactorDistribution(db: DB, scope: ReportsScope) {
   const wherePred = internScopePredicate(scope);
   const cnt = sql<number>`count(distinct ${interns.id})::int`;
   const rows = await db
-    .select({ id: barriers.id, label: barriers.label, count: cnt })
-    .from(internEntryBarriers)
-    .innerJoin(interns, eq(interns.id, internEntryBarriers.internId))
-    .innerJoin(barriers, eq(barriers.id, internEntryBarriers.barrierId))
+    .select({ id: participationFactors.id, label: participationFactors.label, count: cnt })
+    .from(internParticipationFactors)
+    .innerJoin(interns, eq(interns.id, internParticipationFactors.internId))
+    .innerJoin(
+      participationFactors,
+      eq(participationFactors.id, internParticipationFactors.participationFactorId),
+    )
     .where(wherePred)
-    .groupBy(barriers.id, barriers.label)
-    .orderBy(desc(cnt), asc(barriers.label));
+    .groupBy(participationFactors.id, participationFactors.label)
+    .orderBy(desc(cnt), asc(participationFactors.label));
   return rows.map((r) => ({ id: r.id, label: r.label, count: Number(r.count) }));
 }
 
@@ -206,16 +209,23 @@ export async function getSubmissionsTrend(db: DB, scope: ReportsScope) {
 
 export async function getReportsData(db: DB, scope: ReportsScope): Promise<ReportsData> {
   const activeInterns = await countActiveInterns(db, scope);
-  const [kpis, internsByGroup, outcomes, assessmentCompletion, barrierRows, trend] =
+  const [kpis, internsByGroup, outcomes, assessmentCompletion, participationFactorRows, trend] =
     await Promise.all([
       getKpis(db, scope, activeInterns),
       getInternsByGroup(db, scope),
       getOutcomeRates(db, scope, activeInterns),
       getAssessmentCompletion(db, scope, activeInterns),
-      getBarrierDistribution(db, scope),
+      getParticipationFactorDistribution(db, scope),
       getSubmissionsTrend(db, scope),
     ]);
-  return { kpis, internsByGroup, outcomes, assessmentCompletion, barriers: barrierRows, trend };
+  return {
+    kpis,
+    internsByGroup,
+    outcomes,
+    assessmentCompletion,
+    participationFactors: participationFactorRows,
+    trend,
+  };
 }
 
 export interface ResolvedAdminScope {

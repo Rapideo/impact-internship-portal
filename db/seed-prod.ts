@@ -7,7 +7,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import { eq } from 'drizzle-orm';
 import * as schema from './schema';
 import { SEED_PHASES } from './seed-data/phases';
-import { SEED_BARRIERS } from './seed-data/barriers';
+import { SEED_PARTICIPATION_FACTORS } from './seed-data/participation-factors';
 import { SEED_PROGRAM_INFO } from './seed-data/program-info';
 import { SEED_QUESTION_SETS } from './seed-data/question-sets';
 
@@ -18,7 +18,7 @@ import { SEED_QUESTION_SETS } from './seed-data/question-sets';
  * Only seeds the program-wide reference data needed for the app to function:
  *   - program_info (singleton)
  *   - phases (4 program-wide phase labels)
- *   - barriers (12 barrier library entries)
+ *   - participation_factors (12 participation factor library entries)
  *   - question_sets of kind 'standard' or 'competency-core' (no cohort/intern fixtures)
  *
  * Does NOT seed: employers, roles, cohorts, interns, sample question sets tied
@@ -65,15 +65,17 @@ async function main() {
     console.log(`  ${existingPhases.length} phases already present; skipping.`);
   }
 
-  console.log('Checking barriers...');
-  const existingBarriers = await db.select().from(schema.barriers);
-  if (existingBarriers.length === 0) {
-    console.log(`  Inserting ${SEED_BARRIERS.length} barriers.`);
+  console.log('Checking participation factors...');
+  const existingParticipationFactors = await db.select().from(schema.participationFactors);
+  if (existingParticipationFactors.length === 0) {
+    console.log(`  Inserting ${SEED_PARTICIPATION_FACTORS.length} participation factors.`);
     await db
-      .insert(schema.barriers)
-      .values(SEED_BARRIERS.map((b) => ({ label: b.label, sortOrder: b.sortOrder })));
+      .insert(schema.participationFactors)
+      .values(SEED_PARTICIPATION_FACTORS.map((p) => ({ label: p.label, sortOrder: p.sortOrder })));
   } else {
-    console.log(`  ${existingBarriers.length} barriers already present; skipping.`);
+    console.log(
+      `  ${existingParticipationFactors.length} participation factors already present; skipping.`,
+    );
   }
 
   console.log('Checking question_sets (standard + competency-core only)...');
