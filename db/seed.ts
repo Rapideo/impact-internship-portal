@@ -13,6 +13,7 @@ import { SEED_PARTICIPATION_FACTORS } from './seed-data/participation-factors';
 import { SEED_INTERNS } from './seed-data/interns';
 import { SEED_QUESTION_SETS } from './seed-data/question-sets';
 import { SEED_PROGRAM_INFO } from './seed-data/program-info';
+import { planProfileRestore, type ProfileSnapshotRow } from './profile-restore-plan';
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
@@ -35,6 +36,29 @@ async function main() {
 
   try {
     await client.unsafe('BEGIN');
+
+    // Snapshot every existing `profiles` row BEFORE the TRUNCATE below wipes it.
+    // This is what makes seeding safe to run against a database that already has
+    // real accounts on it: every profile — not just the two hardcoded dev
+    // accounts — gets restored afterwards. See db/profile-restore-plan.ts.
+    const profileSnapshot: ProfileSnapshotRow[] = (
+      await client<
+        {
+          user_id: string;
+          role: 'admin' | 'employer';
+          employer_id: string | null;
+          email: string | null;
+        }[]
+      >`
+        SELECT p.user_id, p.role, p.employer_id, u.email
+        FROM public.profiles p
+        LEFT JOIN auth.users u ON u.id = p.user_id
+      `
+    ).map((r) => ({ userId: r.user_id, role: r.role, employerId: r.employer_id, email: r.email }));
+    console.log(
+      `Snapshotted ${profileSnapshot.length} existing profile row(s) before truncating...`,
+    );
+
     try {
       console.log('Truncating existing data...');
       // Order matters: children first via CASCADE handles dependents, but explicit list
@@ -256,36 +280,78 @@ async function main() {
       throw err;
     }
 
-    // Restore dev profile rows. The TRUNCATE ... CASCADE above wipes `profiles`
-    // because it references `employers`; without this step contributors have to
-    // remember to re-upsert admin + employer1 by hand after every seed.
-    // If auth.users hasn't been populated yet (fresh install, before
-    // `npm run admin:create`), log a warning and skip — the seed itself still
-    // succeeds.
-    console.log('Restoring dev profile rows (admin + employer1)...');
-    const EMPLOYER1_ID = '11111111-1111-1111-1111-111111111101';
-    const users = await client<{ id: string; email: string }[]>`
-      SELECT id, email FROM auth.users
-      WHERE email IN ('admin@example.com', 'employer1@example.com')
-    `;
-    if (users.length === 0) {
-      console.warn(
-        '  No matching auth.users rows yet — skipping profile restore. ' +
-          'Run `npm run admin:create` and re-seed to populate profile rows.',
+    // Restore `profiles` rows. The TRUNCATE ... CASCADE above wipes `profiles`
+    // because it references `employers`. Seeding must NOT be an account-wipe:
+    // every profile snapshotted above gets restored here, not just the two
+    // hardcoded dev accounts. Real accounts (program staff, employer logins)
+    // that existed before this run come back with their original role +
+    // employer_id. See db/profile-restore-plan.ts for the restore decision
+    // logic (and why some rows are deliberately skipped + warned about
+    // instead of silently restored).
+    if (profileSnapshot.length === 0) {
+      // Fresh database — nothing was snapshotted, so fall back to bootstrapping
+      // the two hardcoded dev accounts. If auth.users hasn't been populated yet
+      // either (before `npm run admin:create`), warn and skip; the seed itself
+      // still succeeds.
+      console.log(
+        'No existing profiles found (fresh database) — restoring default dev accounts (admin + employer1)...',
       );
+      const EMPLOYER1_ID = '11111111-1111-1111-1111-111111111101';
+      const users = await client<{ id: string; email: string }[]>`
+        SELECT id, email FROM auth.users
+        WHERE email IN ('admin@example.com', 'employer1@example.com')
+      `;
+      if (users.length === 0) {
+        console.warn(
+          '  No matching auth.users rows yet — skipping profile restore. ' +
+            'Run `npm run admin:create` and re-seed to populate profile rows.',
+        );
+      } else {
+        for (const u of users) {
+          const role = u.email === 'admin@example.com' ? 'admin' : 'employer';
+          const employerId = u.email === 'admin@example.com' ? null : EMPLOYER1_ID;
+          await client`
+            INSERT INTO public.profiles (user_id, role, employer_id)
+            VALUES (${u.id}, ${role}, ${employerId})
+            ON CONFLICT (user_id) DO UPDATE
+            SET role = EXCLUDED.role, employer_id = EXCLUDED.employer_id
+          `;
+          console.log(
+            `  Restored profile: ${u.email} -> role=${role}, employer_id=${employerId ?? 'NULL'}`,
+          );
+        }
+      }
     } else {
-      for (const u of users) {
-        const role = u.email === 'admin@example.com' ? 'admin' : 'employer';
-        const employerId = u.email === 'admin@example.com' ? null : EMPLOYER1_ID;
+      console.log(`Restoring ${profileSnapshot.length} snapshotted profile row(s)...`);
+      const [validUserIdRows, validEmployerIdRows] = await Promise.all([
+        client<{ id: string }[]>`SELECT id FROM auth.users`,
+        client<{ id: string }[]>`SELECT id FROM public.employers`,
+      ]);
+      const plan = planProfileRestore(
+        profileSnapshot,
+        new Set(validUserIdRows.map((r) => r.id)),
+        new Set(validEmployerIdRows.map((r) => r.id)),
+      );
+
+      for (const row of plan.restore) {
         await client`
           INSERT INTO public.profiles (user_id, role, employer_id)
-          VALUES (${u.id}, ${role}, ${employerId})
+          VALUES (${row.userId}, ${row.role}, ${row.employerId})
           ON CONFLICT (user_id) DO UPDATE
           SET role = EXCLUDED.role, employer_id = EXCLUDED.employer_id
         `;
-        console.log(
-          `  Restored profile: ${u.email} -> role=${role}, employer_id=${employerId ?? 'NULL'}`,
-        );
+      }
+
+      for (const warning of plan.warnings) {
+        console.warn(`  WARNING: ${warning}`);
+      }
+
+      console.log('--- Profile restore summary ---');
+      console.log(`  Snapshotted: ${profileSnapshot.length}`);
+      console.log(`  Restored:    ${plan.restore.length}`);
+      console.log(`  Warnings:    ${plan.warnings.length}`);
+      if (plan.warnings.length > 0) {
+        console.log('  See WARNING lines above — those accounts need manual attention.');
       }
     }
   } finally {
