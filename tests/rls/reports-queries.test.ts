@@ -24,6 +24,18 @@ const NORTHSIDE = '11111111-1111-1111-1111-111111111102';
 const COHORT_RIVERBEND = '33333333-3333-3333-3333-333333333301';
 const COHORT_NORTHSIDE = '33333333-3333-3333-3333-333333333302';
 
+// The only intern id that any RLS suite ever writes assessment_submissions
+// rows for (assessment-submissions.test.ts's TEST_INTERN, and the
+// competency / exit-employer-survey rows employer-scope.test.ts inserts for
+// its "employerInternId"). Every one of those sibling tests already cleans
+// up the rows it inserts, but that cleanup runs after an `expect(...)` in
+// the same `it` — if that assertion ever throws, the row leaks. Scoping
+// this file's own reset to that same intern id (matching the pattern
+// tests/rls/assessment-submissions.test.ts:30 already uses) catches that
+// leak without touching unrelated data in what is otherwise a shared
+// database.
+const SEEDED_SUBMISSION_INTERN = '44444444-4444-4444-4444-444444444401';
+
 let sql: ReturnType<typeof postgres>;
 let db: ReturnType<typeof drizzle<typeof schema>>;
 
@@ -36,7 +48,7 @@ beforeAll(async () => {
   // (e.g. employer-scope.test.ts) commit competency / exit-survey rows for
   // seeded interns. This file runs last alphabetically, so reset to the seed
   // baseline here to keep the submission-derived metrics deterministic.
-  await sql`DELETE FROM public.assessment_submissions`;
+  await sql`DELETE FROM public.assessment_submissions WHERE intern_id = ${SEEDED_SUBMISSION_INTERN}`;
 });
 afterAll(async () => {
   await sql.end();

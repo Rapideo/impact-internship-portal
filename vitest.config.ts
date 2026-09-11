@@ -34,6 +34,10 @@ export default defineConfig({
           name: 'rls',
           environment: 'node',
           include: ['tests/rls/**/*.test.ts'],
+          // Hard locality guard: must run before any RLS test file connects.
+          // Throws unless DATABASE_URL resolves to a local host. See
+          // tests/rls/setup.rls.ts for why this exists.
+          setupFiles: ['./tests/rls/setup.rls.ts'],
         },
       },
     ],
