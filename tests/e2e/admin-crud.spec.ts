@@ -16,9 +16,14 @@ test('admin can create employer -> cohort -> intern, then edit the intern', asyn
   await expect(page).toHaveURL(/\/admin$/);
 
   // Home renders. PageHead uses an <h1> with the title prop, which is
-  // "GOOD MORNING." on /admin. Match partial / case-insensitive so a future
-  // copy tweak doesn't break the smoke.
-  await expect(page.getByRole('heading', { level: 1 })).toContainText(/good morning/i);
+  // "GOOD MORNING/AFTERNOON/EVENING, <name>." on /admin — time-of-day
+  // dependent (app/lib/format.ts greetingFor(), evaluated in
+  // America/Indiana/Indianapolis). Match any of the three greetings and
+  // require a name character after the comma so this still proves the
+  // signed-in user's name rendered, not just any heading.
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(
+    /good (morning|afternoon|evening),\s*\S/i,
+  );
 
   // --- Create employer ----------------------------------------------------
   // Top nav has a single "Settings" link; the settings index redirects to

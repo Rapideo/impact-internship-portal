@@ -18,9 +18,14 @@ test('admin can sign in and lands on /admin', async ({ page }) => {
   await page.getByLabel('Password').fill(ADMIN_PASSWORD);
   await page.getByRole('button', { name: /sign in/i }).click();
   await expect(page).toHaveURL(/\/admin$/);
-  // SP7 Phase E1 — admin home H1 is now the prototype's "GOOD MORNING, <name>."
-  // greeting. Match the stable prefix.
-  await expect(page.getByRole('heading', { level: 1 })).toContainText(/good morning/i);
+  // SP7 Phase E1 — admin home H1 is the prototype's "GOOD MORNING/AFTERNOON/
+  // EVENING, <name>." greeting, now time-of-day dependent (app/lib/format.ts
+  // greetingFor(), evaluated in America/Indiana/Indianapolis). Match any of
+  // the three greetings and require a name character after the comma so this
+  // still proves the signed-in user's name rendered, not just any heading.
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(
+    /good (morning|afternoon|evening),\s*\S/i,
+  );
 });
 
 test('employer can sign in and lands on /employer', async ({ page }) => {
