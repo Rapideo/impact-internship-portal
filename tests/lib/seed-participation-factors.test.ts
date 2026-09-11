@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SEED_PARTICIPATION_FACTORS } from '../../db/seed-data/participation-factors';
+import { SEED_INTERNS } from '../../db/seed-data/interns';
 
 describe('SEED_PARTICIPATION_FACTORS', () => {
   it('contains the eight client-approved values in order', () => {
@@ -42,5 +43,24 @@ describe('SEED_PARTICIPATION_FACTORS', () => {
     for (const old of ['Transportation', 'Childcare', 'Housing instability', 'Mental health']) {
       expect(labels).not.toContain(old);
     }
+  });
+});
+
+// Drift guard: SEED_INTERNS.entryParticipationFactorLabels are plain strings, not a foreign key,
+// so nothing but this test catches a label that no longer exists in SEED_PARTICIPATION_FACTORS.
+// db/seed.ts throws "Unknown participation factor label" at seed time when that happens — this
+// test surfaces the same drift at `npm test` time instead, without touching a database.
+describe('SEED_INTERNS entryParticipationFactorLabels', () => {
+  const validLabels = new Set(SEED_PARTICIPATION_FACTORS.map((f) => f.label));
+  const referencedLabels = new Set(SEED_INTERNS.flatMap((i) => i.entryParticipationFactorLabels));
+
+  it('references only labels that exist in SEED_PARTICIPATION_FACTORS', () => {
+    const stale = [...referencedLabels].filter((label) => !validLabels.has(label));
+    expect(stale).toEqual([]);
+  });
+
+  it('never assigns the catch-all or none-identified factors to a demo intern', () => {
+    expect(referencedLabels.has('Other participation-related factor')).toBe(false);
+    expect(referencedLabels.has('No participation factors identified')).toBe(false);
   });
 });
