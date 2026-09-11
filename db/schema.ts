@@ -171,7 +171,7 @@ export const phases = pgTable('phases', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const barriers = pgTable('barriers', {
+export const participationFactors = pgTable('participation_factors', {
   id: uuid('id').primaryKey().defaultRandom(),
   label: text('label').notNull(),
   sortOrder: integer('sort_order').notNull(),
@@ -232,18 +232,18 @@ export const internEntryAssessment = pgTable('intern_entry_assessment', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const internEntryBarriers = pgTable(
-  'intern_entry_barriers',
+export const internParticipationFactors = pgTable(
+  'intern_participation_factors',
   {
     internId: uuid('intern_id')
       .notNull()
       .references(() => interns.id, { onDelete: 'cascade' }),
-    barrierId: uuid('barrier_id')
+    participationFactorId: uuid('participation_factor_id')
       .notNull()
-      .references(() => barriers.id, { onDelete: 'cascade' }),
+      .references(() => participationFactors.id, { onDelete: 'cascade' }),
   },
   (t) => ({
-    pk: primaryKey({ columns: [t.internId, t.barrierId] }),
+    pk: primaryKey({ columns: [t.internId, t.participationFactorId] }),
   }),
 );
 
