@@ -12,7 +12,7 @@ import {
   getInternsByGroup,
   getOutcomeRates,
   getAssessmentCompletion,
-  getBarrierDistribution,
+  getParticipationFactorDistribution,
   getSubmissionsTrend,
   getReportsData,
   resolveAdminScope,
@@ -87,7 +87,7 @@ describe('reports-queries: getOutcomeRates', () => {
   });
 });
 
-describe('reports-queries: completion / barriers / trend', () => {
+describe('reports-queries: completion / participation factors / trend', () => {
   it('returns all five assessment types with a zero seed', async () => {
     const rows = await getAssessmentCompletion(db, { level: 'global' });
     expect(rows).toHaveLength(5);
@@ -95,15 +95,18 @@ describe('reports-queries: completion / barriers / trend', () => {
     expect(competency).toMatchObject({ completed: 0, total: 6 });
   });
 
-  it('counts distinct interns per barrier, desc', async () => {
-    const rows = await getBarrierDistribution(db, { level: 'global' });
-    expect(rows).toHaveLength(5); // 5 distinct barriers across seeded interns
+  it('counts distinct interns per participation factor, desc', async () => {
+    const rows = await getParticipationFactorDistribution(db, { level: 'global' });
+    expect(rows).toHaveLength(5); // 5 distinct participation factors across seeded interns
     rows.forEach((r) => expect(r.count).toBe(1));
     expect(rows.map((r) => r.label)).toContain('Transportation');
   });
 
-  it('scopes barriers to the employer', async () => {
-    const rows = await getBarrierDistribution(db, { level: 'employer', employerId: NORTHSIDE });
+  it('scopes participation factors to the employer', async () => {
+    const rows = await getParticipationFactorDistribution(db, {
+      level: 'employer',
+      employerId: NORTHSIDE,
+    });
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ label: 'Childcare', count: 1 });
   });
@@ -121,7 +124,7 @@ describe('reports-queries: getReportsData', () => {
     expect(d.internsByGroup.groupBy).toBe('employer');
     expect(d.outcomes.ninetyDay.denominator).toBe(6);
     expect(d.assessmentCompletion).toHaveLength(5);
-    expect(Array.isArray(d.barriers)).toBe(true);
+    expect(Array.isArray(d.participationFactors)).toBe(true);
     expect(Array.isArray(d.trend)).toBe(true);
   });
 });

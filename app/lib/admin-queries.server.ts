@@ -7,9 +7,9 @@ import {
   interns,
   phases,
   cohortPhases,
-  barriers,
+  participationFactors,
   internEntryAssessment,
-  internEntryBarriers,
+  internParticipationFactors,
   internEmploymentOutcomes,
   assessmentSubmissions,
   programInfo,
@@ -228,12 +228,15 @@ export async function getInternEntry(db: Database, internId: string) {
   return rows[0] ?? null;
 }
 
-export async function getInternEntryBarrierIds(db: Database, internId: string): Promise<string[]> {
+export async function getInternEntryParticipationFactorIds(
+  db: Database,
+  internId: string,
+): Promise<string[]> {
   const rows = await db
-    .select({ barrierId: internEntryBarriers.barrierId })
-    .from(internEntryBarriers)
-    .where(eq(internEntryBarriers.internId, internId));
-  return rows.map((r) => r.barrierId);
+    .select({ participationFactorId: internParticipationFactors.participationFactorId })
+    .from(internParticipationFactors)
+    .where(eq(internParticipationFactors.internId, internId));
+  return rows.map((r) => r.participationFactorId);
 }
 
 export async function getInternEmploymentOutcomes(db: Database, internId: string) {
@@ -251,8 +254,8 @@ export async function listPhases(db: Database) {
   return db.select().from(phases).orderBy(asc(phases.sortOrder));
 }
 
-export async function listBarriers(db: Database) {
-  return db.select().from(barriers).orderBy(asc(barriers.sortOrder));
+export async function listParticipationFactors(db: Database) {
+  return db.select().from(participationFactors).orderBy(asc(participationFactors.sortOrder));
 }
 
 export async function getProgramInfo(db: Database) {
