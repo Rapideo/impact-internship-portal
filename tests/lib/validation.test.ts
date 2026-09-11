@@ -120,8 +120,8 @@ describe('parseInlineRows', () => {
     fd.set('phases[1].label', 'Phase 2');
     const { rows, errors } = parseInlineRows(fd, 'phases');
     expect(rows).toEqual([
-      { id: 'p1', label: 'Phase 1' },
-      { id: null, label: 'Phase 2' },
+      { id: 'p1', label: 'Phase 1', description: null },
+      { id: null, label: 'Phase 2', description: null },
     ]);
     expect(errors).toEqual([]);
   });
@@ -143,5 +143,27 @@ describe('parseInlineRows', () => {
     const fd = new FormData();
     const { errors } = parseInlineRows(fd, 'phases');
     expect(errors).toEqual([{ field: 'phases', message: 'At least one row is required.' }]);
+  });
+
+  it('parses an optional description alongside the label', () => {
+    const fd = new FormData();
+    fd.set('factors[0].id', 'abc');
+    fd.set('factors[0].label', 'Transportation/access');
+    fd.set('factors[0].description', 'ability to reliably get to/from internship');
+    const { rows, errors } = parseInlineRows(fd, 'factors');
+    expect(errors).toHaveLength(0);
+    expect(rows[0]).toEqual({
+      id: 'abc',
+      label: 'Transportation/access',
+      description: 'ability to reliably get to/from internship',
+    });
+  });
+
+  it('returns a null description when the field is absent', () => {
+    const fd = new FormData();
+    fd.set('phases[0].id', 'p1');
+    fd.set('phases[0].label', 'Week 4');
+    const { rows } = parseInlineRows(fd, 'phases');
+    expect(rows[0]!.description).toBeNull();
   });
 });

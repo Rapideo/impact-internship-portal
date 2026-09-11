@@ -82,4 +82,17 @@ describe('InlineEditableList', () => {
     expect(inputs[0]!.value).toBe('B');
     expect(inputs[1]!.value).toBe('A');
   });
+
+  it('renders a description input only when withDescription is set', () => {
+    const rows = [{ id: '1', label: 'Transportation/access', description: 'get to/from' }];
+    const { rerender } = render(
+      <InlineEditableList initial={rows} addLabel="+ Add" name="factors" />,
+    );
+    expect(screen.queryByPlaceholderText('Description (optional)')).toBeNull();
+
+    rerender(<InlineEditableList initial={rows} addLabel="+ Add" name="factors" withDescription />);
+    const input = screen.getByPlaceholderText('Description (optional)');
+    expect(input).toHaveValue('get to/from');
+    expect(input).toHaveAttribute('name', 'factors[0].description');
+  });
 });

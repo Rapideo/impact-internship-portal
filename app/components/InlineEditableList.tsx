@@ -13,20 +13,28 @@
 //     inline string so the rendered DOM matches the prototype's two
 //     `<button class="settings-list__handle-btn">` children.
 //   - Middle cell hosts the label text input (`.settings-list__label-input`).
+//     When `withDescription` is true, a second stacked input
+//     (`.settings-list__description-input`) renders inside the SAME cell so
+//     the row's 90px/1fr/40px grid is unchanged.
 //   - Right cell hosts the remove button (`.settings-list__remove-btn`).
 //   - `+ Add ...` button uses `.settings-list__add` (dashed-border row).
 //
-// Submitted form-data shape is unchanged: each row writes
-//   `${name}[i].id`   (hidden) and
-//   `${name}[i].label` (text input)
-// — server-side parsers in admin.settings.phases / participation-factors
-// routes already rely on this contract.
+// Submitted form-data shape: each row writes
+//   `${name}[i].id`    (hidden),
+//   `${name}[i].label` (text input), and — only when `withDescription` is
+//   set — `${name}[i].description` (text input).
+// `withDescription` defaults to false so `admin.settings.phases.tsx` and
+// `dev.primitives.tsx` render exactly as before (single-column, no
+// description field). `parseInlineRows` in `app/lib/validation.ts` always
+// parses an optional `description`, regardless of whether the form submits
+// it — a missing field simply parses to `null`.
 
 import { useState } from 'react';
 
 export interface InlineRow {
   id: string;
   label: string;
+  description?: string | null;
 }
 
 export function InlineEditableList({
@@ -34,6 +42,7 @@ export function InlineEditableList({
   addLabel,
   name,
   errorIndices,
+  withDescription,
 }: {
   initial: InlineRow[];
   addLabel: string;
@@ -41,17 +50,24 @@ export function InlineEditableList({
   name: string;
   /** Indices to render with .input--error (server-validation feedback) */
   errorIndices?: number[];
+  /** Opt-in: also render a second "Description (optional)" input per row,
+   *  submitting `${name}[<i>].description`. Default false keeps consumers
+   *  without descriptions (Phases, dev/primitives) unaffected. */
+  withDescription?: boolean;
 }) {
   const [rows, setRows] = useState<InlineRow[]>(() =>
-    initial.map((r) => ({ id: r.id, label: r.label })),
+    initial.map((r) => ({ id: r.id, label: r.label, description: r.description ?? '' })),
   );
   const errSet = new Set(errorIndices ?? []);
 
   function update(i: number, label: string) {
     setRows((rs) => rs.map((r, j) => (j === i ? { ...r, label } : r)));
   }
+  function updateDescription(i: number, description: string) {
+    setRows((rs) => rs.map((r, j) => (j === i ? { ...r, description } : r)));
+  }
   function add() {
-    setRows((rs) => [...rs, { id: '', label: '' }]);
+    setRows((rs) => [...rs, { id: '', label: '', description: '' }]);
   }
   function remove(i: number) {
     setRows((rs) => rs.filter((_, j) => j !== i));
@@ -103,6 +119,16 @@ export function InlineEditableList({
                 placeholder="Label"
                 onChange={(e) => update(i, e.target.value)}
               />
+              {withDescription ? (
+                <input
+                  type="text"
+                  className="settings-list__description-input"
+                  name={`${name}[${i}].description`}
+                  value={row.description ?? ''}
+                  placeholder="Description (optional)"
+                  onChange={(e) => updateDescription(i, e.target.value)}
+                />
+              ) : null}
             </div>
             <div className="settings-list__cell settings-list__cell--remove">
               <button
