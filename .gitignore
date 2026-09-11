@@ -54,3 +54,8 @@ yarn-error.log*
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
+
+# Claude Code per-machine permissions (project-level .claude/settings.json stays committable)
+# and the scratch worktrees its isolated agents check out.
+.claude/settings.local.json
+.claude/worktrees/

@@ -80,15 +80,21 @@ for how the pipeline works and `CLAUDE.md` for current infra state.
 Recommended CLIs/integrations to de-friction the ops we hit during launch
 (2026-05-26). The Supabase CLI is already installed (v2.98) but underused.
 
-- [ ] **Supabase + Netlify MCP servers** (highest leverage). Configure both in
-      Claude Code so DB queries + deploy inspection happen directly in-session,
-      replacing the temp-script + masked-env workarounds used during launch.
+- [x] **Supabase MCP** — done 2026-09-11 (`.mcp.json`, PR #141): `supabase-dev`
+      writable, `supabase-prod` `read_only=true` (OAuth `database:read` only, no
+      `apply_migration`, read-only transactions). See CLAUDE.md → Supabase.
+- [ ] **Netlify MCP server** — still open. Deploy inspection is still CLI-only
+      (`netlify api getDeploy`, `netlify env:list`).
 - [ ] **Link the Supabase CLI** to both projects (`supabase link --project-ref
       <ref>`) for direct DB access without juggling masked Netlify connection
       strings; adopt **`supabase db dump`** as a pre-step before any destructive
-      DB op (prod migrations were run with no backup during launch).
-- [ ] **`dotenv-cli`** (dev dep) — `dotenv -e .env.prod -- npm run db:migrate`
-      to cleanly target a chosen env, replacing the dotenv no-override dance.
+      DB op (prod migrations were run with no backup during launch). Now
+      feasible: the prod DB password was reset 2026-09-11 and lives in
+      `.env.prod.local` (see CLAUDE.md → "Running scripts against impact-prod").
+- [ ] **`dotenv-cli`** (dev dep) — `dotenv -e .env.prod.local -- npm run db:migrate`
+      to cleanly target a chosen env, replacing the `set -a; source …` pre-load.
+      The file MUST be `.env.prod.local`: `.gitignore` covers `.env.*.local` but
+      **not** `.env.prod`, which would be a committable prod credential.
 - [ ] **`@sentry/vite-plugin`** (dev dep) — upload source maps at build so
       Sentry shows real code, not minified stack traces (needs
       `SENTRY_AUTH_TOKEN`). This is the "readable stack traces" Sentry follow-up.
