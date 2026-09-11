@@ -11,13 +11,13 @@ import { useMemo, useRef, useState } from 'react';
 import type { Route } from './+types/admin.interns.new';
 import { requireAdmin } from '~/lib/admin-guard.server';
 import { db } from '~/lib/db.server';
-import { listAllEmployers, listBarriers } from '~/lib/admin-queries.server';
+import { listAllEmployers, listParticipationFactors } from '~/lib/admin-queries.server';
 import {
   cohorts as cohortsTbl,
   roles as rolesTbl,
   interns,
   internEntryAssessment,
-  internEntryBarriers,
+  internParticipationFactors,
 } from '../../db/schema';
 import { asc } from 'drizzle-orm';
 import {
@@ -32,14 +32,14 @@ import {
 import { PageHead } from '~/components/PageHead';
 import { RubricPanel } from '~/components/RubricPanel';
 import { ActionBar } from '~/components/ActionBar';
-import { BarrierCheckList } from '~/components/BarrierCheckList';
+import { ParticipationFactorCheckList } from '~/components/ParticipationFactorCheckList';
 import { ConfirmModal } from '~/components/ConfirmModal';
 
 export const meta: Route.MetaFunction = () => [{ title: 'New Intern — IMPACT Admin' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);
-  const [employers, allCohorts, allRoles, barriers] = await Promise.all([
+  const [employers, allCohorts, allRoles, participationFactors] = await Promise.all([
     listAllEmployers(db),
     db
       .select({
@@ -54,9 +54,9 @@ export async function loader({ request }: Route.LoaderArgs) {
       .select({ id: rolesTbl.id, employerId: rolesTbl.employerId, label: rolesTbl.label })
       .from(rolesTbl)
       .orderBy(asc(rolesTbl.label)),
-    listBarriers(db),
+    listParticipationFactors(db),
   ]);
-  return data({ employers, allCohorts, allRoles, barriers }, { headers });
+  return data({ employers, allCohorts, allRoles, participationFactors }, { headers });
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -78,12 +78,15 @@ export async function action({ request }: Route.ActionArgs) {
   // saved") and the minimum-PII policy. The previous `requireSingleCharUpper`
   // gate was the CLAUDE.md SP2 carry-over — rejected any multi-char input
   // and contradicted the hint copy.
-  const barrierIds = formData
-    .getAll('barrierIds')
+  const participationFactorIds = formData
+    .getAll('participationFactorIds')
     .map((v) => String(v))
     .filter(Boolean);
   if (errors.length > 0) {
-    return data({ errors, values: { ...values, barrierIds } }, { headers, status: 400 });
+    return data(
+      { errors, values: { ...values, participationFactorIds } },
+      { headers, status: 400 },
+    );
   }
 
   const firstInitial = values.firstName.trim()[0]!.toUpperCase();
@@ -108,10 +111,13 @@ export async function action({ request }: Route.ActionArgs) {
         completedAt: new Date(),
       });
 
-      if (barrierIds.length > 0) {
-        await tx
-          .insert(internEntryBarriers)
-          .values(barrierIds.map((bid) => ({ internId: intern!.id, barrierId: bid })));
+      if (participationFactorIds.length > 0) {
+        await tx.insert(internParticipationFactors).values(
+          participationFactorIds.map((fid) => ({
+            internId: intern!.id,
+            participationFactorId: fid,
+          })),
+        );
       }
       return intern!;
     });
@@ -132,7 +138,7 @@ export async function action({ request }: Route.ActionArgs) {
               message: 'An intern with the same name already exists in this cohort.',
             },
           ],
-          values: { ...values, barrierIds },
+          values: { ...values, participationFactorIds },
         },
         { headers, status: 409 },
       );
@@ -142,7 +148,7 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 export default function NewIntern() {
-  const { employers, allCohorts, allRoles, barriers } = useLoaderData<typeof loader>();
+  const { employers, allCohorts, allRoles, participationFactors } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const nav = useNavigation();
   const errs = errorsByField(actionData?.errors ?? []);
@@ -169,8 +175,9 @@ export default function NewIntern() {
     if (c?.roleId) setRoleId(c.roleId);
   }
 
-  const barrierIds =
-    (actionData?.values as { barrierIds?: string[] } | undefined)?.barrierIds ?? [];
+  const participationFactorIds =
+    (actionData?.values as { participationFactorIds?: string[] } | undefined)
+      ?.participationFactorIds ?? [];
 
   return (
     <>
@@ -333,16 +340,19 @@ export default function NewIntern() {
               <RubricPanel
                 num="03"
                 title="Entry Assessment"
-                meta="Barriers to entry identified at intake. Notes feed support planning."
+                meta="Participation factors identified at intake. Notes feed support planning."
               >
-                <BarrierCheckList barriers={barriers} checkedIds={barrierIds} />
+                <ParticipationFactorCheckList
+                  factors={participationFactors}
+                  checkedIds={participationFactorIds}
+                />
                 <div className="rubric-notes">
-                  <label className="rubric-notes__label" htmlFor="barrier-notes">
+                  <label className="rubric-notes__label" htmlFor="participation-factor-notes">
                     Notes
                   </label>
                   <textarea
                     className="textarea"
-                    id="barrier-notes"
+                    id="participation-factor-notes"
                     name="entryNotes"
                     rows={3}
                     placeholder="Additional context, supports, or follow-up needed…"

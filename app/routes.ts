@@ -70,7 +70,10 @@ export default [
     route('admin/settings/roles/:roleId', 'routes/admin.settings.roles.$roleId._index.tsx'),
     route('admin/settings/roles/:roleId/edit', 'routes/admin.settings.roles.$roleId.edit.tsx'),
     route('admin/settings/phases', 'routes/admin.settings.phases.tsx'),
-    route('admin/settings/barriers', 'routes/admin.settings.barriers.tsx'),
+    route(
+      'admin/settings/participation-factors',
+      'routes/admin.settings.participation-factors.tsx',
+    ),
     route('admin/settings/program-info', 'routes/admin.settings.program-info.tsx'),
     route('admin/settings/users', 'routes/admin.settings.users._index.tsx'),
     route('admin/settings/users/new', 'routes/admin.settings.users.new.tsx'),

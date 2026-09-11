@@ -1,8 +1,8 @@
-// Inline editable list — admin Settings → Phases / Barriers row editor.
+// Inline editable list — admin Settings → Phases / Participation Factors row editor.
 //
 // SP7 Phase C rewrite — preserves the existing prop API verbatim. Internal
-// markup mirrors the prototype's `settings-phases.html` /
-// `settings-barriers.html` row pattern:
+// markup mirrors the prototype's `settings-phases.html` row pattern (also
+// used historically for the entry-assessment participation-factor list):
 //
 //   - `.settings-list` container with `role="list"`.
 //   - Each `.settings-list__row` is a grid with `90px / 1fr / 40px`
@@ -19,8 +19,8 @@
 // Submitted form-data shape is unchanged: each row writes
 //   `${name}[i].id`   (hidden) and
 //   `${name}[i].label` (text input)
-// — server-side parsers in admin.settings.phases / barriers routes already
-// rely on this contract.
+// — server-side parsers in admin.settings.phases / participation-factors
+// routes already rely on this contract.
 
 import { useState } from 'react';
 

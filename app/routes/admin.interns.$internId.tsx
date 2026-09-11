@@ -15,17 +15,17 @@ import { db } from '~/lib/db.server';
 import {
   getInternOrNull,
   getInternEntry,
-  getInternEntryBarrierIds,
+  getInternEntryParticipationFactorIds,
   getInternEmploymentOutcomes,
   getCohortOrNull,
   getEmployerOrNull,
   getRoleOrNull,
-  listBarriers,
+  listParticipationFactors,
 } from '~/lib/admin-queries.server';
 import {
   interns,
   internEntryAssessment,
-  internEntryBarriers,
+  internParticipationFactors,
   internEmploymentOutcomes,
   assessmentSubmissions,
 } from '../../db/schema';
@@ -36,7 +36,7 @@ import { MetaStrip } from '~/components/MetaStrip';
 import { RubricPanel } from '~/components/RubricPanel';
 import { ActionBar } from '~/components/ActionBar';
 import { ConfirmModal } from '~/components/ConfirmModal';
-import { BarrierCheckList } from '~/components/BarrierCheckList';
+import { ParticipationFactorCheckList } from '~/components/ParticipationFactorCheckList';
 import { useToast } from '~/components/ToastProvider';
 import { formatDate } from '~/lib/format';
 
@@ -47,13 +47,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const internId = params.internId!;
   const intern = await getInternOrNull(db, internId);
   if (!intern) throw new Response('Not Found', { status: 404 });
-  const [cohort, entry, entryBarrierIds, outcomes, allBarriers] = await Promise.all([
-    getCohortOrNull(db, intern.cohortId),
-    getInternEntry(db, internId),
-    getInternEntryBarrierIds(db, internId),
-    getInternEmploymentOutcomes(db, internId),
-    listBarriers(db),
-  ]);
+  const [cohort, entry, entryParticipationFactorIds, outcomes, allParticipationFactors] =
+    await Promise.all([
+      getCohortOrNull(db, intern.cohortId),
+      getInternEntry(db, internId),
+      getInternEntryParticipationFactorIds(db, internId),
+      getInternEmploymentOutcomes(db, internId),
+      listParticipationFactors(db),
+    ]);
   const employer = cohort ? await getEmployerOrNull(db, cohort.employerId) : null;
   const role = intern.roleId ? await getRoleOrNull(db, intern.roleId) : null;
 
@@ -72,7 +73,17 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     .orderBy(desc(assessmentSubmissions.submittedAt));
 
   return data(
-    { intern, cohort, employer, role, entry, entryBarrierIds, outcomes, allBarriers, submissions },
+    {
+      intern,
+      cohort,
+      employer,
+      role,
+      entry,
+      entryParticipationFactorIds,
+      outcomes,
+      allParticipationFactors,
+      submissions,
+    },
     { headers },
   );
 }
@@ -93,8 +104,8 @@ export async function action({ request, params }: Route.ActionArgs) {
     employed90Notes: optionalString('90-Day Notes'),
     employed180Notes: optionalString('180-Day Notes'),
   });
-  const barrierIds = formData
-    .getAll('barrierIds')
+  const participationFactorIds = formData
+    .getAll('participationFactorIds')
     .map((v) => String(v))
     .filter(Boolean);
   const employed90 = formData.get('employed90') === 'on';
@@ -114,12 +125,14 @@ export async function action({ request, params }: Route.ActionArgs) {
         set: { notes: values.entryNotes, updatedAt: new Date() },
       });
 
-    // Replace entry barriers.
-    await tx.delete(internEntryBarriers).where(eq(internEntryBarriers.internId, internId));
-    if (barrierIds.length > 0) {
+    // Replace entry participation factors.
+    await tx
+      .delete(internParticipationFactors)
+      .where(eq(internParticipationFactors.internId, internId));
+    if (participationFactorIds.length > 0) {
       await tx
-        .insert(internEntryBarriers)
-        .values(barrierIds.map((bid) => ({ internId, barrierId: bid })));
+        .insert(internParticipationFactors)
+        .values(participationFactorIds.map((fid) => ({ internId, participationFactorId: fid })));
     }
 
     // Upsert employment outcomes.
@@ -204,9 +217,9 @@ export default function EditIntern() {
     employer,
     role,
     entry,
-    entryBarrierIds,
+    entryParticipationFactorIds,
     outcomes,
-    allBarriers,
+    allParticipationFactors,
     submissions,
   } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
@@ -275,19 +288,22 @@ export default function EditIntern() {
               <RubricPanel
                 num="03"
                 title="Entry Assessment"
-                meta="Barriers to entry identified at intake. Notes feed support planning."
+                meta="Participation factors identified at intake. Notes feed support planning."
               >
-                <BarrierCheckList barriers={allBarriers} checkedIds={entryBarrierIds} />
+                <ParticipationFactorCheckList
+                  factors={allParticipationFactors}
+                  checkedIds={entryParticipationFactorIds}
+                />
                 <div
                   className="rubric-notes"
                   style={{ padding: '22px 28px', borderTop: '1px solid var(--rule)' }}
                 >
-                  <label className="rubric-notes__label" htmlFor="barrier-notes">
+                  <label className="rubric-notes__label" htmlFor="participation-factor-notes">
                     Notes
                   </label>
                   <textarea
                     className="textarea"
-                    id="barrier-notes"
+                    id="participation-factor-notes"
                     name="entryNotes"
                     rows={3}
                     placeholder="Additional context, supports, or follow-up needed…"

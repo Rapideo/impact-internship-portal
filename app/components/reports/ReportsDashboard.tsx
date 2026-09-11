@@ -11,7 +11,8 @@ import { AreaTrend } from '~/components/charts/AreaTrend';
 import type { ReportsData } from '~/lib/reports-types';
 
 export function ReportsDashboard({ data }: { data: ReportsData }) {
-  const { kpis, internsByGroup, outcomes, assessmentCompletion, barriers, trend } = data;
+  const { kpis, internsByGroup, outcomes, assessmentCompletion, participationFactors, trend } =
+    data;
   const pad2 = (n: number) => String(n).padStart(2, '0');
 
   return (
@@ -99,13 +100,13 @@ export function ReportsDashboard({ data }: { data: ReportsData }) {
 
             <article className="report-card">
               <div className="report-card__head">
-                <h3 className="report-card__title">Entry Barriers</h3>
+                <h3 className="report-card__title">Internship Participation Factors</h3>
                 <span className="micro-label">POPULATION</span>
               </div>
               <BarList
-                rows={barriers.map((b) => ({ label: b.label, value: b.count }))}
+                rows={participationFactors.map((f) => ({ label: f.label, value: f.count }))}
                 variant="gold"
-                emptyLabel="No barriers recorded."
+                emptyLabel="No participation factors recorded."
               />
             </article>
 

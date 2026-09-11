@@ -5,7 +5,7 @@ export type SettingsTab =
   | 'users'
   | 'questions'
   | 'phases'
-  | 'barriers'
+  | 'participation-factors'
   | 'program-info';
 
 const ITEMS: Array<{ tab: SettingsTab; to: string; label: string }> = [
@@ -13,7 +13,11 @@ const ITEMS: Array<{ tab: SettingsTab; to: string; label: string }> = [
   { tab: 'users', to: '/admin/settings/users', label: 'Users' },
   { tab: 'questions', to: '/admin/settings/questions', label: 'Assessments' },
   { tab: 'phases', to: '/admin/settings/phases', label: 'Assessment Phases' },
-  { tab: 'barriers', to: '/admin/settings/barriers', label: 'Barriers' },
+  {
+    tab: 'participation-factors',
+    to: '/admin/settings/participation-factors',
+    label: 'Participation Factors',
+  },
   { tab: 'program-info', to: '/admin/settings/program-info', label: 'Program Info' },
 ];
 

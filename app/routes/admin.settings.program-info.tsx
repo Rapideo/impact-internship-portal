@@ -277,9 +277,10 @@ export default function ProgramInfoSettings() {
             sub={
               <>
                 Wipes every row in the public schema and re-seeds the dev fixtures (employers,
-                cohorts, roles, interns, phases, barriers, question sets, program info). Equivalent
-                to running <code>npm run db:seed</code>. Only available in non-production
-                environments; the route refuses to run against the impact-prod project ref.
+                cohorts, roles, interns, phases, participation factors, question sets, program
+                info). Equivalent to running <code>npm run db:seed</code>. Only available in
+                non-production environments; the route refuses to run against the impact-prod
+                project ref.
               </>
             }
           >

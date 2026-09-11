@@ -58,7 +58,7 @@ function setSubCopy(t: SelfType): string {
   if (t === 'midpoint-reflection') {
     return 'Submitted and locked. One submission per intern. The intern’s mid-program reflection on progress and next steps.';
   }
-  return 'Submitted and locked. One submission per intern. End-of-program feedback covering experience, supports, and barriers.';
+  return 'Submitted and locked. One submission per intern. End-of-program feedback covering experience, supports, and participation factors.';
 }
 
 export async function loader({ request }: Route.LoaderArgs) {

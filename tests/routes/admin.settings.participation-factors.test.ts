@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { action } from '~/routes/admin.settings.barriers';
+import { action } from '~/routes/admin.settings.participation-factors';
 import * as guard from '~/lib/admin-guard.server';
 
-describe('barriers action validation', () => {
+describe('participation factors action validation', () => {
   beforeEach(() => vi.restoreAllMocks());
 
   it('rejects empty label rows', async () => {
@@ -11,9 +11,9 @@ describe('barriers action validation', () => {
       headers: new Headers(),
     });
     const fd = new FormData();
-    fd.set('barriers[0].id', '');
-    fd.set('barriers[0].label', '');
-    const req = new Request('https://x.test/admin/settings/barriers', {
+    fd.set('participationFactors[0].id', '');
+    fd.set('participationFactors[0].label', '');
+    const req = new Request('https://x.test/admin/settings/participation-factors', {
       method: 'POST',
       body: fd,
     });

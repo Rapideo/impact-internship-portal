@@ -751,8 +751,8 @@
   font-size: 12px;
 }
 
-/* Barrier list */
-.barrier-check-list {
+/* Participation factor list */
+.participation-factor-check-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 4px;

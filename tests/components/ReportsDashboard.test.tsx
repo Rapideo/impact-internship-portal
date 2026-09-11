@@ -15,7 +15,7 @@ const GLOBAL: ReportsData = {
     oneEightyDay: { numerator: 19, denominator: 31 },
   },
   assessmentCompletion: [{ key: 'competency', label: 'Competency', completed: 30, total: 37 }],
-  barriers: [{ id: 'b1', label: 'Transportation', count: 22 }],
+  participationFactors: [{ id: 'b1', label: 'Transportation', count: 22 }],
   trend: [],
 };
 

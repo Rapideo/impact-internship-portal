@@ -347,7 +347,7 @@ export default function DevPrimitives() {
             <RubricPanel
               num="03"
               title="Entry Assessment"
-              meta="12 BARRIERS"
+              meta="12 PARTICIPATION FACTORS"
               progress={{ state: 'ready', label: 'Ready' }}
             >
               <div style={{ padding: 28, color: 'var(--muted)' }}>
@@ -495,7 +495,7 @@ export default function DevPrimitives() {
               stage="PER INTERN · AT EXIT"
               meta="EXIT EMPLOYER SURVEY"
               title="Capture exit outcomes."
-              body="Record the employer's evaluation at the close of placement: outcome status, performance rating, strengths, work-readiness indicators, and barriers observed."
+              body="Record the employer's evaluation at the close of placement: outcome status, performance rating, strengths, work-readiness indicators, and participation factors observed."
               action={
                 <button type="button" className="btn btn--primary">
                   Begin Exit Survey <span className="btn__arrow">→</span>
@@ -575,7 +575,7 @@ export default function DevPrimitives() {
               {
                 num: '01 / Stage One',
                 title: 'Intake',
-                body: 'A unified intern record captures personal information, internship assignment, entry barriers, and role-specific competencies at the start of placement.',
+                body: 'A unified intern record captures personal information, internship assignment, entry participation factors, and role-specific competencies at the start of placement.',
                 metaLeft: 'At placement',
                 metaRight: 'Admin',
               },
@@ -797,11 +797,11 @@ export default function DevPrimitives() {
           />
         </Section>
 
-        <Section title="InlineEditableList — Settings → Phases / Barriers row editor">
+        <Section title="InlineEditableList — Settings → Phases / Participation Factors row editor">
           <p className="micro-label">
-            Prototype: <code>settings-phases.html</code>, <code>settings-barriers.html</code>. Grid{' '}
-            <code>90px / 1fr / 40px</code> hosts ↑↓ handle buttons, label input, and remove button.
-            Edge rows render the handle button as <code>disabled</code>.
+            Prototype: <code>settings-phases.html</code>. Grid <code>90px / 1fr / 40px</code> hosts
+            ↑↓ handle buttons, label input, and remove button. Edge rows render the handle button as{' '}
+            <code>disabled</code>.
           </p>
           <form
             method="post"
