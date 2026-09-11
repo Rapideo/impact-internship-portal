@@ -3,9 +3,10 @@ import { config } from 'dotenv';
 config({ path: '.env.local' });
 config();
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
+import { eq } from 'drizzle-orm';
 import * as schema from '../../db/schema';
 import {
   getKpis,
@@ -109,9 +110,14 @@ describe('reports-queries: completion / participation factors / trend', () => {
 
   it('counts distinct interns per participation factor, desc', async () => {
     const rows = await getParticipationFactorDistribution(db, { level: 'global' });
-    expect(rows).toHaveLength(5); // 5 distinct participation factors across seeded interns
+    // 4 distinct participation factors across seeded interns: Whitaker carries
+    // 'Transportation/access' + 'Administrative requirements', Okafor carries
+    // 'Schedule/availability', Delgado carries 'Attendance continuity'. (Updated
+    // from the old 12-value "barrier" labels when the eight participation
+    // factors landed — see db/seed-data/interns.ts.)
+    expect(rows).toHaveLength(4);
     rows.forEach((r) => expect(r.count).toBe(1));
-    expect(rows.map((r) => r.label)).toContain('Transportation');
+    expect(rows.map((r) => r.label)).toContain('Transportation/access');
   });
 
   it('scopes participation factors to the employer', async () => {
@@ -119,13 +125,80 @@ describe('reports-queries: completion / participation factors / trend', () => {
       level: 'employer',
       employerId: NORTHSIDE,
     });
+    // Okafor ('Schedule/availability') is the only Northside intern with a
+    // real factor; the Test1-3 E2E fixtures carry none.
     expect(rows).toHaveLength(1);
-    expect(rows[0]).toMatchObject({ label: 'Childcare', count: 1 });
+    expect(rows[0]).toMatchObject({ label: 'Schedule/availability', count: 1 });
   });
 
   it('returns an empty trend when there are no submissions', async () => {
     const rows = await getSubmissionsTrend(db, { level: 'global' });
     expect(rows).toEqual([]);
+  });
+});
+
+// Spec §7: admins are allowed to tick contradictory combinations (e.g. both
+// "No participation factors identified" and a real factor) — data entry is
+// unconstrained. This fixture proves the query, not the form, is what keeps
+// the "none" bucket honest: an intern with a real factor never inflates it.
+describe('reports-queries: getParticipationFactorDistribution none-bucket honesty', () => {
+  // Fresh UUID namespace (55555555-…) so these transient fixtures can never
+  // collide with seeded ids (11=employers, 22=roles, 33=cohorts, 44=interns).
+  const NONE_ONLY_INTERN = '55555555-5555-5555-5555-555555555501';
+  const NONE_AND_REAL_INTERN = '55555555-5555-5555-5555-555555555502';
+
+  afterEach(async () => {
+    // ON DELETE CASCADE on intern_participation_factors.intern_id removes the
+    // factor links along with the interns; scoped to these two fixture ids
+    // only, matching this file's SEEDED_SUBMISSION_INTERN-scoped pattern.
+    await sql`DELETE FROM public.interns WHERE id IN (${NONE_ONLY_INTERN}, ${NONE_AND_REAL_INTERN})`;
+  });
+
+  it('excludes an intern from the none bucket when they also have a real factor', async () => {
+    const [noneFactor] = await db
+      .select({ id: schema.participationFactors.id })
+      .from(schema.participationFactors)
+      .where(eq(schema.participationFactors.code, 'none'));
+    const [transportFactor] = await db
+      .select({ id: schema.participationFactors.id })
+      .from(schema.participationFactors)
+      .where(eq(schema.participationFactors.label, 'Transportation/access'));
+    if (!noneFactor || !transportFactor) {
+      throw new Error('Seed is missing an expected participation_factors row');
+    }
+
+    // Intern A: only "No participation factors identified".
+    // Intern B: "No participation factors identified" AND "Transportation/access"
+    // — the contradictory combination the app deliberately allows at entry.
+    await db.insert(schema.interns).values([
+      {
+        id: NONE_ONLY_INTERN,
+        cohortId: COHORT_RIVERBEND,
+        firstInitial: 'Z',
+        lastName: 'NoneOnlyFixture',
+      },
+      {
+        id: NONE_AND_REAL_INTERN,
+        cohortId: COHORT_RIVERBEND,
+        firstInitial: 'Z',
+        lastName: 'NoneAndRealFixture',
+      },
+    ]);
+    await db.insert(schema.internParticipationFactors).values([
+      { internId: NONE_ONLY_INTERN, participationFactorId: noneFactor.id },
+      { internId: NONE_AND_REAL_INTERN, participationFactorId: noneFactor.id },
+      { internId: NONE_AND_REAL_INTERN, participationFactorId: transportFactor.id },
+    ]);
+
+    const rows = await getParticipationFactorDistribution(db, { level: 'global' });
+    const none = rows.find((r) => r.label === 'No participation factors identified');
+    const transport = rows.find((r) => r.label === 'Transportation/access');
+
+    // B is contradictory, so it counts only toward the real factor.
+    expect(none?.count).toBe(1);
+    // Seed baseline already has Whitaker (Riverbend) on 'Transportation/access';
+    // the fixture intern B adds exactly one more, not two.
+    expect(transport?.count).toBe(2);
   });
 });
 
