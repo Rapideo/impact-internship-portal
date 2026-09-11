@@ -33,4 +33,23 @@ describe('ParticipationFactorCheckList', () => {
       expect(b).toBeDisabled();
     });
   });
+
+  it('renders the description as helper text beneath the label', () => {
+    render(
+      <ParticipationFactorCheckList
+        factors={[
+          {
+            id: '1',
+            label: 'Transportation/access',
+            description: 'ability to reliably get to/from internship',
+          },
+          { id: '2', label: 'Other participation-related factor', description: null },
+        ]}
+        checkedIds={[]}
+      />,
+    );
+    expect(screen.getByText('ability to reliably get to/from internship')).toBeInTheDocument();
+    // A factor with no description renders no helper element at all.
+    expect(document.querySelectorAll('.participation-factor-check-list__desc')).toHaveLength(1);
+  });
 });

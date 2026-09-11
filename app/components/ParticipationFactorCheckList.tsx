@@ -1,6 +1,7 @@
 export interface ParticipationFactorItem {
   id: string;
   label: string;
+  description?: string | null;
 }
 
 export function ParticipationFactorCheckList({
@@ -29,7 +30,12 @@ export function ParticipationFactorCheckList({
               defaultChecked={set.has(f.id)}
               disabled={disabled}
             />
-            <label htmlFor={id}>{f.label}</label>
+            <label htmlFor={id}>
+              {f.label}
+              {f.description ? (
+                <span className="participation-factor-check-list__desc">{f.description}</span>
+              ) : null}
+            </label>
           </div>
         );
       })}

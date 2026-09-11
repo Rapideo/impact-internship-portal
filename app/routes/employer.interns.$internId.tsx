@@ -82,7 +82,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const [entry] = entryRows;
 
   const entryParticipationFactorRows = await db
-    .select({ id: participationFactors.id, label: participationFactors.label })
+    .select({
+      id: participationFactors.id,
+      label: participationFactors.label,
+      description: participationFactors.description,
+    })
     .from(internParticipationFactors)
     .innerJoin(
       participationFactors,
@@ -226,7 +230,14 @@ export default function EmployerInternRecord() {
                 ) : (
                   <ul style={{ margin: '6px 0 0', paddingLeft: '20px' }}>
                     {entryParticipationFactors.map((f) => (
-                      <li key={f.id}>{f.label}</li>
+                      <li key={f.id}>
+                        {f.label}
+                        {f.description ? (
+                          <span className="participation-factor-check-list__desc">
+                            {f.description}
+                          </span>
+                        ) : null}
+                      </li>
                     ))}
                   </ul>
                 )}
