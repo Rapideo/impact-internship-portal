@@ -253,6 +253,7 @@ Plan docs frequently reference classes that don't exist. The real registry:
 - `.auth__alert`, `.auth__alert--danger`, `.auth__alert--success` — added in SP5 Phase C.
 - `.employer-chip` (+ `__name`, `__email`, `__logout`) — top-right nav chip.
 - `.kpi-card` (+ `__label`, `__value`, `__sub`, `__delta`) — admin.css defines first four; `__sub` added in Phase F for employer-dashboard reuse. Don't redefine in employer-shell.css; reuse admin.css.
+- `.intern-code` (+ `--lg`), `.issued-callout` (+ `__label`, `__row`, `__body`) — added 2026-09-11 (Intern ID).
 
 ### SP5 follow-ups (carry into SP6)
 
@@ -299,6 +300,30 @@ describe **effects on participation**, never the underlying cause.
   renamed table**. So `DROP POLICY IF EXISTS x ON public.<oldname>` ERRORS afterwards —
   `IF EXISTS` guards the policy, not the table. Drop stale policies inside the migration, on the
   NEW table names, before `db:apply-policies` runs.
+
+## Intern ID (2026-09-11) — contracts to preserve
+
+Interns are identified by a portal-assigned **Intern ID**, `IMP-YY-NNNN` (e.g. `IMP-26-0417`).
+Spec: `docs/superpowers/specs/2026-09-11-intern-id-identity-design.md`. Delivered in three PRs:
+A (issue IDs, names kept), B (anonymous identity switches to the ID + throttle), C (names removed).
+
+- **Format/normalize/year live in `app/lib/intern-code.ts`** (pure, client-safe). `IMP` is a code
+  constant, not a setting — interns hold printed cards. `YY` = Start Date's year if given, else
+  "now" in `PROGRAM_TIME_ZONE` (exported from `format.ts`; Lambda is UTC). `NNNN` is random
+  0001–9999 via `crypto.randomInt`, never sequential.
+- **`createInternWithCode` (`intern-code.server.ts`) is the only writer of `intern_code`.** It
+  redraws on PG `23505` *on the `intern_code` index only* (checks `constraint_name`), up to 10
+  times, then throws `InternCodeExhaustedError`. No route, action or script updates the code
+  after insert — immutability is the contract.
+- **`interns_intern_code_unique` is a plain unique index, not partial on `deleted_at`.** A
+  soft-deleted intern's code stays reserved forever. Do not "fix" this to allow reuse.
+- **Migration 0005 is hand-written** (add nullable → PL/pgSQL backfill → SET NOT NULL → index)
+  with a drizzle snapshot recording the destination. `drizzle-kit generate --name x` was used only
+  for the snapshot/journal; its SQL was replaced.
+- **Admin create redirects to `/admin/interns/:id?issued=1`**; the detail page renders
+  `<InternIdIssuedCallout>` off that flag (query-string driven, no state). The callout copy is
+  fixed by the spec.
+- **`<InternCode>` (`.intern-code`, `.intern-code--lg`) is the one way to render an ID.**
 
 ## Local development cheat-sheet (for SP6+)
 

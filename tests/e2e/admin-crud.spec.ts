@@ -93,6 +93,13 @@ test('admin can create employer -> cohort -> intern, then edit the intern', asyn
   );
   await expect(page.getByRole('heading', { level: 1 })).toContainText(/edit intern/i);
 
+  // PR A (intern ID): the detail page shows the one-time "Intern ID issued"
+  // callout carrying a well-formed code. Capture it for the list search below.
+  const callout = page.getByTestId('intern-id-issued');
+  await expect(callout).toBeVisible();
+  const issuedCode = (await callout.locator('.intern-code').textContent())?.trim() ?? '';
+  expect(issuedCode).toMatch(/^IMP-\d{2}-\d{4}$/);
+
   // --- Edit: toggle 90-day employment + save ------------------------------
   // On the edit form (not the new form) o1-check is enabled and bound to
   // name="employed90".
@@ -108,6 +115,7 @@ test('admin can create employer -> cohort -> intern, then edit the intern', asyn
     .first()
     .click();
   await expect(page).toHaveURL(/\/admin\/interns$/);
-  await page.getByPlaceholder(/Search by last name/i).fill(lastName);
+  await page.getByPlaceholder(/Search by Intern ID/i).fill(issuedCode.slice(-4));
+  await expect(page.locator(`text=${issuedCode}`).first()).toBeVisible();
   await expect(page.locator(`text=${lastName}`).first()).toBeVisible();
 });
