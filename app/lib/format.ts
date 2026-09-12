@@ -96,7 +96,7 @@ export function formatCompletionDate(date: Date | null | undefined): string {
  * `new Date().getHours()` return UTC. Using the IANA zone (not a fixed offset)
  * keeps this correct across DST, which Indiana observes.
  */
-const PROGRAM_TIME_ZONE = 'America/Indiana/Indianapolis';
+export const PROGRAM_TIME_ZONE = 'America/Indiana/Indianapolis';
 
 /**
  * Time-of-day greeting for the dashboard headers, evaluated in the program's
