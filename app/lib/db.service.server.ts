@@ -33,7 +33,14 @@ const client = postgres(env.DATABASE_SERVICE_URL ?? env.DATABASE_POOL_URL, {
   idle_timeout: 20,
   max_lifetime: 60 * 30,
   connect_timeout: 10,
-});
+  // ROOT CAUSE of the 2026-09-12 sign-in stall: with max:1, concurrent queries (any
+  // `Promise.all` over `db`) are PIPELINED on the single socket, and Supavisor's
+  // transaction-mode pooler (port 6543, production) hangs on pipelined statements —
+  // reproduced 10/10 from a workstation; the session pooler (5432, dev) is unaffected.
+  // max_pipeline 0 makes postgres-js queue instead of pipeline. Never remove.
+  max_pipeline: 0,
+  // postgres-js parses max_pipeline at runtime but omits it from its type declarations.
+} as postgres.Options<Record<string, postgres.PostgresType>> & { max_pipeline: number });
 
 export const dbService = drizzle(client, { schema });
 export type DBService = typeof dbService;
