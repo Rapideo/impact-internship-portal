@@ -360,6 +360,28 @@ export const assessmentSubmissions = pgTable(
 );
 
 /* ============================================================ */
+/* Identity Attempts (chooser throttle)                           */
+/* ============================================================ */
+
+/**
+ * Failed Intern-ID confirmations from the public chooser, keyed by client IP,
+ * for the identity throttle (spec §7). Disposable rows; the throttle module
+ * deletes anything older than a day. Touched ONLY via the service-role client;
+ * RLS is enabled with NO policies so anon/authenticated are denied outright.
+ */
+export const identityAttempts = pgTable(
+  'identity_attempts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    ip: text('ip').notNull(),
+    attemptedAt: timestamp('attempted_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    ipTimeIdx: index('identity_attempts_ip_time_idx').on(t.ip, t.attemptedAt),
+  }),
+);
+
+/* ============================================================ */
 /* Drizzle relations (for the relational query API)              */
 /* ============================================================ */
 

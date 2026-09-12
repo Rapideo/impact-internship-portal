@@ -14,3 +14,4 @@ ALTER TABLE public.intern_employment_outcomes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.question_sets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.questions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.assessment_submissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.identity_attempts ENABLE ROW LEVEL SECURITY;

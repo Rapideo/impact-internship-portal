@@ -43,6 +43,13 @@
       "when": 1789176126327,
       "tag": "0005_intern_code",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789228713576,
+      "tag": "0006_identity_attempts",
+      "breakpoints": true
     }
   ]
 }
