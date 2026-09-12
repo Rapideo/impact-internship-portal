@@ -70,7 +70,7 @@ Fonts (Google Fonts): Display **Archivo Black** · Body **IBM Plex Sans** · Mic
 ## Product rules to know (from PRD)
 
 - **Two roles in the PRD** (Admin + Intern); the production rebuild expands to **three** (Admin, Employer, anonymous Intern).
-- **Intern identity** is a portal-assigned **Intern ID** (`IMP-YY-NNNN`, e.g. `IMP-26-0417`). The portal stores **no name of any kind** (client decision 2026-09-11; PRs #143/#144 + PR C). Program staff keep the ID↔person roster offline. Cohort implies employer; the intern chooser asks for employer, cohort and ID.
+- **Intern identity** is a portal-assigned **Intern ID** (`IMP-YY-NNNN`, e.g. `IMP-26-0417`). The portal stores **no name of any kind** (client decision 2026-09-11; PRs #143/#144/#150). Program staff keep the ID↔person roster offline. Cohort implies employer; the intern chooser asks for employer, cohort and ID.
 - **Minimum-PII policy**: the intern record carries the Intern ID, cohort, role, start/end dates and assessment data. No first name, initial, last name, DOB, or zipcode — anywhere, including the create form.
 - **Intake**: `intern-record.html` is the canonical creation path. The old Readiness Assessment (`dashboard.html`, `readiness-*.html`) has been removed; intake is captured directly on the Entry Assessment panel.
 - **Competency phases**: a global admin-managed list (Settings → Phases). Each cohort selects a subset; the Competency assessment's Phase dropdown filters to the intern's cohort's phases.
