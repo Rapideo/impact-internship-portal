@@ -12,13 +12,7 @@ import type { Route } from './+types/admin.interns.new';
 import { requireAdmin } from '~/lib/admin-guard.server';
 import { db } from '~/lib/db.server';
 import { listAllEmployers, listParticipationFactors } from '~/lib/admin-queries.server';
-import {
-  cohorts as cohortsTbl,
-  roles as rolesTbl,
-  interns,
-  internEntryAssessment,
-  internParticipationFactors,
-} from '../../db/schema';
+import { cohorts as cohortsTbl, roles as rolesTbl } from '../../db/schema';
 import { asc } from 'drizzle-orm';
 import {
   parseFormFields,
@@ -29,6 +23,7 @@ import {
   optionalString,
   errorsByField,
 } from '~/lib/validation';
+import { createInternWithCode, InternCodeExhaustedError } from '~/lib/intern-code.server';
 import { PageHead } from '~/components/PageHead';
 import { RubricPanel } from '~/components/RubricPanel';
 import { ActionBar } from '~/components/ActionBar';
@@ -92,42 +87,39 @@ export async function action({ request }: Route.ActionArgs) {
   const firstInitial = values.firstName.trim()[0]!.toUpperCase();
 
   try {
-    const inserted = await db.transaction(async (tx) => {
-      const [intern] = await tx
-        .insert(interns)
-        .values({
-          cohortId: values.cohortId,
-          roleId: values.roleId,
-          firstInitial,
-          lastName: values.lastName,
-          startDate: values.startDate,
-          endDate: values.endDate,
-        })
-        .returning({ id: interns.id });
-
-      await tx.insert(internEntryAssessment).values({
-        internId: intern!.id,
-        notes: values.entryNotes,
-        completedAt: new Date(),
-      });
-
-      if (participationFactorIds.length > 0) {
-        await tx.insert(internParticipationFactors).values(
-          participationFactorIds.map((fid) => ({
-            internId: intern!.id,
-            participationFactorId: fid,
-          })),
-        );
-      }
-      return intern!;
+    const created = await createInternWithCode({
+      cohortId: values.cohortId,
+      roleId: values.roleId,
+      firstInitial,
+      lastName: values.lastName,
+      startDate: values.startDate,
+      endDate: values.endDate,
+      entryNotes: values.entryNotes,
+      participationFactorIds,
     });
-
-    throw redirect(`/admin/interns/${inserted.id}?created=1`, { headers });
+    // `issued=1` makes the detail page show the one-time "Intern ID issued"
+    // callout (spec §6). Query-string driven so it disappears on navigation.
+    throw redirect(`/admin/interns/${created.id}?issued=1`, { headers });
   } catch (err) {
     // Let react-router redirects propagate.
     if (err instanceof Response) throw err;
+    if (err instanceof InternCodeExhaustedError) {
+      return data(
+        {
+          errors: [
+            {
+              field: 'cohortId',
+              message: 'Could not issue an Intern ID. Try again; if it repeats, contact support.',
+            },
+          ],
+          values: { ...values, participationFactorIds },
+        },
+        { headers, status: 503 },
+      );
+    }
     // Postgres unique violation — partial unique index on
     // (lower(first_initial), lower(last_name), cohort_id) where deleted_at is null.
+    // (Removed with the name columns in PR C.)
     const pgCode = (err as { code?: string } | null)?.code;
     if (pgCode === '23505') {
       return data(
