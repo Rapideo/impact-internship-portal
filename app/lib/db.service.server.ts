@@ -7,8 +7,8 @@ import { env } from './env.server';
  * Service-role Drizzle client. Bypasses RLS by connecting as a Postgres
  * superuser/BYPASSRLS role.
  *
- * Use ONLY in server actions where the actor is anonymous (the 3 intern
- * self-assessment forms + getOneShotSubmission read path). Never expose to
+ * Use ONLY in the two anonymous paths: the intern self-assessment submission
+ * insert (+ `getOneShotSubmission` read) and the identity throttle in `identity-throttle.server.ts`. Never expose to
  * client code; never use in admin/employer paths where RLS-scoped queries
  * are the correct safety net.
  *
