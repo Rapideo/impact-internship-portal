@@ -680,8 +680,7 @@ export default function DevPrimitives() {
             readOnly={false}
             sectionBreaks={[{ afterQuestionIndex: 3, title: 'My Focus for This Internship' }]}
             identityChip={{
-              firstInitial: 'M',
-              lastName: 'Bayer',
+              internCode: 'IMP-26-0417',
               employerName: 'Eskenazi Health',
               cohortName: 'Eskenazi 2026',
             }}
@@ -704,8 +703,7 @@ export default function DevPrimitives() {
             modalBody="Your responses will be locked once submitted."
             readOnly={false}
             identityChip={{
-              firstInitial: 'C',
-              lastName: 'Clark',
+              internCode: 'IMP-26-0842',
               employerName: 'TTT Indianapolis',
               cohortName: 'TTT 2026',
             }}
@@ -729,8 +727,7 @@ export default function DevPrimitives() {
             modalBody="Your responses will be locked once submitted."
             readOnly={false}
             identityChip={{
-              firstInitial: 'E',
-              lastName: 'Evans',
+              internCode: 'IMP-26-1173',
               employerName: 'Habitat for Humanity',
               cohortName: 'Habitat 2026',
             }}

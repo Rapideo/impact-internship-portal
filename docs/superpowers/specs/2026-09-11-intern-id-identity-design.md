@@ -196,11 +196,19 @@ rest of the gap cheaply.
   → first hop of `x-forwarded-for` → `"unknown"`. Netlify's header wins, so a
   spoofed forwarded header cannot evade the throttle in production.
 - `isThrottled(ip)`: `count(*) WHERE ip = $1 AND attempted_at > now() - 15 min` ≥ 10.
-- `recordFailure(ip)`: insert; plus `DELETE WHERE attempted_at < now() - 1 day`.
+- `reserveAttempt(ip) → { id, n }`: insert the attempt row first, then count
+  (including it) within the window; plus `DELETE WHERE attempted_at < now() -
+  1 day`. `releaseAttempt(id)`: delete the row — called when the attempt
+  turns out not to be a failure (success, or refused over-limit).
 - Only **failures** count. Ten genuine typos in fifteen minutes is the
   threshold, not ten attempts.
 - **Fails open**: if the throttle query throws, log and continue. Chooser
   availability beats closing a rare abuse path.
+- **Reserve-then-count.** The action reserves the attempt row *before* the
+  cohort check and lookup and counts with it included; success releases the
+  row. Without this, N parallel requests from one IP all read `count < 10`
+  before any row lands, and the real per-window limit is one burst, not ten
+  attempts.
 - Uses `dbService`. This widens the SP4 contract — "never call `dbService`
   outside the anonymous submission path" — to exactly **two** anonymous paths:
   the submission insert and the identity throttle. CLAUDE.md is updated to say
@@ -258,7 +266,7 @@ order below, via `set -a; source .env.prod.local; set +a; npm run db:migrate`.
 | PR | branch | migrate/deploy order on prod | proof |
 |---|---|---|---|
 | **A — Issue IDs** | `feat/intern-code-issue` | **migrate → merge.** `intern_code` is `NOT NULL`; deploying first would break every create-intern until the column exists. Migrate-first leaves a minutes-long window where the *old* app's insert fails — acceptable at night with zero prod users. | CI green; on staging a created intern shows a well-formed ID in the callout and list. |
-| **B — Switch identity** | `feat/intern-code-identity` | **migrate → merge.** Table only read by new code; harmless early, 500s the chooser if late. | `intern-self-submit` e2e passes on the new flow; `intern-throttle` e2e passes; manual 11-failure run on staging trips the throttle. |
+| **B — Switch identity** | `feat/intern-code-identity` | **migrate → merge.** Table only read by new code; harmless early; if late, the chooser runs UNTHROTTLED (the throttle fails open) with `[identity-throttle]` errors in the function log — which is why the prod smoke after deploy fires eleven bad IDs and expects a refusal. | `intern-self-submit` e2e passes on the new flow; `intern-throttle` e2e passes; manual 11-failure run on staging trips the throttle. |
 | **C — Remove names** | `feat/intern-code-drop-names` | **merge → migrate.** The old app still selects the name columns; dropping them first 500s every intern page. | `grep -rn "first_initial\|firstInitial\|last_name\|lastName" app db tests` returns only migration files; CI green. A fresh Pro backup exists before the drop. |
 
 PR A also carries this spec and the implementation plan.

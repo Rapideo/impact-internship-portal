@@ -601,6 +601,9 @@
 .id-grid--4 {
   grid-template-columns: repeat(4, 1fr);
 }
+.id-grid--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
 .id-grid--5 {
   grid-template-columns: repeat(5, 1fr);
 }
@@ -2278,6 +2281,15 @@
   font-size: 28px;
   font-weight: 600;
   color: var(--navy);
+}
+.intern-code--strong {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--ink);
+}
+/* Name cell in intern tables once the ID carries the emphasis (PR C removes the name column). */
+.col-name--quiet {
+  font-weight: 400;
 }
 
 /* One-time "Intern ID issued" callout on the intern detail page (?issued=1). */

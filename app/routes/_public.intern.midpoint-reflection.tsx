@@ -57,8 +57,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   return {
     identity: {
-      firstInitial: identity.firstInitial,
-      lastName: identity.lastName,
+      internCode: identity.internCode,
       cohortName: cohortRow?.name ?? 'Unknown cohort',
       employerName,
     },
@@ -146,8 +145,7 @@ export default function MidpointReflectionPage() {
             modalBody="Your responses will be locked once submitted. You won't be able to edit them afterward."
             readOnly={false}
             identityChip={{
-              firstInitial: identity.firstInitial,
-              lastName: identity.lastName,
+              internCode: identity.internCode,
               employerName: identity.employerName,
               cohortName: identity.cohortName,
             }}

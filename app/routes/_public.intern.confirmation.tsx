@@ -11,10 +11,10 @@
 // prototype but kept as a fallback). The micro-label + body still come
 // from the type-specific copy map.
 //
-// The identity cookie is read for the receipt block (first initial / last
-// name / employer / cohort + submitted date). For the exit-employer-survey
-// path the identity cookie may be absent (admin submits on the intern's
-// behalf); the receipt then falls back to dashes (matches prototype).
+// The identity cookie is read for the receipt block (Intern ID / employer /
+// cohort + submitted date). For the exit-employer-survey path the identity
+// cookie may be absent (admin submits on the intern's behalf); the receipt
+// then falls back to dashes (matches prototype).
 
 import { Link, useLoaderData } from 'react-router';
 import type { Route } from './+types/_public.intern.confirmation';
@@ -109,8 +109,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     copy,
     identity: identity
       ? {
-          firstInitial: identity.firstInitial,
-          lastName: identity.lastName,
+          internCode: identity.internCode,
           employerName: employerName ?? '—',
           cohortName: cohortName ?? '—',
         }
@@ -149,12 +148,7 @@ export default function InternConfirmationPage() {
     : copy.body;
 
   const receiptItems: MetaItem[] = [
-    {
-      label: 'First Initial',
-      value: identity?.firstInitial ?? '—',
-      mono: true,
-    },
-    { label: 'Last Name', value: identity?.lastName ?? '—' },
+    { label: 'Intern ID', value: identity?.internCode ?? '—', mono: true },
     { label: 'Employer', value: identity?.employerName ?? '—' },
     { label: 'Cohort', value: identity?.cohortName ?? '—' },
     {
