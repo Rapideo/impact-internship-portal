@@ -14,6 +14,7 @@ describe('admin.interns._index loader', () => {
     vi.spyOn(queries, 'listInternsForListing').mockResolvedValue([
       {
         id: 'i1',
+        internCode: 'IMP-26-0001',
         firstInitial: 'A',
         lastName: 'Williams',
         startDate: '2026-04-01',

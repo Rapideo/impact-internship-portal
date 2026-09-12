@@ -38,6 +38,7 @@ import { ActionBar } from '~/components/ActionBar';
 import { ConfirmModal } from '~/components/ConfirmModal';
 import { ParticipationFactorCheckList } from '~/components/ParticipationFactorCheckList';
 import { useToast } from '~/components/ToastProvider';
+import { InternIdIssuedCallout } from '~/components/InternIdIssuedCallout';
 import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Edit Intern — IMPACT Admin' }];
@@ -226,15 +227,10 @@ export default function EditIntern() {
   const nav = useNavigation();
   const errs = errorsByField(actionData?.errors ?? []);
   const toast = useToast();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   useEffect(() => {
-    if (searchParams.get('created') === '1') {
-      toast.show({ kind: 'success', label: 'SAVED', message: 'Intern record created.' });
-      searchParams.delete('created');
-      setSearchParams(searchParams, { replace: true });
-    }
     if (actionData && 'ok' in actionData && actionData.ok) {
       toast.show({ kind: 'success', label: 'SAVED', message: 'Intern record saved.' });
     }
@@ -245,7 +241,7 @@ export default function EditIntern() {
         message: 'Please fix the highlighted fields.',
       });
     }
-  }, [actionData, searchParams, setSearchParams, toast]);
+  }, [actionData, toast]);
   void errs;
 
   const competencySubmissions = submissions.filter((s) => s.type === 'competency');
@@ -270,6 +266,7 @@ export default function EditIntern() {
       >
         <MetaStrip
           items={[
+            { label: 'Intern ID', value: intern.internCode, mono: true },
             { label: 'First Initial', value: intern.firstInitial, mono: true },
             { label: 'Last Name', value: intern.lastName },
             { label: 'Employer', value: employer?.name ?? '—' },
@@ -280,6 +277,10 @@ export default function EditIntern() {
           ]}
         />
       </PageHead>
+
+      {searchParams.get('issued') === '1' ? (
+        <InternIdIssuedCallout code={intern.internCode} />
+      ) : null}
 
       <section className="assessment-wrap">
         <div className="container">

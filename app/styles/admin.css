@@ -2266,3 +2266,45 @@
   color: var(--muted);
   margin-bottom: 8px;
 }
+
+/* ---- Intern ID (spec 2026-09-11-intern-id-identity-design.md §6) ---- */
+.intern-code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.intern-code--lg {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+/* One-time "Intern ID issued" callout on the intern detail page (?issued=1). */
+.issued-callout {
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--gold);
+  border-radius: var(--radius-md);
+  background: var(--canvas-alt);
+  padding: 18px 22px;
+  margin: 18px 0 0;
+}
+.issued-callout__label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.issued-callout__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.issued-callout__body {
+  margin: 12px 0 0;
+  max-width: 66ch;
+  color: var(--ink);
+}

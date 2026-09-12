@@ -20,6 +20,7 @@ import { listInternsForListing } from '~/lib/admin-queries.server';
 import { PageHead } from '~/components/PageHead';
 import { AssessmentCard } from '~/components/AssessmentCard';
 import { PickerList } from '~/components/PickerList';
+import { InternCode } from '~/components/InternCode';
 import { useToast } from '~/components/toast/ToastProvider';
 import { initials, formatDate } from '~/lib/format';
 
@@ -74,6 +75,7 @@ export default function AdminAssessmentsHub() {
     if (!q) return interns;
     return interns.filter(
       (i) =>
+        i.internCode.toLowerCase().includes(q) ||
         i.lastName.toLowerCase().includes(q) ||
         (i.cohortName ?? '').toLowerCase().includes(q) ||
         (i.employerName ?? '').toLowerCase().includes(q),
@@ -176,7 +178,7 @@ export default function AdminAssessmentsHub() {
                 className="input"
                 type="text"
                 aria-label="Filter interns"
-                placeholder="Search last name or cohort…"
+                placeholder="Search by Intern ID, last name, cohort or employer…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 autoFocus
@@ -186,8 +188,13 @@ export default function AdminAssessmentsHub() {
             <PickerList<InternRow>
               columns={[
                 {
+                  label: 'Intern ID',
+                  width: '18%',
+                  render: (i) => <InternCode code={i.internCode} />,
+                },
+                {
                   label: 'Last Name',
-                  width: '30%',
+                  width: '21%',
                   render: (i) => (
                     <div className="col-name">
                       <span className="name-initial">{initials(i.lastName)}</span>
@@ -195,7 +202,7 @@ export default function AdminAssessmentsHub() {
                     </div>
                   ),
                 },
-                { label: 'Cohort', width: '30%', render: (i) => i.cohortName ?? '—' },
+                { label: 'Cohort', width: '21%', render: (i) => i.cohortName ?? '—' },
                 {
                   label: 'Start',
                   width: '20%',

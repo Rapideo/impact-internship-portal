@@ -153,7 +153,7 @@ npm run dev                 # http://localhost:5173
 - **Auth** in `app/lib/auth.server.ts`. Use `getAuthContext(request, headers)` in loaders for signature-verified JWT claims via Supabase `getClaims()` — **NOT `getSession()`**, which doesn't verify in cookie-storage mode. The login action re-uses its in-memory client after `signInWithPassword` (the new auth cookies aren't on the request yet).
 - **Drizzle schema** at `db/schema.ts`. `npm run db:generate` / `npm run db:migrate`. The initial migration filters out drizzle-kit's `CREATE TABLE auth.users` (Supabase rejects writes to `auth`); FKs to `auth.users` still resolve.
 - **RLS policies** live in `db/policies/*.sql` (raw SQL, more readable than Drizzle-generated). Applied via `npm run db:apply-policies`. Every `CREATE POLICY` is preceded by `DROP POLICY IF EXISTS` for idempotency. **`db/policies/0000_grants.sql`** runs first and explicitly grants base table/sequence privileges to `anon`/`authenticated`/`service_role`, so RLS no longer relies on Supabase's *implicit* default-privilege grants (the CLI changed that behavior in v2.106+ — see CI note above). Grants don't bypass RLS — rows are still gated by the policies in `0001`–`0004`; the grants only let a role *attempt* a query. Idempotent on prod/dev (which already carry the implicit grants).
-- **Tests**: `npm test` (Vitest unit, 196 today); `npm run test:rls` (RLS integration, requires explicit `BEGIN`/`COMMIT` to make `SET LOCAL ROLE authenticated` take effect against the BYPASSRLS connection); `npm run test:e2e` (Playwright, reads `.env.test`).
+- **Tests**: `npm test` (Vitest unit, 302 today); `npm run test:rls` (RLS integration, requires explicit `BEGIN`/`COMMIT` to make `SET LOCAL ROLE authenticated` take effect against the BYPASSRLS connection); `npm run test:e2e` (Playwright, reads `.env.test`).
 - **`supabase/config.toml`** registers the `custom_access_token_hook`; `supabase start` reads it too, so CI mirrors impact-dev.
 
 ## SP2 (Admin core) — key carry-over
@@ -253,6 +253,7 @@ Plan docs frequently reference classes that don't exist. The real registry:
 - `.auth__alert`, `.auth__alert--danger`, `.auth__alert--success` — added in SP5 Phase C.
 - `.employer-chip` (+ `__name`, `__email`, `__logout`) — top-right nav chip.
 - `.kpi-card` (+ `__label`, `__value`, `__sub`, `__delta`) — admin.css defines first four; `__sub` added in Phase F for employer-dashboard reuse. Don't redefine in employer-shell.css; reuse admin.css.
+- `.intern-code` (+ `--lg`), `.issued-callout` (+ `__label`, `__row`, `__body`) — added 2026-09-11 (Intern ID).
 
 ### SP5 follow-ups (carry into SP6)
 
@@ -300,12 +301,37 @@ describe **effects on participation**, never the underlying cause.
   `IF EXISTS` guards the policy, not the table. Drop stale policies inside the migration, on the
   NEW table names, before `db:apply-policies` runs.
 
+## Intern ID (2026-09-11) — contracts to preserve
+
+Interns are identified by a portal-assigned **Intern ID**, `IMP-YY-NNNN` (e.g. `IMP-26-0417`).
+Spec: `docs/superpowers/specs/2026-09-11-intern-id-identity-design.md`. Delivered in three PRs:
+A (issue IDs, names kept), B (anonymous identity switches to the ID + throttle), C (names removed).
+
+- **Format/normalize/year live in `app/lib/intern-code.ts`** (pure, client-safe). `IMP` is a code
+  constant, not a setting — interns hold printed cards. `YY` = Start Date's year if given, else
+  "now" in `PROGRAM_TIME_ZONE` (exported from `format.ts`; Lambda is UTC). `NNNN` is random
+  0001–9999 via `crypto.randomInt`, never sequential.
+- **`createInternWithCode` (`intern-code.server.ts`) is the only *app-code* writer of
+  `intern_code`** (the seeds and the RLS fixture supply fixed or deterministic codes by design).
+  It redraws on PG `23505` *on the `intern_code` index only* (checks `constraint_name`), up to 10
+  times, then throws `InternCodeExhaustedError`. No route, action or script updates the code
+  after insert — immutability is the contract.
+- **`interns_intern_code_unique` is a plain unique index, not partial on `deleted_at`.** A
+  soft-deleted intern's code stays reserved forever. Do not "fix" this to allow reuse.
+- **Migration 0005 is hand-written** (add nullable → PL/pgSQL backfill → SET NOT NULL → index)
+  with a drizzle snapshot recording the destination. `drizzle-kit generate --name x` was used only
+  for the snapshot/journal; its SQL was replaced.
+- **Admin create redirects to `/admin/interns/:id?issued=1`**; the detail page renders
+  `<InternIdIssuedCallout>` off that flag (query-string driven, no state). The callout copy is
+  fixed by the spec.
+- **`<InternCode>` (`.intern-code`, `.intern-code--lg`) is the one way to render an ID.**
+
 ## Local development cheat-sheet (for SP6+)
 
 - `npm run dev` — Vite + RR v7 dev server.
 - `npm run db:seed` — **small base seed** (~6 interns, **zero** assessment submissions). TRUNCATEs. Since 2026-09-11 it snapshots **all** `profiles` rows and restores them (pure `planProfileRestore()` in `db/profile-restore-plan.ts`); before that it restored only `admin@example.com` + `employer1@example.com` and silently locked out every other account.
 - `npm run db:seed:demo` — **the rich dataset** (~140 interns, ~236 submissions). Additive, idempotent, no TRUNCATE. This is what produces realistic Reports data — `db:seed` alone will leave the app looking empty.
-- `npm test -- --run` — vitest unit suite (196 tests today).
+- `npm test -- --run` — vitest unit suite (302 tests today).
 - `npm run test:rls` — RLS integration; requires `supabase start`. **Guarded since 2026-09-11**: `tests/rls/setup.rls.ts` refuses to run unless `DATABASE_URL`'s host is local (`localhost`/`127.0.0.1`/`::1`/`host.docker.internal`). Every `tests/rls/*.ts` loads `.env.local` — i.e. **impact-dev cloud credentials** — and these specs DELETE rows; without `supabase start` the suite once connected straight to impact-dev and destroyed every `assessment_submissions` row (free tier, no backups). Never disable the guard.
 - `npm run test:e2e` — Playwright.
 - `npm run lint && npm run typecheck` — green on main today.
