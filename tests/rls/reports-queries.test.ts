@@ -176,12 +176,14 @@ describe('reports-queries: getParticipationFactorDistribution none-bucket honest
         cohortId: COHORT_RIVERBEND,
         firstInitial: 'Z',
         lastName: 'NoneOnlyFixture',
+        internCode: 'IMP-26-9901',
       },
       {
         id: NONE_AND_REAL_INTERN,
         cohortId: COHORT_RIVERBEND,
         firstInitial: 'Z',
         lastName: 'NoneAndRealFixture',
+        internCode: 'IMP-26-9902',
       },
     ]);
     await db.insert(schema.internParticipationFactors).values([

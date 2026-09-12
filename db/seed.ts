@@ -180,6 +180,7 @@ async function main() {
           roleId: i.roleId,
           firstInitial: i.firstInitial,
           lastName: i.lastName,
+          internCode: i.internCode,
           startDate: i.startDate,
           endDate: i.endDate,
         })),

@@ -4,6 +4,7 @@ export interface SeedIntern {
   roleId: string | null;
   firstInitial: string;
   lastName: string;
+  internCode: string;
   startDate: string | null;
   endDate: string | null;
   entryNotes: string | null;
@@ -21,6 +22,7 @@ export const SEED_INTERNS: SeedIntern[] = [
     roleId: '22222222-2222-2222-2222-222222222201',
     firstInitial: 'A',
     lastName: 'Whitaker',
+    internCode: 'IMP-26-1042',
     startDate: '2026-01-12',
     endDate: null,
     entryNotes:
@@ -37,6 +39,7 @@ export const SEED_INTERNS: SeedIntern[] = [
     roleId: '22222222-2222-2222-2222-222222222202',
     firstInitial: 'B',
     lastName: 'Okafor',
+    internCode: 'IMP-26-2077',
     startDate: '2026-01-19',
     endDate: null,
     entryNotes: 'High school + 2 yrs CC; lapsed CNA cert from 2022, intends to re-test in Phase 2.',
@@ -52,6 +55,7 @@ export const SEED_INTERNS: SeedIntern[] = [
     roleId: '22222222-2222-2222-2222-222222222203',
     firstInitial: 'C',
     lastName: 'Delgado',
+    internCode: 'IMP-26-3158',
     startDate: '2026-02-02',
     endDate: null,
     entryNotes:
@@ -74,6 +78,7 @@ export const SEED_INTERNS: SeedIntern[] = [
     roleId: '22222222-2222-2222-2222-222222222202',
     firstInitial: 'T',
     lastName: 'Test1',
+    internCode: 'IMP-26-4001',
     startDate: '2026-01-19',
     endDate: null,
     entryNotes: 'E2E fixture: targeted by Playwright intern-self-submit spec.',
@@ -89,6 +94,7 @@ export const SEED_INTERNS: SeedIntern[] = [
     roleId: '22222222-2222-2222-2222-222222222202',
     firstInitial: 'T',
     lastName: 'Test2',
+    internCode: 'IMP-26-4002',
     startDate: '2026-01-19',
     endDate: null,
     entryNotes: 'E2E fixture: targeted by Playwright admin-competency spec.',
@@ -104,6 +110,7 @@ export const SEED_INTERNS: SeedIntern[] = [
     roleId: '22222222-2222-2222-2222-222222222202',
     firstInitial: 'T',
     lastName: 'Test3',
+    internCode: 'IMP-26-4003',
     startDate: '2026-01-19',
     endDate: null,
     entryNotes: 'E2E fixture: targeted by Playwright admin-exit-employer-survey spec.',

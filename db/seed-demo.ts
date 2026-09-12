@@ -157,6 +157,19 @@ function internName(idx: number): { firstInitial: string; lastName: string } {
   };
 }
 
+/**
+ * Deterministic Intern ID per demo intern so re-runs are idempotent (the demo
+ * seed is additive; its idempotency key is the fixed intern id, and the code
+ * must be stable alongside it). 7919 is prime and coprime with 9999, so
+ * idx → (idx * 7919) % 9999 + 1 is a permutation of 1..9999: no two demo
+ * interns share a number. Year comes from the cohort start date (D3).
+ */
+function internCode(idx: number, cohortStartDate: string | null): string {
+  const yy = cohortStartDate ? Number(cohortStartDate.slice(0, 4)) % 100 : 26;
+  const n = ((idx * 7919) % 9999) + 1;
+  return `IMP-${String(yy).padStart(2, '0')}-${String(n).padStart(4, '0')}`;
+}
+
 /* ─── Employer definitions ───────────────────────────────────────────
  * 19 new employers. Each has: name, contactName, contactEmail, and 1-2 roles.
  */
@@ -988,6 +1001,7 @@ async function main() {
       roleId: string | null;
       firstInitial: string;
       lastName: string;
+      internCode: string;
       startDate: string | null;
       endDate: string | null;
     }[] = [];
@@ -1017,6 +1031,7 @@ async function main() {
           roleId: rId,
           firstInitial,
           lastName,
+          internCode: internCode(iIdx, c.startDate),
           startDate: c.startDate,
           endDate: null,
         });
@@ -1052,7 +1067,7 @@ async function main() {
     const insertedInterns = await db
       .insert(schema.interns)
       .values(internRows)
-      .onConflictDoNothing({ target: schema.interns.id })
+      .onConflictDoNothing()
       .returning({ id: schema.interns.id });
     console.log(`  Inserted ${insertedInterns.length} new interns.`);
 
