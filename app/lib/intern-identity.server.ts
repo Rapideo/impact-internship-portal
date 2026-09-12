@@ -1,13 +1,12 @@
 import crypto from 'node:crypto';
-import { lookupInternByIdentity } from './identity.server';
+import { lookupInternByCode } from './identity.server';
 
 export const INTERN_IDENTITY_COOKIE_NAME = 'impact_intern_identity';
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
 export interface InternIdentityCookie {
   internId: string;
-  firstInitial: string;
-  lastName: string;
+  internCode: string;
   cohortId: string;
   employerId: string;
 }
@@ -53,8 +52,7 @@ export function parseInternIdentityCookie(
       typeof parsed === 'object' &&
       parsed !== null &&
       typeof (parsed as Record<string, unknown>).internId === 'string' &&
-      typeof (parsed as Record<string, unknown>).firstInitial === 'string' &&
-      typeof (parsed as Record<string, unknown>).lastName === 'string' &&
+      typeof (parsed as Record<string, unknown>).internCode === 'string' &&
       typeof (parsed as Record<string, unknown>).cohortId === 'string' &&
       typeof (parsed as Record<string, unknown>).employerId === 'string'
     ) {
@@ -83,14 +81,12 @@ export function serializeInternIdentityCookie(
 
 /**
  * Read + re-validate the identity cookie against the live roster on each request.
- * Returns null if the cookie is missing/invalid OR the intern has been deleted/renamed.
+ * Returns null if the cookie is missing/invalid OR the intern no longer resolves.
  *
- * Defense-in-depth: even with a valid HMAC signature, we re-resolve the (firstInitial,
- * lastName, cohortId) composite against the live `interns` table and confirm the
- * resolved id matches the cookie's `internId`. This catches:
- *  - interns soft-deleted since cookie issuance
- *  - cohort reassignment
- *  - last-name corrections
+ * Defense-in-depth: even with a valid HMAC signature, we re-resolve the
+ * (internCode, cohortId) pair against the live `interns` table and confirm the
+ * resolved id matches the cookie's `internId`. This catches interns soft-deleted
+ * since cookie issuance and cohort reassignment.
  */
 export async function getCurrentInternIdentity(
   request: Request,
@@ -102,9 +98,8 @@ export async function getCurrentInternIdentity(
   const parsed = parseInternIdentityCookie(decoded);
   if (!parsed) return null;
 
-  const intern = await lookupInternByIdentity({
-    firstInitial: parsed.firstInitial,
-    lastName: parsed.lastName,
+  const intern = await lookupInternByCode({
+    internCode: parsed.internCode,
     cohortId: parsed.cohortId,
   });
   if (!intern || intern.id !== parsed.internId) return null;

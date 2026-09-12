@@ -14,8 +14,7 @@ beforeAll(() => {
 describe('intern identity cookie', () => {
   const identity = {
     internId: '44444444-4444-4444-4444-444444444401',
-    firstInitial: 'A',
-    lastName: 'Williams',
+    internCode: 'IMP-26-1042',
     cohortId: '33333333-3333-3333-3333-333333333301',
     employerId: '11111111-1111-1111-1111-111111111101',
   };
@@ -58,5 +57,19 @@ describe('intern identity cookie', () => {
   it('serializes the clear value with Max-Age=0', () => {
     const setCookie = serializeInternIdentityCookie('', { isProd: false, clear: true });
     expect(setCookie).toMatch(/Max-Age=0/);
+  });
+
+  it('rejects a validly signed cookie in the pre-Intern-ID shape', () => {
+    // Old payloads carried firstInitial/lastName and no internCode. They must
+    // parse as null so the chooser is shown again (spec §6, cookie).
+    const legacy = {
+      internId: identity.internId,
+      firstInitial: 'A',
+      lastName: 'Whitaker',
+      cohortId: identity.cohortId,
+      employerId: identity.employerId,
+    };
+    const value = signInternIdentityCookie(legacy as never);
+    expect(parseInternIdentityCookie(value)).toBeNull();
   });
 });
