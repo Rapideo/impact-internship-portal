@@ -75,6 +75,26 @@ for how the pipeline works and `CLAUDE.md` for current infra state.
       against a dev-only demo route, gated on sign-off) becomes SP1's Phase A/B.
       §8 records what the process missed; §9 is the revised playbook.
 
+## Follow-ups from the Intern ID rebuild (2026-09-11/12)
+
+- [ ] **Regenerate the Quick Start & Testing Guide** — its screenshots show the old chooser
+      (initial + last name) and the create form's name fields. `docs/quick-start-guide/capture.ts`
+      + `render.ts` against staging once PR C is there.
+- [ ] **Recover pre-2026-09-11 impact-dev `assessment_submissions`** from the Supabase backup
+      taken ~07:00Z that day (KP July data + the Whitaker record). Download it or restore into a
+      throwaway project and lift the rows; never "Restore" over live dev.
+- [ ] **`db:seed` profile-restore ordering** — the base seed restores `profiles` BEFORE
+      `db:seed:demo` recreates the demo employers, so employer logins whose employer only exists
+      in demo data are skipped (locked out). Two dev accounts hit this 2026-09-11
+      (`hoosierbakery@impact.app`, `hopebridge@impact.app`). Either run the restore again at the
+      end of the demo seed, or have the demo seed re-apply the skipped rows.
+- [ ] **Remove the `[chooser:*]` step-timing logs** (#147) once a day of prod traffic confirms the
+      2026-09-12 stall is gone. Optionally unset `SENTRY_DSN`/`SENTRY_FORCE` on the `branch-deploy`
+      context (set for the incident reproduction).
+- [ ] **Intern ID re-issue path** (spec D6 follow-up) — only if the program ever asks.
+- [ ] **Survey copy still says "barriers"** (`pf-barriers`, `pf-barriers-detail`, `ees-barriers`)
+      — client note drafted in `KP Feedback July 2026/`; awaiting their wording.
+
 ## Tooling / developer experience
 
 Recommended CLIs/integrations to de-friction the ops we hit during launch

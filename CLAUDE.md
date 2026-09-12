@@ -70,8 +70,8 @@ Fonts (Google Fonts): Display **Archivo Black** · Body **IBM Plex Sans** · Mic
 ## Product rules to know (from PRD)
 
 - **Two roles in the PRD** (Admin + Intern); the production rebuild expands to **three** (Admin, Employer, anonymous Intern).
-- **Unique intern identifier** across all records: First Initial + Last Name + Employer + Cohort. Cohort implies employer for storage; the self-id flow asks for both for human disambiguation (employer filters cohort).
-- **Minimum-PII policy**: only First Initial + Last Name + Cohort persist on the intern record. No first name, DOB, or zipcode. Admin's create form accepts a "First Name" textbox for usability but saves only the initial.
+- **Intern identity** is a portal-assigned **Intern ID** (`IMP-YY-NNNN`, e.g. `IMP-26-0417`). The portal stores **no name of any kind** (client decision 2026-09-11; PRs #143/#144 + PR C). Program staff keep the ID↔person roster offline. Cohort implies employer; the intern chooser asks for employer, cohort and ID.
+- **Minimum-PII policy**: the intern record carries the Intern ID, cohort, role, start/end dates and assessment data. No first name, initial, last name, DOB, or zipcode — anywhere, including the create form.
 - **Intake**: `intern-record.html` is the canonical creation path. The old Readiness Assessment (`dashboard.html`, `readiness-*.html`) has been removed; intake is captured directly on the Entry Assessment panel.
 - **Competency phases**: a global admin-managed list (Settings → Phases). Each cohort selects a subset; the Competency assessment's Phase dropdown filters to the intern's cohort's phases.
 - **Intern self-assessments**: each is **one submission per intern, immutable after submit**. Identity is captured upstream once on the chooser, validated, and persisted; form pages bounce to the chooser if missing.
@@ -153,12 +153,11 @@ npm run dev                 # http://localhost:5173
 - **Auth** in `app/lib/auth.server.ts`. Use `getAuthContext(request, headers)` in loaders for signature-verified JWT claims via Supabase `getClaims()` — **NOT `getSession()`**, which doesn't verify in cookie-storage mode. The login action re-uses its in-memory client after `signInWithPassword` (the new auth cookies aren't on the request yet).
 - **Drizzle schema** at `db/schema.ts`. `npm run db:generate` / `npm run db:migrate`. The initial migration filters out drizzle-kit's `CREATE TABLE auth.users` (Supabase rejects writes to `auth`); FKs to `auth.users` still resolve.
 - **RLS policies** live in `db/policies/*.sql` (raw SQL, more readable than Drizzle-generated). Applied via `npm run db:apply-policies`. Every `CREATE POLICY` is preceded by `DROP POLICY IF EXISTS` for idempotency. **`db/policies/0000_grants.sql`** runs first and explicitly grants base table/sequence privileges to `anon`/`authenticated`/`service_role`, so RLS no longer relies on Supabase's *implicit* default-privilege grants (the CLI changed that behavior in v2.106+ — see CI note above). Grants don't bypass RLS — rows are still gated by the policies in `0001`–`0004`; the grants only let a role *attempt* a query. Idempotent on prod/dev (which already carry the implicit grants).
-- **Tests**: `npm test` (Vitest unit, 302 today); `npm run test:rls` (RLS integration, requires explicit `BEGIN`/`COMMIT` to make `SET LOCAL ROLE authenticated` take effect against the BYPASSRLS connection); `npm run test:e2e` (Playwright, reads `.env.test`).
+- **Tests**: `npm test` (Vitest unit, 326 today); `npm run test:rls` (RLS integration, requires explicit `BEGIN`/`COMMIT` to make `SET LOCAL ROLE authenticated` take effect against the BYPASSRLS connection); `npm run test:e2e` (Playwright, reads `.env.test`).
 - **`supabase/config.toml`** registers the `custom_access_token_hook`; `supabase start` reads it too, so CI mirrors impact-dev.
 
 ## SP2 (Admin core) — key carry-over
 
-- `app/routes/admin.interns.new.tsx` first-name hint says "Only the first initial is saved" but the validator (`requireSingleCharUpper`) rejects multi-character input. Either fix the hint to "Enter the intern's first initial (one letter)." or have the action accept full names and slice to `firstName.trim()[0]`. Test currently feeds a single letter.
 - **Admin User Management** lives at `/admin/settings/users` (`app/lib/users.server.ts`): create admin/employer accounts (password or invite), change role/employer, and reversibly deactivate via Supabase ban; account status is derived from `auth.users` fields at read time (no schema change).
 
 ## SP4 (Assessment forms) — contracts to preserve
@@ -334,13 +333,16 @@ A (issue IDs, names kept), B (anonymous identity switches to the ID + throttle),
   spec pins `x-forwarded-for: 203.0.113.7` so it never locks out `intern-self-submit`; a local
   rerun inside 15 minutes is throttled by design — clear that IP's rows or wait.
 - **Legacy cookies** (name-shaped payload) fail the type guard and fall back to the chooser.
+- **PR C removed the name columns (migration 0007).** `first_initial`/`last_name` exist only in migration history (0000–0006 SQL and snapshots). Do not reintroduce a name field under any label — the client asked for none, and the roster lives offline.
+- **Every intern rendering is `<InternCode>`.** The interns list, the Assessments-hub picker and the cohort-members table have the ID as their only identity column (`strong`); the old `.col-name--quiet` helper is gone. `.name-initial` avatars remain for employer/role names only.
+- **Seeds**: `SEED_INTERNS` carry only `internCode` (fixed values, see `db/seed-data/interns.ts`); the demo seed derives codes deterministically per index.
 
 ## Local development cheat-sheet (for SP6+)
 
 - `npm run dev` — Vite + RR v7 dev server.
 - `npm run db:seed` — **small base seed** (~6 interns, **zero** assessment submissions). TRUNCATEs. Since 2026-09-11 it snapshots **all** `profiles` rows and restores them (pure `planProfileRestore()` in `db/profile-restore-plan.ts`); before that it restored only `admin@example.com` + `employer1@example.com` and silently locked out every other account.
 - `npm run db:seed:demo` — **the rich dataset** (~140 interns, ~236 submissions). Additive, idempotent, no TRUNCATE. This is what produces realistic Reports data — `db:seed` alone will leave the app looking empty.
-- `npm test -- --run` — vitest unit suite (302 tests today).
+- `npm test -- --run` — vitest unit suite (326 tests today).
 - `npm run test:rls` — RLS integration; requires `supabase start`. **Guarded since 2026-09-11**: `tests/rls/setup.rls.ts` refuses to run unless `DATABASE_URL`'s host is local (`localhost`/`127.0.0.1`/`::1`/`host.docker.internal`). Every `tests/rls/*.ts` loads `.env.local` — i.e. **impact-dev cloud credentials** — and these specs DELETE rows; without `supabase start` the suite once connected straight to impact-dev and destroyed every `assessment_submissions` row (free tier, no backups). Never disable the guard.
 - `npm run test:e2e` — Playwright.
 - `npm run lint && npm run typecheck` — green on main today.

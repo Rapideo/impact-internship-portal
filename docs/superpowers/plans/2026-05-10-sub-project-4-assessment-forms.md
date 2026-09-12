@@ -1,5 +1,7 @@
 # Sub-Project 4: Assessment Forms — Implementation Plan
 
+> **2026-09-11:** the First Initial + Last Name identity this plan built was replaced by the Intern ID — see `docs/superpowers/specs/2026-09-11-intern-id-identity-design.md`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Wire all 5 assessment form types (Personal Goals, Midpoint Reflection, Participant Feedback, Exit Employer Survey, Competency) onto the sub-project 3 question engine against the real Supabase database, gated behind an anonymous-intern composite-key identity flow for self-assessments and `?internId=` admin pre-fill for admin/competency flows. Delivers full prototype parity — every form, viewer, list, confirmation, and admin chooser hub — reachable via real routes that read/write `assessment_submissions` with RLS bypass via the service-role client where the actor is anonymous.
