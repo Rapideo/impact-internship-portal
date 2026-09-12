@@ -50,8 +50,7 @@ export interface AssessmentFormSectionBreak {
 }
 
 export interface AssessmentFormIdentityChip {
-  firstInitial: string;
-  lastName: string;
+  internCode: string;
   employerName: string;
   cohortName: string;
 }
@@ -117,8 +116,7 @@ export function AssessmentForm(props: AssessmentFormProps) {
 
   const chip = props.identityChip ? (
     <IdentityConfirmedChip
-      firstInitial={props.identityChip.firstInitial}
-      lastName={props.identityChip.lastName}
+      internCode={props.identityChip.internCode}
       employerName={props.identityChip.employerName}
       cohortName={props.identityChip.cohortName}
     />

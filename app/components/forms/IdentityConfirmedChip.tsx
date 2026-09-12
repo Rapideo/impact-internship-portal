@@ -2,28 +2,27 @@
 // forms (and the admin chooser hub) to confirm "you are signed in as ...".
 //
 // The markup mirrors the prototype's `.identity-confirmed` block: a checkmark
-// glyph followed by 4 label/value pairs separated by dividers, with an
-// optional "Switch" button (only the chooser hub passes `onSwitch`).
+// glyph followed by the Intern ID, employer and cohort separated by dividers,
+// with an optional "Switch" button (only the chooser hub passes `onSwitch`).
 //
 // Styles come from app/styles/admin.css (`.identity-confirmed*` BEM classes —
 // added alongside this component as part of SP4 Phase B).
 
+import { InternCode } from '../InternCode';
+
 export interface IdentityConfirmedChipProps {
-  firstInitial: string;
-  lastName: string;
+  internCode: string;
   employerName: string;
   cohortName: string;
   onSwitch?: () => void;
 }
 
 export function IdentityConfirmedChip({
-  firstInitial,
-  lastName,
+  internCode,
   employerName,
   cohortName,
   onSwitch,
 }: IdentityConfirmedChipProps) {
-  const displayName = `${firstInitial}. ${lastName}`.trim();
   return (
     <div className="identity-confirmed" data-testid="identity-confirmed-chip">
       <span className="identity-confirmed__check" aria-hidden="true">
@@ -31,7 +30,9 @@ export function IdentityConfirmedChip({
         &#10003;
       </span>
       <span className="identity-confirmed__label">Confirmed as</span>
-      <span className="identity-confirmed__value">{displayName}</span>
+      <span className="identity-confirmed__value">
+        <InternCode code={internCode} />
+      </span>
       <span className="identity-confirmed__divider" aria-hidden="true">
         |
       </span>

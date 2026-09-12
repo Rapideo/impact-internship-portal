@@ -3,13 +3,13 @@
 //
 // Two render branches keyed off the identity cookie:
 //   - No identity: <PublicNav> ("← Back to home") + <PageHead> ("CHOOSE
-//     YOUR / ASSESSMENT.") + <IdentityCard> hosting a 4-field identity
-//     gate (First Initial / Last Name / Employer / Cohort) inside an
-//     `.id-grid.id-grid--4`, with a top-rule divider above the Confirm
-//     button. The cohort <select> cascades client-side from the employer
-//     pick. POST with intent=confirm runs lookupInternByIdentity, verifies
-//     the cohort belongs to the chosen employer, then signs the cookie
-//     and redirects with Set-Cookie.
+//     YOUR / ASSESSMENT.") + <IdentityCard> hosting a 3-field identity
+//     gate (Employer / Cohort / Intern ID) inside an `.id-grid.id-grid--3`,
+//     with a top-rule divider above the Confirm button. The cohort <select>
+//     cascades client-side from the employer pick. POST with intent=confirm
+//     checks the per-IP throttle, normalises the ID, verifies the cohort
+//     belongs to the chosen employer, runs lookupInternByCode, then signs
+//     the cookie and redirects with Set-Cookie.
 //   - Identity confirmed: <IdentityConfirmedChip> + Switch button (POSTs
 //     to /intern/reset-identity) + a 3-card chooser using <AssessmentCard>
 //     with prototype-verbatim copy. Each card shows "SUBMITTED ON …" if
@@ -27,7 +27,9 @@ import type { Route } from './+types/_public.intern.assessments';
 import { db } from '~/lib/db.server';
 import { env } from '~/lib/env.server';
 import { cohorts as cohortsTable, employers as employersTable } from '../../db/schema';
-import { lookupInternByIdentity } from '~/lib/identity.server';
+import { lookupInternByCode } from '~/lib/identity.server';
+import { normalizeInternCode } from '~/lib/intern-code';
+import { clientIp, isThrottled, recordFailure } from '~/lib/identity-throttle.server';
 import {
   getCurrentInternIdentity,
   signInternIdentityCookie,
@@ -57,8 +59,7 @@ interface OneShotStatus {
 }
 interface IdentityDisplay {
   internId: string;
-  firstInitial: string;
-  lastName: string;
+  internCode: string;
   cohortId: string;
   employerId: string;
   cohortName: string;
@@ -145,8 +146,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const employerRow = employerOptions.find((e) => e.id === identity.employerId);
   const display: IdentityDisplay = {
     internId: identity.internId,
-    firstInitial: identity.firstInitial,
-    lastName: identity.lastName,
+    internCode: identity.internCode,
     cohortId: identity.cohortId,
     employerId: identity.employerId,
     cohortName: cohortRow?.name ?? 'Unknown cohort',
@@ -174,7 +174,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 interface ActionError {
   error?: string;
-  fields?: { firstInitial?: string; lastName?: string; employerId?: string; cohortId?: string };
+  fields?: { internCode?: string; employerId?: string; cohortId?: string };
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -185,23 +185,27 @@ export async function action({ request }: Route.ActionArgs) {
     return { error: 'Invalid request.' } satisfies ActionError;
   }
 
-  const firstInitial = String(formData.get('firstInitial') ?? '').trim();
-  const lastName = String(formData.get('lastName') ?? '').trim();
+  const rawCode = String(formData.get('internCode') ?? '').trim();
   const employerId = String(formData.get('employerId') ?? '').trim();
   const cohortId = String(formData.get('cohortId') ?? '').trim();
+  const fields: ActionError['fields'] = { internCode: rawCode, employerId, cohortId };
 
-  const fields: ActionError['fields'] = {
-    firstInitial,
-    lastName,
-    employerId,
-    cohortId,
-  };
-
-  if (!/^[A-Za-z]$/.test(firstInitial)) {
-    return { error: 'Please enter a single-letter first initial.', fields } satisfies ActionError;
+  // 1. Throttle (spec §7). Checked first so a blocked IP learns nothing else.
+  const ip = clientIp(request);
+  if (await isThrottled(ip)) {
+    return {
+      error: 'Too many attempts. Wait 15 minutes and try again.',
+      fields,
+    } satisfies ActionError;
   }
-  if (!lastName) {
-    return { error: 'Please enter your last name.', fields } satisfies ActionError;
+
+  // 2. Shape. Not a failed attempt — it never reached the database.
+  const internCode = normalizeInternCode(rawCode);
+  if (!internCode) {
+    return {
+      error: 'Enter your Intern ID in the form IMP-26-0417.',
+      fields,
+    } satisfies ActionError;
   }
   if (!employerId) {
     return { error: 'Please select your employer.', fields } satisfies ActionError;
@@ -210,32 +214,30 @@ export async function action({ request }: Route.ActionArgs) {
     return { error: 'Please select your cohort.', fields } satisfies ActionError;
   }
 
-  const intern = await lookupInternByIdentity({ firstInitial, lastName, cohortId });
-  if (!intern) {
-    return {
-      error: 'No matching intern record. Check your details or contact your program administrator.',
-      fields,
-    } satisfies ActionError;
-  }
-
-  // Verify the cohort exists AND belongs to the selected employer. This blocks a
+  // 3. The cohort must exist AND belong to the selected employer. Blocks a
   // tampered form from baking a fraudulent employerId into the signed cookie.
   const cohortMatch = await db
     .select({ employerId: cohortsTable.employerId })
     .from(cohortsTable)
     .where(and(eq(cohortsTable.id, cohortId), eq(cohortsTable.employerId, employerId)))
     .limit(1);
-  if (cohortMatch.length === 0 || !cohortMatch[0]) {
+
+  // 4. Lookup. ONE message for "unknown ID" and "right ID, wrong cohort" —
+  // distinguishing them would tell a guesser when they have found a live ID.
+  const intern = cohortMatch.length > 0 ? await lookupInternByCode({ internCode, cohortId }) : null;
+  if (!intern || !cohortMatch[0]) {
+    await recordFailure(ip);
     return {
-      error: 'No matching intern record. Check your details or contact your program administrator.',
+      error:
+        "We couldn't find that Intern ID in the selected cohort. Check both, or ask your supervisor.",
       fields,
     } satisfies ActionError;
   }
 
+  // 5. Sign. employerId comes from the verified cohort row, never the form.
   const signed = signInternIdentityCookie({
     internId: intern.id,
-    firstInitial: intern.firstInitial,
-    lastName: intern.lastName,
+    internCode: intern.internCode,
     cohortId: intern.cohortId,
     employerId: cohortMatch[0].employerId,
   });
@@ -284,8 +286,7 @@ export default function InternAssessmentsPage() {
         <div className="container">
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <IdentityConfirmedChip
-              firstInitial={identity.firstInitial}
-              lastName={identity.lastName}
+              internCode={identity.internCode}
               employerName={identity.employerName}
               cohortName={identity.cohortName}
             />
@@ -378,7 +379,7 @@ function IdentityGate({
         <div className="container">
           <IdentityCard
             title="Confirm Your Identity"
-            subnote="UNIQUE KEY · FIRST INITIAL + LAST NAME + EMPLOYER + COHORT"
+            subnote="UNIQUE KEY · EMPLOYER + COHORT + INTERN ID"
           >
             {actionData?.error ? (
               <div role="alert" className="form-banner form-banner--danger">
@@ -389,38 +390,7 @@ function IdentityGate({
             <Form method="post" data-testid="identity-gate-form">
               <input type="hidden" name="intent" value="confirm" />
 
-              <div className="id-grid id-grid--4">
-                <div className="field">
-                  <label htmlFor="firstInitial">First Initial</label>
-                  <input
-                    id="firstInitial"
-                    name="firstInitial"
-                    className="input"
-                    type="text"
-                    maxLength={1}
-                    pattern="[A-Za-z]"
-                    required
-                    placeholder="e.g., M"
-                    style={{ textTransform: 'uppercase' }}
-                    defaultValue={actionData?.fields?.firstInitial ?? ''}
-                    autoComplete="off"
-                  />
-                </div>
-
-                <div className="field">
-                  <label htmlFor="lastName">Last Name</label>
-                  <input
-                    id="lastName"
-                    name="lastName"
-                    className="input"
-                    type="text"
-                    required
-                    placeholder="e.g., Bayer"
-                    defaultValue={actionData?.fields?.lastName ?? ''}
-                    autoComplete="family-name"
-                  />
-                </div>
-
+              <div className="id-grid id-grid--3">
                 <div className="field">
                   <label htmlFor="employerId">Employer</label>
                   <select
@@ -459,6 +429,22 @@ function IdentityGate({
                       </option>
                     ))}
                   </select>
+                </div>
+
+                <div className="field">
+                  <label htmlFor="internCode">Intern ID</label>
+                  <input
+                    id="internCode"
+                    name="internCode"
+                    className="input intern-code"
+                    type="text"
+                    required
+                    placeholder="IMP-26-0417"
+                    autoCapitalize="characters"
+                    autoComplete="off"
+                    spellCheck={false}
+                    defaultValue={actionData?.fields?.internCode ?? ''}
+                  />
                 </div>
               </div>
 
