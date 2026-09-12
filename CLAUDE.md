@@ -166,12 +166,12 @@ npm run dev                 # http://localhost:5173
 ### Intern identity (anonymous flow)
 
 - **Cookie**: `impact_intern_identity` — HMAC-signed via `SESSION_SECRET` (read lazily from `process.env`, intentionally NOT in `env.server.ts`'s eager required list so the CI fake-env block keeps working). Helpers in `app/lib/intern-identity.server.ts`.
-- **Revalidation**: `getCurrentInternIdentity(request)` does NOT trust the signature alone. It re-resolves the `(firstInitial, lastName, cohortId)` triple against the live `interns` table on every read, returning `null` if the resolved id no longer matches the cookie's `internId`. Catches soft-deletes, cohort moves, last-name corrections without explicit logout.
-- **Identity gate at `/intern/assessments`**: the confirm action must verify both the intern exists AND the chosen cohort belongs to the chosen employer before signing the cookie. The cookie's `employerId` is derived from the verified cohort row — **never trust form-supplied employerId** for the cookie payload.
+- **Revalidation**: `getCurrentInternIdentity(request)` does NOT trust the signature alone. It re-resolves the `(internCode, cohortId)` pair against the live `interns` table on every read, returning `null` if the resolved id no longer matches the cookie's `internId`. Catches soft-deletes and cohort moves without explicit logout. Cookie payload is `{ internId, internCode, cohortId, employerId }`; a validly-signed cookie in the pre-Intern-ID (name-shaped) payload fails the type guard and is treated as absent.
+- **Identity gate at `/intern/assessments`**: the confirm action must verify both that the normalised Intern ID resolves in the chosen cohort AND that the cohort belongs to the chosen employer before signing the cookie. The cookie's `employerId` is derived from the verified cohort row — **never trust form-supplied employerId** for the cookie payload.
 
 ### Anonymous submission path (do NOT generalize)
 
-Intern submissions to `assessment_submissions` use `dbService` (service-role Drizzle client in `app/lib/db.service.server.ts`) because RLS policies block anon writes. The narrow contract: action handler → revalidate identity via `getCurrentInternIdentity` → `dbService` insert via `insertAnonymousSubmission()`. **Never call `dbService` outside this path.** Admin writes use the regular `db` client.
+Intern submissions to `assessment_submissions` use `dbService` (service-role Drizzle client in `app/lib/db.service.server.ts`) because RLS policies block anon writes. The narrow contract: action handler → revalidate identity via `getCurrentInternIdentity` → `dbService` insert via `insertAnonymousSubmission()`. **`dbService` has exactly two sanctioned anonymous callers: this submission path and the identity throttle (`app/lib/identity-throttle.server.ts`). Never add a third.** Admin writes use the regular `db` client.
 
 Known carry-over **#77**: today both `db` and `dbService` connect via the same `DATABASE_POOL_URL` as the same BYPASSRLS user — the separation is semantic. Future hardening (split `DATABASE_SERVICE_URL` from `DATABASE_POOL_URL`, downgrade pool to real `anon` role) will make it real. `getOneShotSubmission` already uses the service-role client (PR #84).
 
@@ -325,6 +325,13 @@ A (issue IDs, names kept), B (anonymous identity switches to the ID + throttle),
   `<InternIdIssuedCallout>` off that flag (query-string driven, no state). The callout copy is
   fixed by the spec.
 - **`<InternCode>` (`.intern-code`, `.intern-code--lg`) is the one way to render an ID.**
+- **Chooser order is Employer → Cohort → Intern ID**; the action runs throttle → normalise →
+  cohort∈employer → lookup → sign, and returns ONE message for unknown-ID and wrong-cohort.
+- **Throttle**: ≥10 failures/IP/15 min (`identity_attempts`, service-role only, RLS on with no
+  policies). Fails open. `x-nf-client-connection-ip` beats `x-forwarded-for`. The e2e throttle
+  spec pins `x-forwarded-for: 203.0.113.7` so it never locks out `intern-self-submit`; a local
+  rerun inside 15 minutes is throttled by design — clear that IP's rows or wait.
+- **Legacy cookies** (name-shaped payload) fail the type guard and fall back to the chooser.
 
 ## Local development cheat-sheet (for SP6+)
 
