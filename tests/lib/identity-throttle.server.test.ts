@@ -5,6 +5,7 @@ import {
   reserveAttempt,
   releaseAttempt,
   THROTTLE_MAX_FAILURES,
+  THROTTLE_DB_TIMEOUT_MS,
 } from '~/lib/identity-throttle.server';
 
 function req(headers: Record<string, string>) {
@@ -98,6 +99,44 @@ describe('releaseAttempt', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {});
     await expect(
       releaseAttempt('att-1', { db: fakeDb(new Error('db down')).db }),
+    ).resolves.toBeUndefined();
+    error.mockRestore();
+  });
+});
+
+it('pins THROTTLE_DB_TIMEOUT_MS at 4s', () => {
+  expect(THROTTLE_DB_TIMEOUT_MS).toBe(4_000);
+});
+
+/** Fake whose first DB call hangs forever — exercises the fail-open timeout. */
+function hangingDb() {
+  const never = new Promise<never>(() => {});
+  const db = {
+    select: () => ({ from: () => ({ where: () => never }) }),
+    insert: () => ({ values: () => ({ returning: () => never }) }),
+    delete: () => ({ where: () => never }),
+  };
+  return db as never;
+}
+
+describe('fail-open timeout', () => {
+  it('isThrottled returns false when the DB hangs past the timeout', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const t = Date.now();
+    expect(await isThrottled('1.2.3.4', { db: hangingDb(), timeoutMs: 50 })).toBe(false);
+    expect(Date.now() - t).toBeLessThan(1_000);
+    expect(error).toHaveBeenCalled();
+    error.mockRestore();
+  });
+  it('reserveAttempt returns null when the DB hangs past the timeout', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(await reserveAttempt('1.2.3.4', { db: hangingDb(), timeoutMs: 50 })).toBeNull();
+    error.mockRestore();
+  });
+  it('releaseAttempt resolves when the DB hangs past the timeout', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await expect(
+      releaseAttempt('att-1', { db: hangingDb(), timeoutMs: 50 }),
     ).resolves.toBeUndefined();
     error.mockRestore();
   });
