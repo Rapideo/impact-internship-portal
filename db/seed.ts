@@ -178,8 +178,6 @@ async function main() {
           id: i.id,
           cohortId: i.cohortId,
           roleId: i.roleId,
-          firstInitial: i.firstInitial,
-          lastName: i.lastName,
           internCode: i.internCode,
           startDate: i.startDate,
           endDate: i.endDate,
@@ -201,7 +199,7 @@ async function main() {
           const participationFactor = participationFactorByLabel.get(label);
           if (!participationFactor) {
             throw new Error(
-              `Unknown participation factor label "${label}" for intern ${i.lastName}`,
+              `Unknown participation factor label "${label}" for intern ${i.internCode}`,
             );
           }
           entryParticipationFactorRows.push({

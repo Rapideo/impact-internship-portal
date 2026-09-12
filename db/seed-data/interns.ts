@@ -2,8 +2,6 @@ export interface SeedIntern {
   id: string;
   cohortId: string;
   roleId: string | null;
-  firstInitial: string;
-  lastName: string;
   internCode: string;
   startDate: string | null;
   endDate: string | null;
@@ -20,8 +18,6 @@ export const SEED_INTERNS: SeedIntern[] = [
     id: '44444444-4444-4444-4444-444444444401',
     cohortId: '33333333-3333-3333-3333-333333333301',
     roleId: '22222222-2222-2222-2222-222222222201',
-    firstInitial: 'A',
-    lastName: 'Whitaker',
     internCode: 'IMP-26-1042',
     startDate: '2026-01-12',
     endDate: null,
@@ -37,8 +33,6 @@ export const SEED_INTERNS: SeedIntern[] = [
     id: '44444444-4444-4444-4444-444444444402',
     cohortId: '33333333-3333-3333-3333-333333333302',
     roleId: '22222222-2222-2222-2222-222222222202',
-    firstInitial: 'B',
-    lastName: 'Okafor',
     internCode: 'IMP-26-2077',
     startDate: '2026-01-19',
     endDate: null,
@@ -53,8 +47,6 @@ export const SEED_INTERNS: SeedIntern[] = [
     id: '44444444-4444-4444-4444-444444444403',
     cohortId: '33333333-3333-3333-3333-333333333303',
     roleId: '22222222-2222-2222-2222-222222222203',
-    firstInitial: 'C',
-    lastName: 'Delgado',
     internCode: 'IMP-26-3158',
     startDate: '2026-02-02',
     endDate: null,
@@ -69,15 +61,13 @@ export const SEED_INTERNS: SeedIntern[] = [
   // ------------------------------------------------------------------
   // E2E-dedicated fixtures (sub-project 4). All three sit in the Northside
   // CNA cohort so the Playwright competency specs exercise the cohort-tier
-  // overlay seeded in sub-project 3 Phase G. Distinct last names ensure
-  // unique composite-key identity lookups.
+  // overlay seeded in sub-project 3 Phase G. Distinct fixed Intern IDs
+  // (IMP-26-4001/2/3) so each spec targets its own record.
   // ------------------------------------------------------------------
   {
     id: '44444444-4444-4444-4444-444444444404',
     cohortId: '33333333-3333-3333-3333-333333333302',
     roleId: '22222222-2222-2222-2222-222222222202',
-    firstInitial: 'T',
-    lastName: 'Test1',
     internCode: 'IMP-26-4001',
     startDate: '2026-01-19',
     endDate: null,
@@ -92,8 +82,6 @@ export const SEED_INTERNS: SeedIntern[] = [
     id: '44444444-4444-4444-4444-444444444405',
     cohortId: '33333333-3333-3333-3333-333333333302',
     roleId: '22222222-2222-2222-2222-222222222202',
-    firstInitial: 'T',
-    lastName: 'Test2',
     internCode: 'IMP-26-4002',
     startDate: '2026-01-19',
     endDate: null,
@@ -108,8 +96,6 @@ export const SEED_INTERNS: SeedIntern[] = [
     id: '44444444-4444-4444-4444-444444444406',
     cohortId: '33333333-3333-3333-3333-333333333302',
     roleId: '22222222-2222-2222-2222-222222222202',
-    firstInitial: 'T',
-    lastName: 'Test3',
     internCode: 'IMP-26-4003',
     startDate: '2026-01-19',
     endDate: null,

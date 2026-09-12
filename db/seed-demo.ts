@@ -89,74 +89,6 @@ function submissionId(globalIdx: number): string {
   return `ddd30000-0000-4000-8000-00${pad10(globalIdx)}`;
 }
 
-/* ─── Name pools ─────────────────────────────────────────────────────
- * Index-derived so the same index always produces the same name.
- * Intentionally short pools — we wrap with modulo.
- */
-
-const FIRST_INITIALS = [
-  'A',
-  'B',
-  'C',
-  'D',
-  'E',
-  'F',
-  'G',
-  'H',
-  'J',
-  'K',
-  'L',
-  'M',
-  'N',
-  'P',
-  'R',
-  'S',
-  'T',
-  'V',
-  'W',
-  'Y',
-];
-
-const LAST_NAMES = [
-  'Abernathy',
-  'Blackwell',
-  'Castillo',
-  'Davenport',
-  'Espinoza',
-  'Fitzgerald',
-  'Guerrero',
-  'Hendricks',
-  'Ingram',
-  'Jefferson',
-  'Kowalski',
-  'Lawson',
-  'Montalvo',
-  'Nguyen',
-  'Obafemi',
-  'Peralta',
-  'Quintero',
-  'Rojas',
-  'Santiago',
-  'Thornton',
-  'Underwood',
-  'Vega',
-  'Whitmore',
-  'Xavier',
-  'Yamamoto',
-  'Zuberi',
-  'Afolabi',
-  'Bancroft',
-  'Carrillo',
-  'Dorsey',
-];
-
-function internName(idx: number): { firstInitial: string; lastName: string } {
-  return {
-    firstInitial: FIRST_INITIALS[idx % FIRST_INITIALS.length]!,
-    lastName: LAST_NAMES[idx % LAST_NAMES.length]!,
-  };
-}
-
 /**
  * Deterministic Intern ID per demo intern so re-runs are idempotent (the demo
  * seed is additive; its idempotency key is the fixed intern id, and the code
@@ -999,8 +931,6 @@ async function main() {
       id: string;
       cohortId: string;
       roleId: string | null;
-      firstInitial: string;
-      lastName: string;
       internCode: string;
       startDate: string | null;
       endDate: string | null;
@@ -1023,14 +953,11 @@ async function main() {
       for (let j = 0; j < count; j++) {
         const iIdx = globalInternIdx++;
         const iId = internId(iIdx);
-        const { firstInitial, lastName } = internName(iIdx);
 
         internRows.push({
           id: iId,
           cohortId: cId,
           roleId: rId,
-          firstInitial,
-          lastName,
           internCode: internCode(iIdx, c.startDate),
           startDate: c.startDate,
           endDate: null,
