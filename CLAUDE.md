@@ -142,7 +142,7 @@ npm run dev                 # http://localhost:5173
 
 ### Three roles
 
-- **Anonymous intern** — composite-key identity (first initial + last name + cohort), no Supabase Auth account. Lookup helper at `app/lib/identity.server.ts:lookupInternByIdentity`.
+- **Anonymous intern** — identified by a portal-assigned Intern ID (`IMP-YY-NNNN`) plus the selected cohort; no Supabase Auth account. Lookup helper at `app/lib/identity.server.ts:lookupInternByCode`.
 - **Employer** — Supabase Auth, JWT carries `role='employer'` + `employer_id` claims via `public.custom_access_token_hook` (SECURITY DEFINER, registered in `supabase/config.toml`). RLS scopes every employer query to their `employer_id`.
 - **Admin** — Supabase Auth, JWT carries `role='admin'`. RLS grants admin full access.
 
@@ -328,7 +328,9 @@ A (issue IDs, names kept), B (anonymous identity switches to the ID + throttle),
 - **Chooser order is Employer → Cohort → Intern ID**; the action runs throttle → normalise →
   cohort∈employer → lookup → sign, and returns ONE message for unknown-ID and wrong-cohort.
 - **Throttle**: ≥10 failures/IP/15 min (`identity_attempts`, service-role only, RLS on with no
-  policies). Fails open. `x-nf-client-connection-ip` beats `x-forwarded-for`. The e2e throttle
+  policies). Fails open. The action reserves the failure row before the lookup and releases it on
+  success (reserve-then-count) so a parallel burst cannot exceed the threshold; do not reorder the
+  action. `x-nf-client-connection-ip` beats `x-forwarded-for`. The e2e throttle
   spec pins `x-forwarded-for: 203.0.113.7` so it never locks out `intern-self-submit`; a local
   rerun inside 15 minutes is throttled by design — clear that IP's rows or wait.
 - **Legacy cookies** (name-shaped payload) fail the type guard and fall back to the chooser.

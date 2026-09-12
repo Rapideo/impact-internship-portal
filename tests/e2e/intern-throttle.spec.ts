@@ -4,11 +4,24 @@
 // dev server's real client IP. In production Netlify's
 // x-nf-client-connection-ip wins, so this header cannot dodge the throttle.
 import { test, expect, type Page } from '@playwright/test';
+import postgres from 'postgres';
 
 const EMPLOYER = 'Northside Hospital Network'; // matches intern-self-submit.spec.ts
 const COHORT = 'Northside — Winter 2026 CNA Track';
+const IP = '203.0.113.7';
 
-test.use({ extraHTTPHeaders: { 'x-forwarded-for': '203.0.113.7' } });
+test.use({ extraHTTPHeaders: { 'x-forwarded-for': IP } });
+
+async function clearAttempts() {
+  const sql = postgres(process.env.DATABASE_URL!, { max: 1, prepare: false });
+  try {
+    await sql`DELETE FROM public.identity_attempts WHERE ip = ${IP}`;
+  } finally {
+    await sql.end();
+  }
+}
+test.beforeAll(clearAttempts);
+test.afterAll(clearAttempts);
 
 // The identity gate's <Form method="post"> submits to itself via React
 // Router's client-side fetch — there's no full-page navigation for

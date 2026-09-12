@@ -8,9 +8,9 @@ import { env } from './env.server';
  * superuser/BYPASSRLS role.
  *
  * Use ONLY in the two anonymous paths: the intern self-assessment submission
- * insert (+ `getOneShotSubmission` read) and the identity throttle in `identity-throttle.server.ts`. Never expose to
- * client code; never use in admin/employer paths where RLS-scoped queries
- * are the correct safety net.
+ * insert (+ `getOneShotSubmission` read) and the identity throttle in
+ * `identity-throttle.server.ts`. Never expose to client code; never use in
+ * admin/employer paths where RLS-scoped queries are the correct safety net.
  *
  * Connection URL resolution (carry-over #77):
  * - Prefers `DATABASE_SERVICE_URL` when set so the pool client (`db.server.ts`)

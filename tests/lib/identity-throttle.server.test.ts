@@ -2,7 +2,8 @@ import { describe, it, expect, vi } from 'vitest';
 import {
   clientIp,
   isThrottled,
-  recordFailure,
+  reserveAttempt,
+  releaseAttempt,
   THROTTLE_MAX_FAILURES,
 } from '~/lib/identity-throttle.server';
 
@@ -38,13 +39,17 @@ function fakeDb(count: number | Error) {
       }),
     }),
     insert: () => ({
-      values: async (v: unknown) => {
-        if (count instanceof Error) throw count;
-        inserted.push(v);
-      },
+      values: (v: unknown) => ({
+        returning: async () => {
+          if (count instanceof Error) throw count;
+          inserted.push(v);
+          return [{ id: 'att-1' }];
+        },
+      }),
     }),
     delete: () => ({
       where: async (w: unknown) => {
+        if (count instanceof Error) throw count;
         deleted.push(w);
       },
     }),
@@ -60,26 +65,40 @@ describe('isThrottled', () => {
     expect(await isThrottled('1.2.3.4', { db: fakeDb(THROTTLE_MAX_FAILURES).db })).toBe(true);
   });
   it('fails open when the query throws', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(await isThrottled('1.2.3.4', { db: fakeDb(new Error('db down')).db })).toBe(false);
-    expect(warn).toHaveBeenCalled();
-    warn.mockRestore();
+    expect(error).toHaveBeenCalled();
+    error.mockRestore();
   });
 });
 
-describe('recordFailure', () => {
-  it('inserts a row and prunes old ones', async () => {
-    const f = fakeDb(0);
-    await recordFailure('1.2.3.4', { db: f.db, now: new Date('2026-09-11T22:00:00Z') });
-    expect(f.inserted).toHaveLength(1);
+describe('reserveAttempt', () => {
+  it('inserts a row and returns the count including itself', async () => {
+    const f = fakeDb(4); // the count the DB reports (already includes the new row)
+    const r = await reserveAttempt('1.2.3.4', { db: f.db, now: new Date('2026-09-11T22:00:00Z') });
+    expect(r).toEqual({ id: 'att-1', n: 4 });
     expect(f.inserted[0]).toMatchObject({ ip: '1.2.3.4' });
+    expect(f.deleted).toHaveLength(1); // the retention prune
+  });
+  it('fails open (null) and logs when the DB throws', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(await reserveAttempt('1.2.3.4', { db: fakeDb(new Error('db down')).db })).toBeNull();
+    expect(error).toHaveBeenCalled();
+    error.mockRestore();
+  });
+});
+
+describe('releaseAttempt', () => {
+  it('deletes the reserved row', async () => {
+    const f = fakeDb(0);
+    await releaseAttempt('att-1', { db: f.db });
     expect(f.deleted).toHaveLength(1);
   });
   it('swallows errors', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
     await expect(
-      recordFailure('1.2.3.4', { db: fakeDb(new Error('db down')).db }),
+      releaseAttempt('att-1', { db: fakeDb(new Error('db down')).db }),
     ).resolves.toBeUndefined();
-    warn.mockRestore();
+    error.mockRestore();
   });
 });

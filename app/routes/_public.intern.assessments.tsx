@@ -7,9 +7,11 @@
 //     gate (Employer / Cohort / Intern ID) inside an `.id-grid.id-grid--3`,
 //     with a top-rule divider above the Confirm button. The cohort <select>
 //     cascades client-side from the employer pick. POST with intent=confirm
-//     checks the per-IP throttle, normalises the ID, verifies the cohort
-//     belongs to the chosen employer, runs lookupInternByCode, then signs
-//     the cookie and redirects with Set-Cookie.
+//     checks the per-IP throttle, normalises the ID, reserves the attempt as
+//     a failure (released on success — see identity-throttle.server.ts),
+//     verifies the cohort belongs to the chosen employer, runs
+//     lookupInternByCode, then signs the cookie and redirects with
+//     Set-Cookie.
 //   - Identity confirmed: <IdentityConfirmedChip> + Switch button (POSTs
 //     to /intern/reset-identity) + a 3-card chooser using <AssessmentCard>
 //     with prototype-verbatim copy. Each card shows "SUBMITTED ON …" if
@@ -29,7 +31,14 @@ import { env } from '~/lib/env.server';
 import { cohorts as cohortsTable, employers as employersTable } from '../../db/schema';
 import { lookupInternByCode } from '~/lib/identity.server';
 import { normalizeInternCode } from '~/lib/intern-code';
-import { clientIp, isThrottled, recordFailure } from '~/lib/identity-throttle.server';
+import {
+  clientIp,
+  isThrottled,
+  reserveAttempt,
+  releaseAttempt,
+  THROTTLE_MAX_FAILURES,
+} from '~/lib/identity-throttle.server';
+import { UUID_RE } from '~/lib/validation';
 import {
   getCurrentInternIdentity,
   signInternIdentityCookie,
@@ -189,17 +198,18 @@ export async function action({ request }: Route.ActionArgs) {
   const employerId = String(formData.get('employerId') ?? '').trim();
   const cohortId = String(formData.get('cohortId') ?? '').trim();
   const fields: ActionError['fields'] = { internCode: rawCode, employerId, cohortId };
+  const throttled = {
+    error: 'Too many attempts. Wait 15 minutes and try again.',
+    fields,
+  } satisfies ActionError;
 
-  // 1. Throttle (spec §7). Checked first so a blocked IP learns nothing else.
+  // 1. Throttle pre-check (spec §7). Read-only and first, so a blocked IP learns
+  // nothing else and never writes a row.
   const ip = clientIp(request);
-  if (await isThrottled(ip)) {
-    return {
-      error: 'Too many attempts. Wait 15 minutes and try again.',
-      fields,
-    } satisfies ActionError;
-  }
+  if (await isThrottled(ip)) return throttled;
 
-  // 2. Shape. Not a failed attempt — it never reached the database.
+  // 2. Shape. Not a failed attempt — it never reaches the database. The two ids
+  // must be UUIDs before they hit a query (malformed → PG 22P02 → 500).
   const internCode = normalizeInternCode(rawCode);
   if (!internCode) {
     return {
@@ -207,14 +217,24 @@ export async function action({ request }: Route.ActionArgs) {
       fields,
     } satisfies ActionError;
   }
-  if (!employerId) {
+  if (!employerId || !UUID_RE.test(employerId)) {
     return { error: 'Please select your employer.', fields } satisfies ActionError;
   }
-  if (!cohortId) {
+  if (!cohortId || !UUID_RE.test(cohortId)) {
     return { error: 'Please select your cohort.', fields } satisfies ActionError;
   }
 
-  // 3. The cohort must exist AND belong to the selected employer. Blocks a
+  // 3. Reserve this attempt as a failure BEFORE the lookups, and count with it
+  // included. Concurrent requests from one IP each see their own row plus every
+  // committed peer, so at most THROTTLE_MAX_FAILURES pass per window however
+  // large the burst. Released below if the attempt succeeds.
+  const attempt = await reserveAttempt(ip);
+  if (attempt && attempt.n > THROTTLE_MAX_FAILURES) {
+    await releaseAttempt(attempt.id); // refused, not a failure — keep the table bounded
+    return throttled;
+  }
+
+  // 4. The cohort must exist AND belong to the selected employer. Blocks a
   // tampered form from baking a fraudulent employerId into the signed cookie.
   const cohortMatch = await db
     .select({ employerId: cohortsTable.employerId })
@@ -222,11 +242,11 @@ export async function action({ request }: Route.ActionArgs) {
     .where(and(eq(cohortsTable.id, cohortId), eq(cohortsTable.employerId, employerId)))
     .limit(1);
 
-  // 4. Lookup. ONE message for "unknown ID" and "right ID, wrong cohort" —
+  // 5. Lookup. ONE message for "unknown ID" and "right ID, wrong cohort" —
   // distinguishing them would tell a guesser when they have found a live ID.
+  // On a miss the reserved row stays: it IS the failure record.
   const intern = cohortMatch.length > 0 ? await lookupInternByCode({ internCode, cohortId }) : null;
   if (!intern || !cohortMatch[0]) {
-    await recordFailure(ip);
     return {
       error:
         "We couldn't find that Intern ID in the selected cohort. Check both, or ask your supervisor.",
@@ -234,7 +254,9 @@ export async function action({ request }: Route.ActionArgs) {
     } satisfies ActionError;
   }
 
-  // 5. Sign. employerId comes from the verified cohort row, never the form.
+  // 6. Success is not a failure — release the reservation, then sign.
+  // employerId comes from the verified cohort row, never the form.
+  if (attempt) await releaseAttempt(attempt.id);
   const signed = signInternIdentityCookie({
     internId: intern.id,
     internCode: intern.internCode,
