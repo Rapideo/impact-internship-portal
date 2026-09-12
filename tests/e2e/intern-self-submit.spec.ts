@@ -18,8 +18,7 @@ import { config } from 'dotenv';
 config({ path: '.env.local' });
 config();
 
-const TEST_INTERN_FI = 'T';
-const TEST_INTERN_LN = 'Test1';
+const TEST_INTERN_CODE = 'IMP-26-4001'; // T. Test1 — db/seed-data/interns.ts
 const TEST_COHORT_NAME = 'Northside — Winter 2026 CNA Track';
 const TEST_EMPLOYER_NAME = 'Northside Hospital Network';
 const TEST_INTERN_ID = '44444444-4444-4444-4444-444444444404';
@@ -57,13 +56,13 @@ async function confirmIdentity(page: import('@playwright/test').Page) {
 
   // Wait for client hydration so the Cohort <select> can be enabled by the
   // employer-onChange handler (it's `disabled={!employerId}` until React
-  // owns the value).
+  // owns the value). Employer first, then Cohort (cascades from it), then
+  // Intern ID — matches the field order in the identity gate's `.id-grid`.
   const cohortSelect = page.getByLabel(/^Cohort$/i);
-  await page.getByLabel(/First initial/i).fill(TEST_INTERN_FI);
-  await page.getByLabel(/Last name/i).fill(TEST_INTERN_LN);
   await page.getByLabel(/^Employer$/i).selectOption({ label: TEST_EMPLOYER_NAME });
   await expect(cohortSelect).toBeEnabled();
   await cohortSelect.selectOption({ label: TEST_COHORT_NAME });
+  await page.getByLabel(/Intern ID/i).fill(TEST_INTERN_CODE);
   // SP7 Phase D2 — the gate's submit button copy is now "Confirm →"
   // (prototype's exact wording); not "Continue".
   await page.getByRole('button', { name: /^Confirm/i }).click();
@@ -120,16 +119,15 @@ test('rejects unknown identity with friendly error', async ({ page }) => {
   await expect(page.getByRole('heading', { name: /Confirm Your Identity/i })).toBeVisible();
 
   const cohortSelect = page.getByLabel(/^Cohort$/i);
-  // First initial + last name are wrong; employer + cohort can be any valid
-  // pair since the identity-lookup runs before the cookie is signed.
-  await page.getByLabel(/First initial/i).fill('Z');
-  await page.getByLabel(/Last name/i).fill('Nobody');
+  // The Intern ID is wrong; employer + cohort can be any valid pair since
+  // the identity-lookup runs before the cookie is signed.
   await page.getByLabel(/^Employer$/i).selectOption({ label: TEST_EMPLOYER_NAME });
   await expect(cohortSelect).toBeEnabled();
   await cohortSelect.selectOption({ label: TEST_COHORT_NAME });
+  await page.getByLabel(/Intern ID/i).fill('IMP-26-0000');
   await page.getByRole('button', { name: /^Confirm/i }).click();
 
-  await expect(page.getByText(/No matching intern record/i)).toBeVisible();
+  await expect(page.getByText(/couldn't find that Intern ID/i)).toBeVisible();
   // Should remain on the gate (the action returns the same route with an
   // error rather than redirecting).
   await expect(page).toHaveURL(/\/intern\/assessments$/);
