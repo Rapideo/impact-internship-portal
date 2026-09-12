@@ -153,7 +153,7 @@ npm run dev                 # http://localhost:5173
 - **Auth** in `app/lib/auth.server.ts`. Use `getAuthContext(request, headers)` in loaders for signature-verified JWT claims via Supabase `getClaims()` — **NOT `getSession()`**, which doesn't verify in cookie-storage mode. The login action re-uses its in-memory client after `signInWithPassword` (the new auth cookies aren't on the request yet).
 - **Drizzle schema** at `db/schema.ts`. `npm run db:generate` / `npm run db:migrate`. The initial migration filters out drizzle-kit's `CREATE TABLE auth.users` (Supabase rejects writes to `auth`); FKs to `auth.users` still resolve.
 - **RLS policies** live in `db/policies/*.sql` (raw SQL, more readable than Drizzle-generated). Applied via `npm run db:apply-policies`. Every `CREATE POLICY` is preceded by `DROP POLICY IF EXISTS` for idempotency. **`db/policies/0000_grants.sql`** runs first and explicitly grants base table/sequence privileges to `anon`/`authenticated`/`service_role`, so RLS no longer relies on Supabase's *implicit* default-privilege grants (the CLI changed that behavior in v2.106+ — see CI note above). Grants don't bypass RLS — rows are still gated by the policies in `0001`–`0004`; the grants only let a role *attempt* a query. Idempotent on prod/dev (which already carry the implicit grants).
-- **Tests**: `npm test` (Vitest unit, 196 today); `npm run test:rls` (RLS integration, requires explicit `BEGIN`/`COMMIT` to make `SET LOCAL ROLE authenticated` take effect against the BYPASSRLS connection); `npm run test:e2e` (Playwright, reads `.env.test`).
+- **Tests**: `npm test` (Vitest unit, 302 today); `npm run test:rls` (RLS integration, requires explicit `BEGIN`/`COMMIT` to make `SET LOCAL ROLE authenticated` take effect against the BYPASSRLS connection); `npm run test:e2e` (Playwright, reads `.env.test`).
 - **`supabase/config.toml`** registers the `custom_access_token_hook`; `supabase start` reads it too, so CI mirrors impact-dev.
 
 ## SP2 (Admin core) — key carry-over
@@ -311,8 +311,9 @@ A (issue IDs, names kept), B (anonymous identity switches to the ID + throttle),
   constant, not a setting — interns hold printed cards. `YY` = Start Date's year if given, else
   "now" in `PROGRAM_TIME_ZONE` (exported from `format.ts`; Lambda is UTC). `NNNN` is random
   0001–9999 via `crypto.randomInt`, never sequential.
-- **`createInternWithCode` (`intern-code.server.ts`) is the only writer of `intern_code`.** It
-  redraws on PG `23505` *on the `intern_code` index only* (checks `constraint_name`), up to 10
+- **`createInternWithCode` (`intern-code.server.ts`) is the only *app-code* writer of
+  `intern_code`** (the seeds and the RLS fixture supply fixed or deterministic codes by design).
+  It redraws on PG `23505` *on the `intern_code` index only* (checks `constraint_name`), up to 10
   times, then throws `InternCodeExhaustedError`. No route, action or script updates the code
   after insert — immutability is the contract.
 - **`interns_intern_code_unique` is a plain unique index, not partial on `deleted_at`.** A
@@ -330,7 +331,7 @@ A (issue IDs, names kept), B (anonymous identity switches to the ID + throttle),
 - `npm run dev` — Vite + RR v7 dev server.
 - `npm run db:seed` — **small base seed** (~6 interns, **zero** assessment submissions). TRUNCATEs. Since 2026-09-11 it snapshots **all** `profiles` rows and restores them (pure `planProfileRestore()` in `db/profile-restore-plan.ts`); before that it restored only `admin@example.com` + `employer1@example.com` and silently locked out every other account.
 - `npm run db:seed:demo` — **the rich dataset** (~140 interns, ~236 submissions). Additive, idempotent, no TRUNCATE. This is what produces realistic Reports data — `db:seed` alone will leave the app looking empty.
-- `npm test -- --run` — vitest unit suite (196 tests today).
+- `npm test -- --run` — vitest unit suite (302 tests today).
 - `npm run test:rls` — RLS integration; requires `supabase start`. **Guarded since 2026-09-11**: `tests/rls/setup.rls.ts` refuses to run unless `DATABASE_URL`'s host is local (`localhost`/`127.0.0.1`/`::1`/`host.docker.internal`). Every `tests/rls/*.ts` loads `.env.local` — i.e. **impact-dev cloud credentials** — and these specs DELETE rows; without `supabase start` the suite once connected straight to impact-dev and destroyed every `assessment_submissions` row (free tier, no backups). Never disable the guard.
 - `npm run test:e2e` — Playwright.
 - `npm run lint && npm run typecheck` — green on main today.

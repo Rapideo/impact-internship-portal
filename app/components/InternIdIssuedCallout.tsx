@@ -3,6 +3,12 @@ import { InternCode } from './InternCode';
 
 // One-time callout shown on the intern detail page right after creation
 // (`?issued=1`). Copy is fixed by the spec (§6) — do not reword.
+//
+// Persistence is deliberate: the detail page's own <Form method="post"> posts
+// back to the same URL, so `?issued=1` survives a Save and a refresh — the admin
+// can still copy the ID after editing the entry assessment. It disappears on
+// any navigation away. If that ever needs to change, strip the param with
+// `setSearchParams(…, { replace: true })` after mount; do not add state.
 export function InternIdIssuedCallout({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
 

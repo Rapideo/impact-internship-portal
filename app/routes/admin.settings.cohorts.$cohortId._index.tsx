@@ -26,6 +26,7 @@ import { SettingsShell } from '~/components/SettingsShell';
 import { ConfirmModal } from '~/components/ConfirmModal';
 import { EmptyRow } from '~/components/EmptyRow';
 import { RubricSectionHead } from '~/components/RubricSectionHead';
+import { InternCode } from '~/components/InternCode';
 import { useToast } from '~/components/ToastProvider';
 import { formatDate, initials } from '~/lib/format';
 
@@ -136,14 +137,15 @@ export default function CohortDetail() {
         <table className="assessments" style={{ marginBottom: 40 }}>
           <thead>
             <tr>
-              <th style={{ width: '40%' }}>Last Name</th>
-              <th style={{ width: '25%' }}>Start Date</th>
-              <th style={{ width: '35%' }}>End Date</th>
+              <th style={{ width: '22%' }}>Intern ID</th>
+              <th style={{ width: '30%' }}>Last Name</th>
+              <th style={{ width: '24%' }}>Start Date</th>
+              <th style={{ width: '24%' }}>End Date</th>
             </tr>
           </thead>
           <tbody>
             {interns.length === 0 ? (
-              <EmptyRow colSpan={3} message="No interns enrolled yet." />
+              <EmptyRow colSpan={4} message="No interns enrolled yet." />
             ) : (
               interns.map((i) => {
                 const name = `${i.firstInitial}. ${i.lastName}`;
@@ -160,6 +162,9 @@ export default function CohortDetail() {
                       }
                     }}
                   >
+                    <td>
+                      <InternCode code={i.internCode} />
+                    </td>
                     <td>
                       <div className="col-name">
                         <span className="name-initial">{initials(i.lastName)}</span>

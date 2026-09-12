@@ -85,9 +85,9 @@ test('admin can create employer -> cohort -> intern, then edit the intern', asyn
   await page.getByRole('button', { name: /save changes/i }).click();
   await page.getByRole('button', { name: /^Save$/ }).click();
 
-  // Action redirects to /admin/interns/<uuid>?created=1 (the edit page). Use
-  // a UUID-shaped path segment so we don't accidentally match /admin/interns/new
-  // on a validation re-render.
+  // Action redirects to /admin/interns/<uuid>?issued=1 (the edit page, with
+  // the Intern ID issued callout). Use a UUID-shaped path segment so we don't
+  // accidentally match /admin/interns/new on a validation re-render.
   await expect(page).toHaveURL(
     /\/admin\/interns\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/,
   );
