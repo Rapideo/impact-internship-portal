@@ -215,8 +215,6 @@ export const interns = pgTable(
       .notNull()
       .references(() => cohorts.id, { onDelete: 'restrict' }),
     roleId: uuid('role_id').references(() => roles.id, { onDelete: 'restrict' }),
-    firstInitial: text('first_initial').notNull(),
-    lastName: text('last_name').notNull(),
     internCode: text('intern_code').notNull(),
     startDate: text('start_date'),
     endDate: text('end_date'),
@@ -225,14 +223,10 @@ export const interns = pgTable(
     deletedAt: timestamp('deleted_at', { withTimezone: true }),
   },
   (t) => ({
-    firstInitialLen: check('interns_first_initial_len', sql`char_length(first_initial) = 1`),
     cohortIdx: index('interns_cohort_idx').on(t.cohortId, t.deletedAt),
     // Plain (not partial) — a soft-deleted intern's code stays reserved forever
     // so a card in someone's wallet can never point at a different person (D5).
     internCodeUnique: uniqueIndex('interns_intern_code_unique').on(t.internCode),
-    identityIdx: uniqueIndex('interns_identity_unique')
-      .on(sql`lower(first_initial)`, sql`lower(last_name)`, t.cohortId)
-      .where(sql`deleted_at IS NULL`),
   }),
 );
 

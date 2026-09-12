@@ -50,6 +50,13 @@
       "when": 1789228713576,
       "tag": "0006_identity_attempts",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789253776243,
+      "tag": "0007_drop_intern_names",
+      "breakpoints": true
     }
   ]
 }
