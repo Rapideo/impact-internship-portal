@@ -106,9 +106,11 @@ columns; none change.
 | `ip` | `text NOT NULL` | client IP or `"unknown"` |
 | `attempted_at` | `timestamptz NOT NULL DEFAULT now()` | |
 
-Index `identity_attempts_ip_time_idx (ip, attempted_at)`. No FKs. **No RLS
-policies and no grants** to `anon`/`authenticated`: the table is touched only
-through the service-role client, and "anon cannot read it" is the design.
+Index `identity_attempts_ip_time_idx (ip, attempted_at)`. No FKs. **RLS
+enabled with no policies**, which denies `anon` and `authenticated` outright
+(`db/policies/0000_grants.sql` grants table privileges to every public table,
+so "no grants" is not available as a mechanism — RLS is). The table is touched
+only through the service-role client, and "anon cannot read it" is the design.
 Rows are disposable; the module deletes anything older than a day
 opportunistically.
 
@@ -243,8 +245,9 @@ policy assertions change. `identity_attempts` gets one test: `anon` and
   `intern-self-submit`.
 
 **Seeds**: `SEED_INTERNS` (6) get fixed codes so e2e can reference them.
-`seed-demo` (140) assigns codes from a seeded PRNG so its additive, idempotent
-behaviour survives the loss of the name as idempotency key.
+`seed-demo` (140) assigns codes deterministically per intern index (a prime-
+multiplier permutation of 1..9999), so its additive, idempotent behaviour is
+preserved and re-runs produce the same codes.
 
 ## 9. Sequencing
 
