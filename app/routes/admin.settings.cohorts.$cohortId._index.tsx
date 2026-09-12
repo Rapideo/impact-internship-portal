@@ -28,7 +28,7 @@ import { EmptyRow } from '~/components/EmptyRow';
 import { RubricSectionHead } from '~/components/RubricSectionHead';
 import { InternCode } from '~/components/InternCode';
 import { useToast } from '~/components/ToastProvider';
-import { formatDate, initials } from '~/lib/format';
+import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = ({ data: loaderData }) => [
   {
@@ -137,45 +137,35 @@ export default function CohortDetail() {
         <table className="assessments" style={{ marginBottom: 40 }}>
           <thead>
             <tr>
-              <th style={{ width: '22%' }}>Intern ID</th>
-              <th style={{ width: '30%' }}>Last Name</th>
-              <th style={{ width: '24%' }}>Start Date</th>
-              <th style={{ width: '24%' }}>End Date</th>
+              <th style={{ width: '32%' }}>Intern ID</th>
+              <th style={{ width: '34%' }}>Start Date</th>
+              <th style={{ width: '34%' }}>End Date</th>
             </tr>
           </thead>
           <tbody>
             {interns.length === 0 ? (
-              <EmptyRow colSpan={4} message="No interns enrolled yet." />
+              <EmptyRow colSpan={3} message="No interns enrolled yet." />
             ) : (
-              interns.map((i) => {
-                const name = `${i.firstInitial}. ${i.lastName}`;
-                return (
-                  <tr
-                    key={i.id}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => navigate(`/admin/interns/${i.id}`)}
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        navigate(`/admin/interns/${i.id}`);
-                      }
-                    }}
-                  >
-                    <td>
-                      <InternCode code={i.internCode} strong />
-                    </td>
-                    <td>
-                      <div className="col-name col-name--quiet">
-                        <span className="name-initial">{initials(i.lastName)}</span>
-                        {name}
-                      </div>
-                    </td>
-                    <td className="col-date">{formatDate(i.startDate)}</td>
-                    <td className="col-date">{formatDate(i.endDate)}</td>
-                  </tr>
-                );
-              })
+              interns.map((i) => (
+                <tr
+                  key={i.id}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => navigate(`/admin/interns/${i.id}`)}
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      navigate(`/admin/interns/${i.id}`);
+                    }
+                  }}
+                >
+                  <td>
+                    <InternCode code={i.internCode} strong />
+                  </td>
+                  <td className="col-date">{formatDate(i.startDate)}</td>
+                  <td className="col-date">{formatDate(i.endDate)}</td>
+                </tr>
+              ))
             )}
           </tbody>
         </table>

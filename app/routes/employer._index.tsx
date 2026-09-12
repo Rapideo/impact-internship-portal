@@ -61,7 +61,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       type: assessmentSubmissions.type,
       phase: assessmentSubmissions.phase,
       submittedAt: assessmentSubmissions.submittedAt,
-      internLastName: interns.lastName,
+      internCode: interns.internCode,
       cohortName: cohorts.name,
     })
     .from(assessmentSubmissions)
@@ -85,7 +85,7 @@ export default function EmployerDashboard() {
   const pad2 = (n: number) => String(n).padStart(2, '0');
 
   const entries: ActivityEntry[] = activity.map((a) => ({
-    actor: a.internLastName,
+    actor: a.internCode,
     body: (
       <>
         {activityLabel(a.type, a.phase)} &mdash; {a.cohortName}

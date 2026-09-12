@@ -144,13 +144,12 @@ export default function SelfAssessmentDetail() {
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const closeHref = internId ? `/admin/interns/${internId}` : '/admin/self-assessment-results';
-  const titleName = loaderData.found ? loaderData.intern.lastName.toUpperCase() : 'NO SUBMISSION';
+  const titleName = loaderData.found ? loaderData.intern.internCode : 'NO SUBMISSION';
 
-  // 6-cell meta-strip per prototype: First Initial · Last · Employer ·
-  // Cohort · Submitted · Locked = "Immutable".
+  // 5-cell meta-strip per prototype: Intern ID · Employer · Cohort ·
+  // Submitted · Locked = "Immutable".
   const metaItems: { label: string; value: string; mono?: boolean }[] = [
-    { label: 'First Initial', value: loaderData.intern.firstInitial, mono: true },
-    { label: 'Last Name', value: loaderData.intern.lastName },
+    { label: 'Intern ID', value: loaderData.intern.internCode, mono: true },
     { label: 'Employer', value: loaderData.employer?.name ?? '—' },
     { label: 'Cohort', value: loaderData.cohort?.name ?? '—' },
   ];
@@ -190,7 +189,7 @@ export default function SelfAssessmentDetail() {
                 {' '}
                 /{' '}
                 <Link to={closeHref} style={{ color: 'inherit', textDecoration: 'none' }}>
-                  {loaderData.intern.lastName.toUpperCase()}
+                  {loaderData.intern.internCode}
                 </Link>
               </>
             ) : null}{' '}

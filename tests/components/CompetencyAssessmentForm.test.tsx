@@ -41,7 +41,7 @@ const boundaries: SectionBoundary[] = [
 ];
 
 const meta = {
-  internName: 'Alex Lee',
+  internCode: 'IMP-26-1042',
   cohortName: '2026 Spring',
   employerName: 'Eskenazi Health',
   roleName: 'Medical Assistant',
@@ -143,7 +143,7 @@ describe('<CompetencyAssessmentForm>', () => {
         meta={meta}
       />,
     );
-    expect(screen.getByText('Alex Lee')).toBeInTheDocument();
+    expect(screen.getByText('IMP-26-1042')).toBeInTheDocument();
     expect(screen.getByText('Eskenazi Health')).toBeInTheDocument();
     expect(screen.getByText('Medical Assistant')).toBeInTheDocument();
     expect(screen.getAllByText('2026 Spring').length).toBeGreaterThan(0);

@@ -111,8 +111,7 @@ describe('internsForEmployer', () => {
     const rows = [
       {
         id: 'i1',
-        firstInitial: 'A',
-        lastName: 'Smith',
+        internCode: 'IMP-26-0001',
         cohortId: 'c1',
         roleId: 'r1',
         startDate: '2026-01-01',

@@ -37,7 +37,7 @@ import type { Question, SectionBoundary, SerializedAnswers } from '~/lib/questio
 import { SubmitConfirmModal } from './SubmitConfirmModal';
 
 export interface CompetencyMeta {
-  internName: string;
+  internCode: string;
   cohortName: string;
   employerName: string;
   roleName: string;
@@ -137,7 +137,7 @@ export function CompetencyAssessmentForm(props: CompetencyAssessmentFormProps) {
   };
 
   const metaItems = [
-    { label: 'Intern', value: props.meta.internName },
+    { label: 'Intern', value: props.meta.internCode, mono: true },
     { label: 'Cohort', value: props.meta.cohortName },
     { label: 'Employer', value: props.meta.employerName },
     { label: 'Role', value: props.meta.roleName },

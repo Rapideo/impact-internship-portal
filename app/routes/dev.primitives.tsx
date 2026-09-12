@@ -760,7 +760,7 @@ export default function DevPrimitives() {
             submitLabel="Save Competency Assessment"
             readOnly={false}
             meta={{
-              internName: 'M. Bayer',
+              internCode: 'IMP-26-0417',
               cohortName: 'Eskenazi 2026',
               employerName: 'Eskenazi Health',
               roleName: 'Medical Assistant',

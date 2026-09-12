@@ -201,7 +201,7 @@ export default function EmployerExitSurvey() {
               to={`/employer/interns/${intern.id}`}
               style={{ color: 'inherit', textDecoration: 'none' }}
             >
-              {intern.lastName.toUpperCase()}
+              {intern.internCode}
             </Link>
             {' / EXIT EMPLOYER SURVEY'}
           </>
@@ -218,7 +218,7 @@ export default function EmployerExitSurvey() {
         <MetaStrip
           items={[
             { label: 'Employer', value: employer?.name ?? '—' },
-            { label: 'Participant', value: `${intern.firstInitial}. ${intern.lastName}` },
+            { label: 'Participant', value: intern.internCode, mono: true },
             { label: 'Position', value: role?.label ?? '—' },
             { label: 'Cohort', value: cohort?.name ?? '—' },
             { label: 'Start', value: formatDate(intern.startDate), mono: true },

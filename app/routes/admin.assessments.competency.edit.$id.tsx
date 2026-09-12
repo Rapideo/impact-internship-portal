@@ -176,7 +176,7 @@ export default function AdminCompetencyEdit() {
             readOnly={false}
             cancelHref={`/admin/assessments/competency/${submission.id}`}
             meta={{
-              internName: `${intern.firstInitial}. ${intern.lastName}`,
+              internCode: intern.internCode,
               cohortName: cohort?.name ?? '—',
               employerName: employer?.name ?? '—',
               roleName: role?.label ?? '—',

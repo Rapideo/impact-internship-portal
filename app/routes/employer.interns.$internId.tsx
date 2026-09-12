@@ -182,10 +182,10 @@ export default function EmployerInternRecord() {
               EMPLOYER / INTERNS
             </Link>
             {' / '}
-            {intern.lastName.toUpperCase()}
+            {intern.internCode}
           </>
         }
-        title={`${intern.firstInitial}. ${intern.lastName}`}
+        title={intern.internCode}
         sub="Read-only intern record. Submit competency assessments and Exit Employer Surveys from here."
         actions={
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -203,8 +203,7 @@ export default function EmployerInternRecord() {
       >
         <MetaStrip
           items={[
-            { label: 'First Initial', value: intern.firstInitial, mono: true },
-            { label: 'Last Name', value: intern.lastName },
+            { label: 'Intern ID', value: intern.internCode, mono: true },
             { label: 'Cohort', value: cohort?.name ?? '—' },
             { label: 'Role', value: role?.label ?? '—' },
             { label: 'Start', value: formatDate(intern.startDate), mono: true },

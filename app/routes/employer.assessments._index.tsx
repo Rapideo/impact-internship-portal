@@ -21,7 +21,8 @@ import { cohorts, interns } from '../../db/schema';
 import { PageHead } from '~/components/PageHead';
 import { AssessmentCard } from '~/components/AssessmentCard';
 import { PickerList } from '~/components/PickerList';
-import { formatDate, initials } from '~/lib/format';
+import { InternCode } from '~/components/InternCode';
+import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Assessments · IMPACT Employer' }];
 
@@ -35,8 +36,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const rows = await db
     .select({
       id: interns.id,
-      firstInitial: interns.firstInitial,
-      lastName: interns.lastName,
+      internCode: interns.internCode,
       startDate: interns.startDate,
       cohortName: cohorts.name,
     })
@@ -61,7 +61,8 @@ export default function EmployerAssessmentsHub() {
     const q = search.trim().toLowerCase();
     if (!q) return interns;
     return interns.filter(
-      (i) => i.lastName.toLowerCase().includes(q) || (i.cohortName ?? '').toLowerCase().includes(q),
+      (i) =>
+        i.internCode.toLowerCase().includes(q) || (i.cohortName ?? '').toLowerCase().includes(q),
     );
   }, [interns, search]);
 
@@ -161,7 +162,7 @@ export default function EmployerAssessmentsHub() {
                 className="input"
                 type="text"
                 aria-label="Filter interns"
-                placeholder="Search last name or cohort…"
+                placeholder="Search by Intern ID or cohort…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 autoFocus
@@ -171,14 +172,9 @@ export default function EmployerAssessmentsHub() {
             <PickerList<InternRow>
               columns={[
                 {
-                  label: 'Last Name',
+                  label: 'Intern ID',
                   width: '34%',
-                  render: (i) => (
-                    <div className="col-name">
-                      <span className="name-initial">{initials(i.lastName)}</span>
-                      {i.lastName}
-                    </div>
-                  ),
+                  render: (i) => <InternCode code={i.internCode} strong />,
                 },
                 { label: 'Cohort', width: '34%', render: (i) => i.cohortName ?? '—' },
                 {

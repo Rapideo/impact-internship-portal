@@ -175,7 +175,7 @@ export default function AdminCompetencyNew() {
             readOnly={false}
             cancelHref="/admin/assessments"
             meta={{
-              internName: `${intern.firstInitial}. ${intern.lastName}`,
+              internCode: intern.internCode,
               cohortName: cohort?.name ?? '—',
               employerName: employer?.name ?? '—',
               roleName: role?.label ?? '—',

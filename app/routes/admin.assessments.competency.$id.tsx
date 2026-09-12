@@ -28,6 +28,7 @@ import { stitchedCompetencyQuestions } from '~/lib/question-engine.server';
 import type { SerializedAnswers } from '~/lib/question-types';
 import { getSupabaseAdmin } from '~/lib/supabase-admin.server';
 import { CompetencyAssessmentForm } from '~/components/forms/CompetencyAssessmentForm';
+import { InternCode } from '~/components/InternCode';
 import { PageHead } from '~/components/PageHead';
 import { MetaStrip } from '~/components/MetaStrip';
 import { DetailHeader } from '~/components/DetailHeader';
@@ -166,8 +167,7 @@ export default function AdminCompetencyDetail() {
   // 8-cell meta-strip per prototype: First Initial · Last · Employer ·
   // Cohort · Role · Phase · Date · Reviewed By.
   const metaItems = [
-    { label: 'First Initial', value: intern.firstInitial, mono: true },
-    { label: 'Last Name', value: intern.lastName },
+    { label: 'Intern ID', value: intern.internCode, mono: true },
     { label: 'Employer', value: employer?.name ?? '—' },
     { label: 'Cohort', value: cohort?.name ?? '—' },
     { label: 'Role', value: role?.label ?? '—' },
@@ -191,7 +191,7 @@ export default function AdminCompetencyDetail() {
         }
         title={
           <>
-            {intern.lastName.toUpperCase()} &mdash;
+            <InternCode code={intern.internCode} /> &mdash;
             <br />
             COMPETENCY.
           </>
@@ -217,7 +217,7 @@ export default function AdminCompetencyDetail() {
             submitLabel=""
             readOnly={true}
             meta={{
-              internName: `${intern.firstInitial}. ${intern.lastName}`,
+              internCode: intern.internCode,
               cohortName: cohort?.name ?? '—',
               employerName: employer?.name ?? '—',
               roleName: role?.label ?? '—',

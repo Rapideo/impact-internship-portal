@@ -22,8 +22,8 @@ import type { Question } from '~/lib/question-types';
 export const meta: Route.MetaFunction = ({ data: loaderData }) => [
   {
     title:
-      loaderData?.mode === 'edit' && loaderData?.boundInternName
-        ? `${loaderData.boundInternName} — Intern Competency — IMPACT Admin`
+      loaderData?.mode === 'edit' && loaderData?.boundInternCode
+        ? `${loaderData.boundInternCode} — Intern Competency — IMPACT Admin`
         : 'New Intern Competency — IMPACT Admin',
   },
 ];
@@ -53,8 +53,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         ? await db
             .select({
               id: schema.interns.id,
-              firstInitial: schema.interns.firstInitial,
-              lastName: schema.interns.lastName,
+              internCode: schema.interns.internCode,
               cohortId: schema.interns.cohortId,
             })
             .from(schema.interns)
@@ -62,8 +61,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         : await db
             .select({
               id: schema.interns.id,
-              firstInitial: schema.interns.firstInitial,
-              lastName: schema.interns.lastName,
+              internCode: schema.interns.internCode,
               cohortId: schema.interns.cohortId,
             })
             .from(schema.interns)
@@ -85,10 +83,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         mode: 'new' as const,
         internOptions: available.map((i) => ({
           id: i.id,
-          label: `${i.firstInitial}. ${i.lastName} (${cohortIdx.get(i.cohortId) ?? '—'})`,
+          label: `${i.internCode} (${cohortIdx.get(i.cohortId) ?? '—'})`,
         })),
         set: null,
-        boundInternName: null as string | null,
+        boundInternCode: null as string | null,
       },
       { headers },
     );
@@ -97,8 +95,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const internRows = await db
     .select({
       id: schema.interns.id,
-      firstInitial: schema.interns.firstInitial,
-      lastName: schema.interns.lastName,
+      internCode: schema.interns.internCode,
       cohortId: schema.interns.cohortId,
     })
     .from(schema.interns)
@@ -119,11 +116,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       internOptions: [
         {
           id: intern.id,
-          label: `${intern.firstInitial}. ${intern.lastName} (${cohortName})`,
+          label: `${intern.internCode} (${cohortName})`,
         },
       ],
       set,
-      boundInternName: `${intern.firstInitial}. ${intern.lastName}` as string | null,
+      boundInternCode: intern.internCode as string | null,
     },
     { headers },
   );
@@ -239,7 +236,7 @@ export default function CompetencyInternEditor() {
 
   const titleName =
     loaderData.mode === 'edit'
-      ? (loaderData.boundInternName ?? 'Intern Questions')
+      ? (loaderData.boundInternCode ?? 'Intern Questions')
       : 'New Intern Questions';
 
   return (

@@ -67,8 +67,7 @@ export async function internsForEmployer(employerId: string) {
   return db
     .select({
       id: interns.id,
-      firstInitial: interns.firstInitial,
-      lastName: interns.lastName,
+      internCode: interns.internCode,
       cohortId: interns.cohortId,
       roleId: interns.roleId,
       startDate: interns.startDate,

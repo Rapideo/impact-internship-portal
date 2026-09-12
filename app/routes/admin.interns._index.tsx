@@ -11,7 +11,7 @@ import { TableFilter } from '~/components/TableFilter';
 import { EmptyRow } from '~/components/EmptyRow';
 import { ConfirmModal } from '~/components/ConfirmModal';
 import { InternCode } from '~/components/InternCode';
-import { formatDate, initials } from '~/lib/format';
+import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Interns — IMPACT Admin' }];
 
@@ -51,8 +51,7 @@ export default function AdminInterns() {
 
   const filtered = useMemo(() => {
     return interns.filter((i) => {
-      const haystack =
-        `${i.internCode} ${i.firstInitial}. ${i.lastName} ${i.cohortName}`.toLowerCase();
+      const haystack = `${i.internCode} ${i.cohortName}`.toLowerCase();
       if (search && !haystack.includes(search.toLowerCase())) return false;
       if (cohort !== 'all' && i.cohortName !== cohort) return false;
       if (outcome === 'employed-90' && !i.employed90) return false;
@@ -94,7 +93,7 @@ export default function AdminInterns() {
                 <input
                   className="input input--search"
                   type="search"
-                  placeholder="Search by Intern ID, last name or cohort..."
+                  placeholder="Search by Intern ID or cohort..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   aria-label="Search interns"
@@ -139,18 +138,17 @@ export default function AdminInterns() {
             <table className="assessments">
               <thead>
                 <tr>
-                  <th style={{ width: '16%' }}>Intern ID</th>
-                  <th style={{ width: '20%' }}>Intern</th>
-                  <th style={{ width: '18%' }}>Cohort</th>
-                  <th style={{ width: '12%' }}>Start Date</th>
-                  <th style={{ width: '12%' }}>Role</th>
-                  <th style={{ width: '12%' }}>90-Day Outcome</th>
-                  <th style={{ width: '10%' }}>Actions</th>
+                  <th style={{ width: '20%' }}>Intern ID</th>
+                  <th style={{ width: '22%' }}>Cohort</th>
+                  <th style={{ width: '14%' }}>Start Date</th>
+                  <th style={{ width: '14%' }}>Role</th>
+                  <th style={{ width: '16%' }}>90-Day Outcome</th>
+                  <th style={{ width: '14%' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {visible.length === 0 ? (
-                  <EmptyRow colSpan={7} message="No records match the current filters." />
+                  <EmptyRow colSpan={6} message="No records match the current filters." />
                 ) : (
                   visible.map((i) => (
                     <tr
@@ -172,12 +170,6 @@ export default function AdminInterns() {
                       <td>
                         <InternCode code={i.internCode} strong />
                       </td>
-                      <td>
-                        <div className="col-name col-name--quiet">
-                          <span className="name-initial">{initials(i.lastName)}</span>
-                          {i.firstInitial}. {i.lastName}
-                        </div>
-                      </td>
                       <td className="col-cohort">{i.cohortName}</td>
                       <td className="col-date">{formatDate(i.startDate)}</td>
                       <td>{i.roleLabel ?? '—'}</td>
@@ -193,7 +185,7 @@ export default function AdminInterns() {
                             onClick={() =>
                               setPendingDelete({
                                 id: i.id,
-                                name: `${i.firstInitial}. ${i.lastName}`,
+                                name: i.internCode,
                               })
                             }
                           >

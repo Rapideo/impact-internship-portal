@@ -162,7 +162,7 @@ export default function AdminExitEmployerSurvey() {
         <MetaStrip
           items={[
             { label: 'Employer', value: employer?.name ?? '—' },
-            { label: 'Participant', value: `${intern.firstInitial}. ${intern.lastName}` },
+            { label: 'Participant', value: intern.internCode, mono: true },
             { label: 'Position', value: role?.label ?? '—' },
             { label: 'Start Date', value: formatDate(intern.startDate), mono: true },
             { label: 'End Date', value: formatDate(intern.endDate), mono: true },

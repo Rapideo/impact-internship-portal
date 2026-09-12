@@ -125,8 +125,6 @@ export async function listInternsByCohort(db: Database, cohortId: string) {
     .select({
       id: interns.id,
       internCode: interns.internCode,
-      firstInitial: interns.firstInitial,
-      lastName: interns.lastName,
       startDate: interns.startDate,
       endDate: interns.endDate,
     })
@@ -182,8 +180,6 @@ export async function listInternsForListing(db: Database) {
     .select({
       id: interns.id,
       internCode: interns.internCode,
-      firstInitial: interns.firstInitial,
-      lastName: interns.lastName,
       startDate: interns.startDate,
       endDate: interns.endDate,
       cohortId: cohorts.id,
@@ -210,8 +206,6 @@ export async function getInternOrNull(db: Database, id: string) {
       cohortId: interns.cohortId,
       roleId: interns.roleId,
       internCode: interns.internCode,
-      firstInitial: interns.firstInitial,
-      lastName: interns.lastName,
       startDate: interns.startDate,
       endDate: interns.endDate,
       deletedAt: interns.deletedAt,
@@ -282,8 +276,7 @@ export async function listRecentActivity(db: Database, limit = 10) {
       type: assessmentSubmissions.type,
       phase: assessmentSubmissions.phase,
       submittedAt: assessmentSubmissions.submittedAt,
-      internLastName: interns.lastName,
-      internFirstInitial: interns.firstInitial,
+      internCode: interns.internCode,
       cohortName: cohorts.name,
     })
     .from(assessmentSubmissions)
