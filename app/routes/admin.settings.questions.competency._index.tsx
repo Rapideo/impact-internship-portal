@@ -265,7 +265,7 @@ export default function CompetencyDetail() {
                         to={`/admin/settings/questions/competency/intern/${r.internId}`}
                         style={{ color: 'inherit', textDecoration: 'none', display: 'block' }}
                       >
-                        <InternCode code={r.internCode} />
+                        <InternCode code={r.internCode} strong />
                       </Link>
                     </td>
                     <td>{r.cohortName}</td>

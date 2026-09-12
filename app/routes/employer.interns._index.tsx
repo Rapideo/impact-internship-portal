@@ -2,7 +2,7 @@
 // employer's cohorts. Click through to a focused employer intern record.
 //
 // SP7 Phase G rebuild: TableFilter wrapper with search + cohort filter +
-// outcome filter, uppercase title, NameInitial chip in the Intern cell,
+// outcome filter, uppercase title, Intern ID in the Intern cell,
 // 90/180-day outcome pill column, row-click navigation. Mirrors the admin
 // interns list pattern (app/routes/admin.interns._index.tsx).
 //

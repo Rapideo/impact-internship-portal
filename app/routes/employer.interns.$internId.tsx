@@ -37,6 +37,7 @@ import { MetaStrip } from '~/components/MetaStrip';
 import { RubricPanel } from '~/components/RubricPanel';
 import { EmptyRow } from '~/components/EmptyRow';
 import { useToast } from '~/components/ToastProvider';
+import { InternCode } from '~/components/InternCode';
 import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Intern — IMPACT Employer' }];
@@ -182,10 +183,10 @@ export default function EmployerInternRecord() {
               EMPLOYER / INTERNS
             </Link>
             {' / '}
-            {intern.internCode}
+            <InternCode code={intern.internCode} />
           </>
         }
-        title={intern.internCode}
+        title={<InternCode code={intern.internCode} />}
         sub="Read-only intern record. Submit competency assessments and Exit Employer Surveys from here."
         actions={
           <div style={{ display: 'flex', gap: '10px' }}>

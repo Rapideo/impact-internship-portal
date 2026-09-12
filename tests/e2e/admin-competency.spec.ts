@@ -3,7 +3,7 @@
 // Flow:
 //   1. Sign in as admin, open /admin/assessments.
 //   2. Click "Begin Competency Assessment" → intern-picker modal.
-//   3. Filter to "Test1" → pick the seeded Northside CNA fixture intern.
+//   3. Filter to the Intern ID → pick the seeded Northside CNA fixture intern.
 //   4. Lands on /admin/assessments/competency/new?internId=…
 //   5. Pick a phase + rate the 7 core rubric rows AND the 4 Northside
 //      cohort-tier rows (the seed binds a cohort-tier competency set to
@@ -28,7 +28,7 @@ config();
 
 const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL ?? 'admin@example.com';
 const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD ?? 'DevPassword123!';
-const TEST_INTERN_LN = 'Test1';
+const TEST_INTERN_CODE = 'IMP-26-4001'; // T. Test1 — db/seed-data/interns.ts
 const TEST_INTERN_ID = '44444444-4444-4444-4444-444444444404';
 
 // All 11 rubric rows for the Test1 fixture (Northside CNA cohort): 7 core
@@ -122,17 +122,17 @@ test('admin can run the picker, submit a competency, then edit a rating', async 
   // The modal heading is "Select an intern — Competency".
   await expect(page.getByRole('dialog', { name: /Select intern/i })).toBeVisible();
 
-  // Filter to Test1 and pick the row. SP7 Phase F — the picker modal now
-  // mounts a `<PickerList>` (the prototype's `.picker-list` table) instead
-  // of the SP4-era `<ul>` of button-shaped record-links. Rows are `<tr>`s
-  // with onClick, not `<button>`s. Wait for the row to appear after the
-  // client-side filter, then click it. Use `getByText(<lastName>)` scoped
-  // to the picker table so the click hits the visible name cell inside the
-  // tr (Playwright bubbles clicks up to the parent's onClick handler).
-  await page.getByLabel(/Filter interns/i).fill(TEST_INTERN_LN);
+  // Filter to the Intern ID and pick the row. SP7 Phase F — the picker modal
+  // now mounts a `<PickerList>` (the prototype's `.picker-list` table)
+  // instead of the SP4-era `<ul>` of button-shaped record-links. Rows are
+  // `<tr>`s with onClick, not `<button>`s. Wait for the row to appear after
+  // the client-side filter, then click it. Use `getByText(<code>)` scoped
+  // to the picker table so the click hits the visible Intern ID cell inside
+  // the tr (Playwright bubbles clicks up to the parent's onClick handler).
+  await page.getByLabel(/Filter interns/i).fill(TEST_INTERN_CODE);
   const pickerRow = page
     .locator('table.picker-list tbody tr')
-    .filter({ hasText: TEST_INTERN_LN })
+    .filter({ hasText: TEST_INTERN_CODE })
     .first();
   await pickerRow.waitFor({ state: 'visible' });
   await pickerRow.click();

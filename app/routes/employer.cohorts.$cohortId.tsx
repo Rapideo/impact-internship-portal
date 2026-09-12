@@ -3,7 +3,7 @@
 //
 // SP7 Phase G rebuild: uppercase title, MetaStrip in PageHead for the cohort
 // summary (Role / Start / End / Members), Applicable Phases rendered as
-// `.col-phase` chips, enrolled-interns table uses NameInitial chip.
+// `.col-phase` chips, enrolled-interns table shows the Intern ID.
 //
 // Cross-employer protection: the cohort query filters by employerId, so an
 // employer who knows another tenant's cohortId still hits a 404 here. The

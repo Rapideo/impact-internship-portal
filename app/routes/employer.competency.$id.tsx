@@ -22,6 +22,7 @@ import type { SerializedAnswers } from '~/lib/question-types';
 import { CompetencyAssessmentForm } from '~/components/forms/CompetencyAssessmentForm';
 import { PageHead } from '~/components/PageHead';
 import { MetaStrip } from '~/components/MetaStrip';
+import { InternCode } from '~/components/InternCode';
 import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [
@@ -100,12 +101,16 @@ export default function EmployerCompetencyDetail() {
               to={`/employer/interns/${intern.id}`}
               style={{ color: 'inherit', textDecoration: 'none' }}
             >
-              {intern.internCode}
+              <InternCode code={intern.internCode} />
             </Link>
             {' / COMPETENCY'}
           </>
         }
-        title={`COMPETENCY — ${intern.internCode}.`}
+        title={
+          <>
+            COMPETENCY — <InternCode code={intern.internCode} />.
+          </>
+        }
         sub={`Phase ${phaseLabel} · submitted ${submittedAt.toLocaleDateString()}.`}
         actions={
           <div style={{ display: 'flex', gap: '10px' }}>

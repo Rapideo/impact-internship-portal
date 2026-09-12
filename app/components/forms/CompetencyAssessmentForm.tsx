@@ -194,7 +194,7 @@ export function CompetencyAssessmentForm(props: CompetencyAssessmentFormProps) {
   const participantHeader = (
     <IdentityCard
       title="Participant Record"
-      subnote="UNIQUE KEY · FIRST INITIAL + LAST NAME + EMPLOYER + COHORT · MULTIPLE PHASES ALLOWED"
+      subnote="UNIQUE KEY · INTERN ID · MULTIPLE PHASES ALLOWED"
     >
       <MetaStrip items={metaItems} />
       <div className="competency-form__phase">

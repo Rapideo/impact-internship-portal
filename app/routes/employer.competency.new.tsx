@@ -37,6 +37,7 @@ import { CompetencyAssessmentForm } from '~/components/forms/CompetencyAssessmen
 import { PageHead } from '~/components/PageHead';
 import { MetaStrip } from '~/components/MetaStrip';
 import { useToast } from '~/components/ToastProvider';
+import { InternCode } from '~/components/InternCode';
 import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [
@@ -193,7 +194,7 @@ export default function EmployerCompetencyNew() {
               to={`/employer/interns/${intern.id}`}
               style={{ color: 'inherit', textDecoration: 'none' }}
             >
-              {intern.internCode}
+              <InternCode code={intern.internCode} />
             </Link>
             {' / COMPETENCY / NEW'}
           </>

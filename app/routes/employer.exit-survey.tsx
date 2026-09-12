@@ -40,6 +40,7 @@ import { AssessmentForm } from '~/components/forms/AssessmentForm';
 import { PageHead } from '~/components/PageHead';
 import { MetaStrip } from '~/components/MetaStrip';
 import { useToast } from '~/components/ToastProvider';
+import { InternCode } from '~/components/InternCode';
 import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Exit Employer Survey · IMPACT Employer' }];
@@ -201,7 +202,7 @@ export default function EmployerExitSurvey() {
               to={`/employer/interns/${intern.id}`}
               style={{ color: 'inherit', textDecoration: 'none' }}
             >
-              {intern.internCode}
+              <InternCode code={intern.internCode} />
             </Link>
             {' / EXIT EMPLOYER SURVEY'}
           </>

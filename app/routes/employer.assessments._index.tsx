@@ -5,7 +5,7 @@
 //
 // Two cards: Competency Assessment + Exit Employer Survey. Each opens an
 // intern-picker modal listing the employer's active interns with a live
-// filter on last name / cohort. Selecting a row navigates to the matching
+// filter on Intern ID / cohort. Selecting a row navigates to the matching
 // employer-scoped form with `?internId=<id>`.
 //
 // Auth: parent `employer.tsx` enforces role + employerId; the runtime

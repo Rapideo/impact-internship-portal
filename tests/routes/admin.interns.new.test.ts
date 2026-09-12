@@ -109,8 +109,6 @@ describe('admin.interns.new', () => {
     );
 
     const fd = new FormData();
-    fd.set('firstName', 'Marcus');
-    fd.set('lastName', 'Patterson');
     fd.set('employerId', '11111111-1111-1111-1111-111111111101');
     fd.set('cohortId', '33333333-3333-3333-3333-333333333301');
     fd.set('startDate', '2026-01-12');

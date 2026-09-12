@@ -152,7 +152,7 @@ export default function NewIntern() {
           </>
         }
         title="NEW INTERN."
-        sub="Capture the intern's intake information. Personal details and internship assignment lock once saved; ongoing fields stay editable."
+        sub="Capture the intern's intake information. The Intern ID and internship assignment lock once saved; ongoing fields stay editable."
       />
       <section className="assessment-wrap">
         <div className="container">

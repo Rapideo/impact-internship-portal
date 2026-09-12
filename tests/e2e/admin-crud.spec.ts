@@ -66,13 +66,6 @@ test('admin can create employer -> cohort -> intern, then edit the intern', asyn
   await expect(page).toHaveURL(/\/admin\/interns$/);
   await page.getByRole('link', { name: /new intern/i }).click();
 
-  const lastName = `E2E${stamp}`;
-  // The first-name field uses requireSingleCharUpper — even though the inline
-  // hint reads "Only the first initial is saved to the record", the validator
-  // rejects multi-character input. (Suggests a UX cleanup, but the validator
-  // is the source of truth, so feed it a single letter.)
-  await page.getByLabel(/First Name/i).fill('E');
-  await page.getByLabel(/Last Name/i).fill(lastName);
   // Cohort + role selects are disabled until employer is picked; pick by
   // visible label rather than id so we don't hard-code UUIDs.
   await page.getByLabel(/^Employer$/).selectOption({ label: employerName });
@@ -117,5 +110,4 @@ test('admin can create employer -> cohort -> intern, then edit the intern', asyn
   await expect(page).toHaveURL(/\/admin\/interns$/);
   await page.getByPlaceholder(/Search by Intern ID/i).fill(issuedCode.slice(-4));
   await expect(page.locator(`text=${issuedCode}`).first()).toBeVisible();
-  await expect(page.locator(`text=${lastName}`).first()).toBeVisible();
 });

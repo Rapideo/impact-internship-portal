@@ -2,7 +2,7 @@
 //
 // Two cards: Competency Assessment, Exit Employer Survey. Each "Begin …"
 // button opens an intern-picker modal listing all active interns with a
-// live filter on last name + cohort name. Selecting a row navigates to the
+// live filter on Intern ID + cohort name. Selecting a row navigates to the
 // task-specific admin route with `?internId=<id>`.
 //
 // SP7 Phase F rewrite — markup now matches `assessments.html` byte-for-byte:

@@ -4,8 +4,8 @@
 // link and a Delete action that soft-deletes (sets deleted_at).
 //
 // SP7 Phase F rewrite — markup now matches `competency-detail.html`:
-// two-line `<LASTNAME> —<br/>COMPETENCY.` title, result pill in page-head
-// row, 8-cell meta-strip including a "Reviewed By" cell (admin email),
+// two-line `<INTERN ID> —<br/>COMPETENCY.` title, result pill in page-head
+// row, 7-cell meta-strip including a "Reviewed By" cell (admin email),
 // `<DetailHeader>` band above the rubric, `.detail-actions` row at the
 // bottom (Close / Edit / Delete) instead of header-action buttons.
 
@@ -164,8 +164,8 @@ export default function AdminCompetencyDetail() {
   const dd = submittedAt.getDate().toString().padStart(2, '0');
   const dateString = `${mm}.${dd}.${submittedAt.getFullYear()}`;
 
-  // 8-cell meta-strip per prototype: First Initial · Last · Employer ·
-  // Cohort · Role · Phase · Date · Reviewed By.
+  // 7-cell meta-strip per prototype: Intern ID · Employer · Cohort · Role ·
+  // Phase · Date · Reviewed By.
   const metaItems = [
     { label: 'Intern ID', value: intern.internCode, mono: true },
     { label: 'Employer', value: employer?.name ?? '—' },

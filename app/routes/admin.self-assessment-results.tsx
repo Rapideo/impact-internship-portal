@@ -7,8 +7,8 @@
 // SP7 Phase F rewrite — markup now matches `self-assessment-results.html`:
 // two-line `SELF-ASSESSMENT<br/>RESULTS.` title, `.filters` row with
 // Cohort dropdown + Export CSV placeholder, `<TableFilter>` `.table-meta`
-// strip with zero-padded count, `.col-name` + `.name-initial` avatar
-// chip on the first cell, `<EmptyRow>` empty state (not identity-card).
+// strip with zero-padded count, Intern ID on the first cell, `<EmptyRow>`
+// empty state (not identity-card).
 
 import { useMemo, useState } from 'react';
 import { and, desc, eq, inArray, isNull } from 'drizzle-orm';
@@ -175,9 +175,7 @@ export default function SelfAssessmentResults() {
                             to={`/admin/self-assessment-detail?type=${r.type}&internId=${r.internId}`}
                             style={{ color: 'inherit', textDecoration: 'none' }}
                           >
-                            <div className="col-name">
-                              <InternCode code={r.internCode} strong />
-                            </div>
+                            <InternCode code={r.internCode} strong />
                           </Link>
                         </td>
                         <td className="col-cohort">{r.employerName}</td>
