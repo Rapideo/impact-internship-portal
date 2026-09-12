@@ -124,6 +124,7 @@ export async function listInternsByCohort(db: Database, cohortId: string) {
   return db
     .select({
       id: interns.id,
+      internCode: interns.internCode,
       firstInitial: interns.firstInitial,
       lastName: interns.lastName,
       startDate: interns.startDate,
@@ -131,7 +132,7 @@ export async function listInternsByCohort(db: Database, cohortId: string) {
     })
     .from(interns)
     .where(and(eq(interns.cohortId, cohortId), isNull(interns.deletedAt)))
-    .orderBy(asc(interns.lastName));
+    .orderBy(asc(interns.internCode));
 }
 
 // ---------- Roles ----------
@@ -180,6 +181,7 @@ export async function listInternsForListing(db: Database) {
   return db
     .select({
       id: interns.id,
+      internCode: interns.internCode,
       firstInitial: interns.firstInitial,
       lastName: interns.lastName,
       startDate: interns.startDate,
@@ -198,7 +200,7 @@ export async function listInternsForListing(db: Database) {
     .leftJoin(roles, eq(roles.id, interns.roleId))
     .leftJoin(internEmploymentOutcomes, eq(internEmploymentOutcomes.internId, interns.id))
     .where(isNull(interns.deletedAt))
-    .orderBy(desc(interns.startDate));
+    .orderBy(asc(interns.internCode));
 }
 
 export async function getInternOrNull(db: Database, id: string) {
@@ -207,6 +209,7 @@ export async function getInternOrNull(db: Database, id: string) {
       id: interns.id,
       cohortId: interns.cohortId,
       roleId: interns.roleId,
+      internCode: interns.internCode,
       firstInitial: interns.firstInitial,
       lastName: interns.lastName,
       startDate: interns.startDate,
