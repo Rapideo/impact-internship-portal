@@ -9,8 +9,6 @@ import {
 const VALUES: NewInternValues = {
   cohortId: '33333333-3333-3333-3333-333333333301',
   roleId: null,
-  firstInitial: 'A',
-  lastName: 'Fixture',
   startDate: '2026-01-12',
   endDate: null,
   entryNotes: null,

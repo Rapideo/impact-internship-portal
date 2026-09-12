@@ -16,7 +16,6 @@ import { cohorts as cohortsTbl, roles as rolesTbl } from '../../db/schema';
 import { asc } from 'drizzle-orm';
 import {
   parseFormFields,
-  requireString,
   requireUuid,
   requireDate,
   optionalUuid,
@@ -58,8 +57,6 @@ export async function action({ request }: Route.ActionArgs) {
   const { headers } = await requireAdmin(request);
   const formData = await request.formData();
   const { values, errors } = parseFormFields(formData, {
-    firstName: requireString('First Name'),
-    lastName: requireString('Last Name'),
     employerId: requireUuid('Employer'),
     cohortId: requireUuid('Cohort'),
     roleId: optionalUuid('Role'),
@@ -67,12 +64,6 @@ export async function action({ request }: Route.ActionArgs) {
     endDate: requireDate('End Date'),
     entryNotes: optionalString('Notes'),
   });
-  // First-name field accepts a full name for usability; the action below
-  // slices to the first character before persisting (line ~92). This
-  // matches the hint shown to the user ("Only the first initial is
-  // saved") and the minimum-PII policy. The previous `requireSingleCharUpper`
-  // gate was the CLAUDE.md SP2 carry-over — rejected any multi-char input
-  // and contradicted the hint copy.
   const participationFactorIds = formData
     .getAll('participationFactorIds')
     .map((v) => String(v))
@@ -84,14 +75,10 @@ export async function action({ request }: Route.ActionArgs) {
     );
   }
 
-  const firstInitial = values.firstName.trim()[0]!.toUpperCase();
-
   try {
     const created = await createInternWithCode({
       cohortId: values.cohortId,
       roleId: values.roleId,
-      firstInitial,
-      lastName: values.lastName,
       startDate: values.startDate,
       endDate: values.endDate,
       entryNotes: values.entryNotes,
@@ -115,24 +102,6 @@ export async function action({ request }: Route.ActionArgs) {
           values: { ...values, participationFactorIds },
         },
         { headers, status: 503 },
-      );
-    }
-    // Postgres unique violation — partial unique index on
-    // (lower(first_initial), lower(last_name), cohort_id) where deleted_at is null.
-    // (Removed with the name columns in PR C.)
-    const pgCode = (err as { code?: string } | null)?.code;
-    if (pgCode === '23505') {
-      return data(
-        {
-          errors: [
-            {
-              field: 'lastName',
-              message: 'An intern with the same name already exists in this cohort.',
-            },
-          ],
-          values: { ...values, participationFactorIds },
-        },
-        { headers, status: 409 },
       );
     }
     throw err;
@@ -191,45 +160,12 @@ export default function NewIntern() {
             <div className="rubric">
               <RubricPanel
                 num="01"
-                title="Personal Information"
-                meta="Only the first initial and last name are stored. Identity locks once saved."
+                title="Identity"
+                meta="The portal assigns an Intern ID when you save. No name is stored — record the ID against the intern in the program roster."
               >
-                <div className="id-grid" style={{ padding: '22px 28px' }}>
-                  <div className={`field${errs.firstName ? ' field--error' : ''}`}>
-                    <label htmlFor="first">First Name</label>
-                    <input
-                      className="input"
-                      id="first"
-                      name="firstName"
-                      type="text"
-                      placeholder="e.g., Marcus"
-                      defaultValue={String(actionData?.values?.firstName ?? '')}
-                    />
-                    <span
-                      className="field__hint"
-                      style={{
-                        display: 'block',
-                        marginTop: 6,
-                        fontSize: 12,
-                        color: 'var(--muted)',
-                      }}
-                    >
-                      Only the first initial is saved to the record.
-                    </span>
-                    {errs.firstName ? <span className="field__error">{errs.firstName}</span> : null}
-                  </div>
-                  <div className={`field${errs.lastName ? ' field--error' : ''}`}>
-                    <label htmlFor="last">Last Name</label>
-                    <input
-                      className="input"
-                      id="last"
-                      name="lastName"
-                      type="text"
-                      placeholder="e.g., Patterson"
-                      defaultValue={String(actionData?.values?.lastName ?? '')}
-                    />
-                    {errs.lastName ? <span className="field__error">{errs.lastName}</span> : null}
-                  </div>
+                <div style={{ padding: '22px 28px', color: 'var(--muted)', fontSize: 14 }}>
+                  The Intern ID (<span className="intern-code">IMP-YY-NNNN</span>) is issued on save
+                  and shown on the next screen with a Copy button.
                 </div>
               </RubricPanel>
 
