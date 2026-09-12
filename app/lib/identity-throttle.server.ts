@@ -17,14 +17,44 @@ import { dbService as defaultDbService, type DBService } from './db.service.serv
  *
  * This is the second (and last) sanctioned anonymous use of `dbService`; the
  * first is the assessment-submission insert. Do not add a third.
+ *
+ * Every DB step below is capped at `THROTTLE_DB_TIMEOUT_MS` and fails open if it
+ * doesn't resolve in time (incident 2026-09-12: a frozen Lambda's half-open pooler
+ * socket can hang a query indefinitely, and a sick throttle path must never take
+ * sign-in down with it).
  */
 export const THROTTLE_WINDOW_MINUTES = 15;
 export const THROTTLE_MAX_FAILURES = 10;
 const RETENTION_HOURS = 24;
 
+/** A sick throttle path must never take sign-in down: any DB step slower than this fails OPEN (spec §7). */
+export const THROTTLE_DB_TIMEOUT_MS = 4_000;
+
+class ThrottleTimeoutError extends Error {
+  constructor(label: string, ms: number) {
+    super(`[identity-throttle] ${label} exceeded ${ms}ms`);
+    this.name = 'ThrottleTimeoutError';
+  }
+}
+
+async function withTimeout<T>(label: string, ms: number, work: Promise<T>): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      work,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new ThrottleTimeoutError(label, ms)), ms);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 interface Opts {
   db?: DBService;
   now?: Date;
+  timeoutMs?: number;
 }
 
 /** Netlify's trusted header first; a spoofed x-forwarded-for cannot override it in prod. */
@@ -39,14 +69,28 @@ export async function isThrottled(ip: string, opts: Opts = {}): Promise<boolean>
   const dbc = opts.db ?? defaultDbService;
   const now = opts.now ?? new Date();
   const since = new Date(now.getTime() - THROTTLE_WINDOW_MINUTES * 60_000);
+  const started = Date.now();
   try {
-    const [row] = await dbc
-      .select({ n: sql<number>`count(*)::int` })
-      .from(identityAttempts)
-      .where(and(eq(identityAttempts.ip, ip), gt(identityAttempts.attemptedAt, since)));
-    return (row?.n ?? 0) >= THROTTLE_MAX_FAILURES;
+    const result = await withTimeout(
+      'isThrottled',
+      opts.timeoutMs ?? THROTTLE_DB_TIMEOUT_MS,
+      (async () => {
+        const [row] = await dbc
+          .select({ n: sql<number>`count(*)::int` })
+          .from(identityAttempts)
+          .where(and(eq(identityAttempts.ip, ip), gt(identityAttempts.attemptedAt, since)));
+        return (row?.n ?? 0) >= THROTTLE_MAX_FAILURES;
+      })(),
+    );
+    const ms = Date.now() - started;
+    if (ms > 1_000) console.info('[identity-throttle] isThrottled slow: %dms', ms);
+    return result;
   } catch (err) {
-    console.error('[identity-throttle] check failed; failing open', err);
+    console.error(
+      '[identity-throttle] isThrottled failed after %dms; failing open',
+      Date.now() - started,
+      err,
+    );
     return false;
   }
 }
@@ -70,20 +114,34 @@ export async function reserveAttempt(ip: string, opts: Opts = {}): Promise<Reser
   const dbc = opts.db ?? defaultDbService;
   const now = opts.now ?? new Date();
   const since = new Date(now.getTime() - THROTTLE_WINDOW_MINUTES * 60_000);
+  const started = Date.now();
   try {
-    const [inserted] = await dbc
-      .insert(identityAttempts)
-      .values({ ip, attemptedAt: now })
-      .returning({ id: identityAttempts.id });
-    const [row] = await dbc
-      .select({ n: sql<number>`count(*)::int` })
-      .from(identityAttempts)
-      .where(and(eq(identityAttempts.ip, ip), gt(identityAttempts.attemptedAt, since)));
-    const cutoff = new Date(now.getTime() - RETENTION_HOURS * 3_600_000);
-    await dbc.delete(identityAttempts).where(lt(identityAttempts.attemptedAt, cutoff));
-    return { id: inserted!.id, n: row?.n ?? 1 };
+    const result = await withTimeout(
+      'reserveAttempt',
+      opts.timeoutMs ?? THROTTLE_DB_TIMEOUT_MS,
+      (async () => {
+        const [inserted] = await dbc
+          .insert(identityAttempts)
+          .values({ ip, attemptedAt: now })
+          .returning({ id: identityAttempts.id });
+        const [row] = await dbc
+          .select({ n: sql<number>`count(*)::int` })
+          .from(identityAttempts)
+          .where(and(eq(identityAttempts.ip, ip), gt(identityAttempts.attemptedAt, since)));
+        const cutoff = new Date(now.getTime() - RETENTION_HOURS * 3_600_000);
+        await dbc.delete(identityAttempts).where(lt(identityAttempts.attemptedAt, cutoff));
+        return { id: inserted!.id, n: row?.n ?? 1 };
+      })(),
+    );
+    const ms = Date.now() - started;
+    if (ms > 1_000) console.info('[identity-throttle] reserveAttempt slow: %dms', ms);
+    return result;
   } catch (err) {
-    console.error('[identity-throttle] reserve failed; failing open', err);
+    console.error(
+      '[identity-throttle] reserveAttempt failed after %dms; failing open',
+      Date.now() - started,
+      err,
+    );
     return null;
   }
 }
@@ -91,9 +149,22 @@ export async function reserveAttempt(ip: string, opts: Opts = {}): Promise<Reser
 /** Undo a reservation — the attempt succeeded (or was refused over-limit), so it is not a failure. */
 export async function releaseAttempt(id: string, opts: Opts = {}): Promise<void> {
   const dbc = opts.db ?? defaultDbService;
+  const started = Date.now();
   try {
-    await dbc.delete(identityAttempts).where(eq(identityAttempts.id, id));
+    await withTimeout(
+      'releaseAttempt',
+      opts.timeoutMs ?? THROTTLE_DB_TIMEOUT_MS,
+      (async () => {
+        await dbc.delete(identityAttempts).where(eq(identityAttempts.id, id));
+      })(),
+    );
+    const ms = Date.now() - started;
+    if (ms > 1_000) console.info('[identity-throttle] releaseAttempt slow: %dms', ms);
   } catch (err) {
-    console.error('[identity-throttle] release failed; ignoring', err);
+    console.error(
+      '[identity-throttle] releaseAttempt failed after %dms; failing open',
+      Date.now() - started,
+      err,
+    );
   }
 }

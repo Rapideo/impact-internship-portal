@@ -8,9 +8,14 @@ import { env } from './env.server';
 const client = postgres(env.DATABASE_POOL_URL, {
   max: 1,
   // Required for the Supavisor transaction-mode pooler (port 6543).
-  // NOTE: DATABASE_POOL_URL currently points at the direct connection in dev .env.local;
-  // swap to the regional pooler URL before production to activate the pooled path.
   prepare: false,
+  // Serverless hardening (incident 2026-09-12): a Lambda instance is frozen between
+  // invocations and its idle pooler socket can be dropped silently; the next query on a
+  // half-open socket hangs until the platform kills the invocation. Close idle
+  // connections ourselves, recycle long-lived ones, and never wait 30 s to connect.
+  idle_timeout: 20,
+  max_lifetime: 60 * 30,
+  connect_timeout: 10,
 });
 
 export const db = drizzle(client, { schema });
