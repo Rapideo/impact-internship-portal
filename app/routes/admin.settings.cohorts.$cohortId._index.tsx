@@ -163,10 +163,10 @@ export default function CohortDetail() {
                     }}
                   >
                     <td>
-                      <InternCode code={i.internCode} />
+                      <InternCode code={i.internCode} strong />
                     </td>
                     <td>
-                      <div className="col-name">
+                      <div className="col-name col-name--quiet">
                         <span className="name-initial">{initials(i.lastName)}</span>
                         {name}
                       </div>

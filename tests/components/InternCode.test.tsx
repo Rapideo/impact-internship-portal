@@ -14,4 +14,9 @@ describe('<InternCode>', () => {
     render(<InternCode code="IMP-26-0417" size="lg" />);
     expect(screen.getByText('IMP-26-0417').className).toBe('intern-code intern-code--lg');
   });
+
+  it('adds the strong modifier', () => {
+    render(<InternCode code="IMP-26-0417" strong />);
+    expect(screen.getByText('IMP-26-0417').className).toBe('intern-code intern-code--strong');
+  });
 });

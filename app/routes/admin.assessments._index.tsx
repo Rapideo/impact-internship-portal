@@ -190,13 +190,13 @@ export default function AdminAssessmentsHub() {
                 {
                   label: 'Intern ID',
                   width: '18%',
-                  render: (i) => <InternCode code={i.internCode} />,
+                  render: (i) => <InternCode code={i.internCode} strong />,
                 },
                 {
                   label: 'Last Name',
                   width: '21%',
                   render: (i) => (
-                    <div className="col-name">
+                    <div className="col-name col-name--quiet">
                       <span className="name-initial">{initials(i.lastName)}</span>
                       {i.lastName}
                     </div>
