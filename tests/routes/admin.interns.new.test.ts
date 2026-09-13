@@ -50,8 +50,6 @@ describe('admin.interns.new', () => {
       headers: new Headers(),
     });
     const fd = new FormData();
-    fd.set('firstName', '');
-    fd.set('lastName', '');
     fd.set('cohortId', '');
     fd.set('startDate', '');
     fd.set('endDate', '');
@@ -60,7 +58,9 @@ describe('admin.interns.new', () => {
     const body = (res as { data: { errors: Array<{ field: string; message: string }> } }).data;
     expect(body.errors.length).toBeGreaterThan(0);
     const fieldsWithErrors = body.errors.map((e) => e.field);
-    expect(fieldsWithErrors).toEqual(expect.arrayContaining(['firstName', 'lastName', 'cohortId']));
+    expect(fieldsWithErrors).toEqual(
+      expect.arrayContaining(['employerId', 'cohortId', 'startDate']),
+    );
   });
 
   it('action creates the intern through createInternWithCode and redirects with ?issued=1', async () => {
@@ -73,8 +73,6 @@ describe('admin.interns.new', () => {
       .mockResolvedValue({ id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', internCode: 'IMP-26-0417' });
 
     const fd = new FormData();
-    fd.set('firstName', 'Marcus');
-    fd.set('lastName', 'Patterson');
     fd.set('employerId', '11111111-1111-1111-1111-111111111101');
     fd.set('cohortId', '33333333-3333-3333-3333-333333333301');
     fd.set('startDate', '2026-01-12');
@@ -94,8 +92,6 @@ describe('admin.interns.new', () => {
     );
     expect(create).toHaveBeenCalledWith(
       expect.objectContaining({
-        firstInitial: 'M',
-        lastName: 'Patterson',
         cohortId: '33333333-3333-3333-3333-333333333301',
         startDate: '2026-01-12',
         participationFactorIds: ['55555555-5555-5555-5555-555555555501'],
@@ -113,8 +109,6 @@ describe('admin.interns.new', () => {
     );
 
     const fd = new FormData();
-    fd.set('firstName', 'Marcus');
-    fd.set('lastName', 'Patterson');
     fd.set('employerId', '11111111-1111-1111-1111-111111111101');
     fd.set('cohortId', '33333333-3333-3333-3333-333333333301');
     fd.set('startDate', '2026-01-12');

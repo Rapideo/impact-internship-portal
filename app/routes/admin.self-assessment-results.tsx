@@ -7,8 +7,8 @@
 // SP7 Phase F rewrite — markup now matches `self-assessment-results.html`:
 // two-line `SELF-ASSESSMENT<br/>RESULTS.` title, `.filters` row with
 // Cohort dropdown + Export CSV placeholder, `<TableFilter>` `.table-meta`
-// strip with zero-padded count, `.col-name` + `.name-initial` avatar
-// chip on the first cell, `<EmptyRow>` empty state (not identity-card).
+// strip with zero-padded count, Intern ID on the first cell, `<EmptyRow>`
+// empty state (not identity-card).
 
 import { useMemo, useState } from 'react';
 import { and, desc, eq, inArray, isNull } from 'drizzle-orm';
@@ -25,7 +25,8 @@ import {
 import { PageHead } from '~/components/PageHead';
 import { TableFilter } from '~/components/TableFilter';
 import { EmptyRow } from '~/components/EmptyRow';
-import { formatDate, initials } from '~/lib/format';
+import { InternCode } from '~/components/InternCode';
+import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Self-Assessment Results · IMPACT Admin' }];
 
@@ -44,8 +45,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       type: assessmentSubmissions.type,
       submittedAt: assessmentSubmissions.submittedAt,
       internId: assessmentSubmissions.internId,
-      firstInitial: interns.firstInitial,
-      lastName: interns.lastName,
+      internCode: interns.internCode,
       cohortName: cohortsTable.name,
       employerName: employersTable.name,
     })
@@ -83,7 +83,7 @@ export default function SelfAssessmentResults() {
       if (cohort !== 'all' && r.cohortName !== cohort) return false;
       if (!q) return true;
       return (
-        r.lastName.toLowerCase().includes(q) ||
+        r.internCode.toLowerCase().includes(q) ||
         r.cohortName.toLowerCase().includes(q) ||
         r.employerName.toLowerCase().includes(q) ||
         typeLabel(r.type).toLowerCase().includes(q)
@@ -115,7 +115,7 @@ export default function SelfAssessmentResults() {
                 <input
                   className="input input--search"
                   type="search"
-                  placeholder="Search by last name or cohort..."
+                  placeholder="Search by Intern ID or cohort..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   aria-label="Search submissions"
@@ -175,10 +175,7 @@ export default function SelfAssessmentResults() {
                             to={`/admin/self-assessment-detail?type=${r.type}&internId=${r.internId}`}
                             style={{ color: 'inherit', textDecoration: 'none' }}
                           >
-                            <div className="col-name">
-                              <span className="name-initial">{initials(r.lastName)}</span>
-                              {r.firstInitial}. {r.lastName}
-                            </div>
+                            <InternCode code={r.internCode} strong />
                           </Link>
                         </td>
                         <td className="col-cohort">{r.employerName}</td>

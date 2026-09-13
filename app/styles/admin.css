@@ -2287,11 +2287,6 @@
   font-size: 15px;
   color: var(--ink);
 }
-/* Name cell in intern tables once the ID carries the emphasis (PR C removes the name column). */
-.col-name--quiet {
-  font-weight: 400;
-}
-
 /* One-time "Intern ID issued" callout on the intern detail page (?issued=1). */
 .issued-callout {
   border: 1px solid var(--line);

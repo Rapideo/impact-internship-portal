@@ -1,6 +1,6 @@
 {
   "$schema-comment": "Sub-project status seed. Updated on milestone-close PRs per spec §2.13. Statuses: not-started | in-progress | complete. Counts are taken from the implementation plans committed under docs/superpowers/plans/.",
-  "asOf": "2026-08-02",
+  "asOf": "2026-09-12",
   "subProjects": [
     {
       "id": 0,
@@ -65,6 +65,14 @@
       "taskCount": 30,
       "prCount": 12,
       "summary": "Pixel-for-pixel rebuild of every production route against the locked prototype, spanning 9 phases (A through I) shipped 2026-05-15 through 2026-05-19: foundation tokens/global/print, shared presentation primitives (20+ components + dev gallery), form primitives (AssessmentForm, CompetencyAssessmentForm, QuestionSetEditor, InlineEditableList), public+intern flow rebuild, admin shell+Settings (2 PRs), admin Interns+Assessments (10 routes), employer shell (14 routes), test-harness regression sweep (7 stacked spec bugs root-caused, 22/22 Playwright passing), close-out. Visual-fidelity audit doc closed with 75 side-by-side prototype/production screenshots in 2026-05-19-final/. Adapter wired (@netlify/vite-plugin-react-router) and first Netlify draft preview went live during the regression sweep. Two post-G8 walkthrough fixes shipped (meta-strip first-column padding + admin first-name validator). Subagent-driven phase execution with worktree isolation became the dominant workflow."
+    },
+    {
+      "id": 8,
+      "name": "Intern ID Identity",
+      "status": "complete",
+      "taskCount": 22,
+      "prCount": 3,
+      "summary": "Replaced First Initial + Last Name with a portal-assigned Intern ID (IMP-YY-NNNN) at the client's request, 2026-09-11/12. Three PRs: A issued IDs (intern_code, backfill migration, generator with collision redraw, admin 'ID issued' callout); B switched the anonymous chooser to Employer → Cohort → Intern ID with a reserve-then-count per-IP throttle (identity_attempts, RLS on/no policies); C dropped the name columns and every name rendering. Built subagent-driven (task reviews + whole-branch reviews). Prod incident 2026-09-12 traced to postgres-js pipelining on Supavisor's transaction pooler — prod moved to the session pooler."
     }
   ]
 }

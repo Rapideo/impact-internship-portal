@@ -23,8 +23,7 @@ describe('admin._index loader', () => {
         type: 'competency',
         phase: 'Week 4',
         submittedAt: new Date('2026-04-14T08:40:00Z'),
-        internLastName: 'Clark',
-        internFirstInitial: 'D',
+        internCode: 'IMP-26-0001',
         cohortName: 'TTT 2026',
       },
     ] as never);

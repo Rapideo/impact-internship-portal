@@ -94,8 +94,7 @@ describe.skipIf(SKIP_DB_TESTS)('admin-queries (live DB)', () => {
       const sample = rows[0];
       expect(sample).toMatchObject({
         id: expect.any(String),
-        firstInitial: expect.any(String),
-        lastName: expect.any(String),
+        internCode: expect.any(String),
         cohortName: expect.any(String),
         employerName: expect.any(String),
       });

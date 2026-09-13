@@ -24,8 +24,6 @@ export class InternCodeExhaustedError extends Error {
 export interface NewInternValues {
   cohortId: string;
   roleId: string | null;
-  firstInitial: string;
-  lastName: string;
   startDate: string | null;
   endDate: string | null;
   entryNotes: string | null;
@@ -74,8 +72,6 @@ export async function createInternWithCode(
           .values({
             cohortId: values.cohortId,
             roleId: values.roleId,
-            firstInitial: values.firstInitial,
-            lastName: values.lastName,
             internCode,
             startDate: values.startDate,
             endDate: values.endDate,

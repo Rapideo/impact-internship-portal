@@ -2,7 +2,7 @@
 //
 // Two cards: Competency Assessment, Exit Employer Survey. Each "Begin …"
 // button opens an intern-picker modal listing all active interns with a
-// live filter on last name + cohort name. Selecting a row navigates to the
+// live filter on Intern ID + cohort name. Selecting a row navigates to the
 // task-specific admin route with `?internId=<id>`.
 //
 // SP7 Phase F rewrite — markup now matches `assessments.html` byte-for-byte:
@@ -22,7 +22,7 @@ import { AssessmentCard } from '~/components/AssessmentCard';
 import { PickerList } from '~/components/PickerList';
 import { InternCode } from '~/components/InternCode';
 import { useToast } from '~/components/toast/ToastProvider';
-import { initials, formatDate } from '~/lib/format';
+import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Assessments · IMPACT Admin' }];
 
@@ -76,7 +76,6 @@ export default function AdminAssessmentsHub() {
     return interns.filter(
       (i) =>
         i.internCode.toLowerCase().includes(q) ||
-        i.lastName.toLowerCase().includes(q) ||
         (i.cohortName ?? '').toLowerCase().includes(q) ||
         (i.employerName ?? '').toLowerCase().includes(q),
     );
@@ -178,7 +177,7 @@ export default function AdminAssessmentsHub() {
                 className="input"
                 type="text"
                 aria-label="Filter interns"
-                placeholder="Search by Intern ID, last name, cohort or employer…"
+                placeholder="Search by Intern ID, cohort or employer…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 autoFocus
@@ -189,28 +188,18 @@ export default function AdminAssessmentsHub() {
               columns={[
                 {
                   label: 'Intern ID',
-                  width: '18%',
+                  width: '23%',
                   render: (i) => <InternCode code={i.internCode} strong />,
                 },
-                {
-                  label: 'Last Name',
-                  width: '21%',
-                  render: (i) => (
-                    <div className="col-name col-name--quiet">
-                      <span className="name-initial">{initials(i.lastName)}</span>
-                      {i.lastName}
-                    </div>
-                  ),
-                },
-                { label: 'Cohort', width: '21%', render: (i) => i.cohortName ?? '—' },
+                { label: 'Cohort', width: '26%', render: (i) => i.cohortName ?? '—' },
                 {
                   label: 'Start',
-                  width: '20%',
+                  width: '26%',
                   render: (i) => <span className="col-date">{formatDate(i.startDate)}</span>,
                 },
                 {
                   label: 'Current Phase',
-                  width: '20%',
+                  width: '25%',
                   render: () => <span className="col-phase">—</span>,
                 },
               ]}

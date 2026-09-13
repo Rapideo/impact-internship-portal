@@ -2,7 +2,7 @@
 //
 // Flow:
 //   1. Sign in as admin, open /admin/assessments.
-//   2. Click "Begin Exit Employer Survey" → intern-picker modal → pick Test1.
+//   2. Click "Begin Exit Employer Survey" → intern-picker modal → pick by Intern ID.
 //   3. Lands on /admin/assessments/exit-employer-survey?internId=…
 //   4. Fill the required radio (ees-outcome) and required likert
 //      (ees-performance=4) and tick a few work-readiness checkboxes.
@@ -26,7 +26,7 @@ config();
 
 const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL ?? 'admin@example.com';
 const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD ?? 'DevPassword123!';
-const TEST_INTERN_LN = 'Test1';
+const TEST_INTERN_CODE = 'IMP-26-4001'; // T. Test1 — db/seed-data/interns.ts
 const TEST_INTERN_ID = '44444444-4444-4444-4444-444444444404';
 const SURVEY_URL = `/admin/assessments/exit-employer-survey?internId=${TEST_INTERN_ID}`;
 
@@ -98,12 +98,12 @@ test('admin can submit and re-edit an exit employer survey', async ({ page }) =>
   // it dropped the redundant "Employer" qualifier from the AssessmentCard CTA.
   await page.getByRole('button', { name: /Begin Exit Survey/i }).click();
   await expect(page.getByRole('dialog', { name: /Select intern/i })).toBeVisible();
-  await page.getByLabel(/Filter interns/i).fill(TEST_INTERN_LN);
+  await page.getByLabel(/Filter interns/i).fill(TEST_INTERN_CODE);
   // SP7 Phase F — picker rebuilt as a `<PickerList>` table; rows are <tr>s
   // (see admin-competency.spec.ts for the same selector update).
   const pickerRow = page
     .locator('table.picker-list tbody tr')
-    .filter({ hasText: TEST_INTERN_LN })
+    .filter({ hasText: TEST_INTERN_CODE })
     .first();
   await pickerRow.waitFor({ state: 'visible' });
   await pickerRow.click();

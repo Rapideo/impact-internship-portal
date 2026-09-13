@@ -6,11 +6,12 @@
 // optional soft-delete action that frees the intern to re-submit.
 //
 // SP7 Phase F rewrite — markup now matches `self-assessment-detail.html`:
-// two-line `<LASTNAME> —<br/><TYPE>.` title, 6-cell meta-strip including
-// a "Locked = Immutable" cell per prototype, `<DetailHeader>` band above
-// the rubric with question-count micro-label, rubric-panel empty state
-// (not identity-card), `.detail-actions` row at the bottom (Close /
-// Delete Submission) instead of header-action buttons.
+// two-line `<INTERN ID> —<br/><TYPE>.` title, 5-cell meta-strip (Intern ID ·
+// Employer · Cohort · Submitted · Locked) including a "Locked = Immutable"
+// cell per prototype, `<DetailHeader>` band above the rubric with
+// question-count micro-label, rubric-panel empty state (not identity-card),
+// `.detail-actions` row at the bottom (Close / Delete Submission) instead of
+// header-action buttons.
 
 import { useState } from 'react';
 import { eq } from 'drizzle-orm';
@@ -29,6 +30,7 @@ import { PageHead } from '~/components/PageHead';
 import { MetaStrip } from '~/components/MetaStrip';
 import { DetailHeader } from '~/components/DetailHeader';
 import { ConfirmModal } from '~/components/ConfirmModal';
+import { InternCode } from '~/components/InternCode';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Self-Assessment Detail · IMPACT Admin' }];
 
@@ -144,13 +146,16 @@ export default function SelfAssessmentDetail() {
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const closeHref = internId ? `/admin/interns/${internId}` : '/admin/self-assessment-results';
-  const titleName = loaderData.found ? loaderData.intern.lastName.toUpperCase() : 'NO SUBMISSION';
+  const titleName = loaderData.found ? (
+    <InternCode code={loaderData.intern.internCode} />
+  ) : (
+    'NO SUBMISSION'
+  );
 
-  // 6-cell meta-strip per prototype: First Initial · Last · Employer ·
-  // Cohort · Submitted · Locked = "Immutable".
+  // 5-cell meta-strip per prototype: Intern ID · Employer · Cohort ·
+  // Submitted · Locked = "Immutable".
   const metaItems: { label: string; value: string; mono?: boolean }[] = [
-    { label: 'First Initial', value: loaderData.intern.firstInitial, mono: true },
-    { label: 'Last Name', value: loaderData.intern.lastName },
+    { label: 'Intern ID', value: loaderData.intern.internCode, mono: true },
     { label: 'Employer', value: loaderData.employer?.name ?? '—' },
     { label: 'Cohort', value: loaderData.cohort?.name ?? '—' },
   ];
@@ -190,7 +195,7 @@ export default function SelfAssessmentDetail() {
                 {' '}
                 /{' '}
                 <Link to={closeHref} style={{ color: 'inherit', textDecoration: 'none' }}>
-                  {loaderData.intern.lastName.toUpperCase()}
+                  <InternCode code={loaderData.intern.internCode} />
                 </Link>
               </>
             ) : null}{' '}

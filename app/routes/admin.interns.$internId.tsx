@@ -267,8 +267,6 @@ export default function EditIntern() {
         <MetaStrip
           items={[
             { label: 'Intern ID', value: intern.internCode, mono: true },
-            { label: 'First Initial', value: intern.firstInitial, mono: true },
-            { label: 'Last Name', value: intern.lastName },
             { label: 'Employer', value: employer?.name ?? '—' },
             { label: 'Cohort', value: cohort?.name ?? '—' },
             { label: 'Role', value: role?.label ?? '—' },
@@ -440,7 +438,7 @@ export default function EditIntern() {
             </div>
 
             <ActionBar
-              status={`INTERN RECORD · ${intern.lastName.toUpperCase()}${cohort ? ' / ' + cohort.name.toUpperCase() : ''}`}
+              status={`INTERN RECORD · ${intern.internCode}${cohort ? ' / ' + cohort.name.toUpperCase() : ''}`}
             >
               <Link to="/admin/interns" className="btn btn--outline">
                 Cancel

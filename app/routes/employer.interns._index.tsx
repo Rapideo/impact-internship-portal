@@ -2,7 +2,7 @@
 // employer's cohorts. Click through to a focused employer intern record.
 //
 // SP7 Phase G rebuild: TableFilter wrapper with search + cohort filter +
-// outcome filter, uppercase title, NameInitial chip in the Intern cell,
+// outcome filter, uppercase title, Intern ID in the Intern cell,
 // 90/180-day outcome pill column, row-click navigation. Mirrors the admin
 // interns list pattern (app/routes/admin.interns._index.tsx).
 //
@@ -22,9 +22,9 @@ import { db } from '~/lib/db.server';
 import { cohorts, internEmploymentOutcomes, interns, roles } from '../../db/schema';
 import { PageHead } from '~/components/PageHead';
 import { TableFilter } from '~/components/TableFilter';
-import { NameInitial } from '~/components/tables/NameInitial';
+import { InternCode } from '~/components/InternCode';
 import { EmptyRow } from '~/components/EmptyRow';
-import { formatDate, initials } from '~/lib/format';
+import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Interns — IMPACT Employer' }];
 
@@ -40,8 +40,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const rows = await db
     .select({
       id: interns.id,
-      firstInitial: interns.firstInitial,
-      lastName: interns.lastName,
+      internCode: interns.internCode,
       startDate: interns.startDate,
       endDate: interns.endDate,
       cohortId: cohorts.id,
@@ -76,7 +75,7 @@ export default function EmployerInternsIndex() {
 
   const filtered = useMemo(() => {
     return interns.filter((i) => {
-      const haystack = `${i.firstInitial}. ${i.lastName} ${i.cohortName ?? ''}`.toLowerCase();
+      const haystack = `${i.internCode} ${i.cohortName ?? ''}`.toLowerCase();
       if (search && !haystack.includes(search.toLowerCase())) return false;
       if (cohort !== 'all' && i.cohortName !== cohort) return false;
       if (outcome === 'employed-90' && !i.employed90) return false;
@@ -104,7 +103,7 @@ export default function EmployerInternsIndex() {
                 <input
                   className="input input--search"
                   type="search"
-                  placeholder="Search by last name or cohort..."
+                  placeholder="Search by Intern ID or cohort..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   aria-label="Search interns"
@@ -149,7 +148,7 @@ export default function EmployerInternsIndex() {
             <table className="assessments">
               <thead>
                 <tr>
-                  <th style={{ width: '26%' }}>Intern</th>
+                  <th style={{ width: '26%' }}>Intern ID</th>
                   <th style={{ width: '20%' }}>Cohort</th>
                   <th style={{ width: '14%' }}>Start</th>
                   <th style={{ width: '14%' }}>Role</th>
@@ -178,10 +177,7 @@ export default function EmployerInternsIndex() {
                       tabIndex={0}
                     >
                       <td>
-                        <NameInitial
-                          initials={initials(i.lastName)}
-                          name={`${i.firstInitial}. ${i.lastName}`}
-                        />
+                        <InternCode code={i.internCode} strong />
                       </td>
                       <td className="col-cohort">{i.cohortName ?? '—'}</td>
                       <td className="col-date">{formatDate(i.startDate)}</td>

@@ -16,6 +16,7 @@ import { DetailHeader } from '~/components/DetailHeader';
 import { EmptyRow } from '~/components/EmptyRow';
 import { HeroSection } from '~/components/HeroSection';
 import { IdentityCard } from '~/components/IdentityCard';
+import { InternCode } from '~/components/InternCode';
 import { InlineEditableList } from '~/components/InlineEditableList';
 import { KpiCard } from '~/components/KpiCard';
 import { MetaStrip } from '~/components/MetaStrip';
@@ -139,8 +140,7 @@ function ModalDemoButtons() {
 
 interface DemoIntern {
   id: string;
-  initials: string;
-  last: string;
+  code: string;
   cohort: string;
   start: string;
   phase: string;
@@ -149,24 +149,21 @@ interface DemoIntern {
 const DEMO_INTERNS: ReadonlyArray<DemoIntern> = [
   {
     id: 'bayer',
-    initials: 'BA',
-    last: 'Bayer',
+    code: 'IMP-26-0417',
     cohort: 'Eskenazi 2026',
     start: '04.01.2026',
     phase: 'Week 4',
   },
   {
     id: 'clark',
-    initials: 'CL',
-    last: 'Clark',
+    code: 'IMP-26-0412',
     cohort: 'TTT 2026',
     start: '04.08.2026',
     phase: 'Week 2',
   },
   {
     id: 'evans',
-    initials: 'EV',
-    last: 'Evans',
+    code: 'IMP-26-0587',
     cohort: 'Habitat 2026',
     start: '03.15.2026',
     phase: 'Week 8',
@@ -273,17 +270,17 @@ export default function DevPrimitives() {
           <RecentActivity
             entries={[
               {
-                actor: 'Clark',
+                actor: 'IMP-26-0412',
                 body: 'completed Competency phase Week 4 — TTT 2026',
                 time: '04.14.2026 · 08:40',
               },
               {
-                actor: 'Evans',
+                actor: 'IMP-26-0587',
                 body: '— 90-day outcome recorded: Employed',
                 time: '04.12.2026 · 14:05',
               },
               {
-                actor: 'Bayer',
+                actor: 'IMP-26-0417',
                 body: 'submitted Self-Assessment — Eskenazi 2026',
                 time: '04.10.2026 · 16:45',
               },
@@ -375,7 +372,7 @@ export default function DevPrimitives() {
                 <input
                   className="input input--search"
                   type="search"
-                  placeholder="Search by last name or cohort..."
+                  placeholder="Search by Intern ID or cohort..."
                 />
                 <div className="filter-group">
                   <label className="filter-group__label" htmlFor="cohort-filter">
@@ -402,7 +399,7 @@ export default function DevPrimitives() {
             <table className="assessments">
               <thead>
                 <tr>
-                  <th style={{ width: '25%' }}>Intern</th>
+                  <th style={{ width: '25%' }}>Intern ID</th>
                   <th style={{ width: '20%' }}>Cohort</th>
                   <th style={{ width: '20%' }}>Start Date</th>
                   <th style={{ width: '20%' }}>Current Phase</th>
@@ -413,7 +410,7 @@ export default function DevPrimitives() {
                 {DEMO_INTERNS.map((i) => (
                   <tr key={i.id}>
                     <td>
-                      <NameInitial initials={i.initials} name={`M. ${i.last}`} />
+                      <InternCode code={i.code} strong />
                     </td>
                     <td>{i.cohort}</td>
                     <td className="col-date">{i.start}</td>
@@ -439,7 +436,7 @@ export default function DevPrimitives() {
           <table className="assessments" style={{ marginTop: 12 }}>
             <thead>
               <tr>
-                <th>Intern</th>
+                <th>Intern ID</th>
                 <th>Cohort</th>
                 <th>Phase</th>
               </tr>
@@ -448,15 +445,22 @@ export default function DevPrimitives() {
               <EmptyRow colSpan={3} message="No interns match." />
             </tbody>
           </table>
+
+          <h3 className="micro-label" style={{ marginTop: 32 }}>
+            NameInitial chip (employer/role name example)
+          </h3>
+          <div style={{ marginTop: 12 }}>
+            <NameInitial initials="MA" name="Medical Assistant" />
+          </div>
         </Section>
 
         <Section title="Picker list (modal-scoped table)">
           <PickerList
             columns={[
               {
-                label: 'Last Name',
+                label: 'Intern ID',
                 width: '30%',
-                render: (r: DemoIntern) => <NameInitial initials={r.initials} name={r.last} />,
+                render: (r: DemoIntern) => <InternCode code={r.code} />,
               },
               { label: 'Cohort', width: '30%', render: (r: DemoIntern) => r.cohort },
               {
@@ -604,8 +608,7 @@ export default function DevPrimitives() {
             body="Thanks for sharing your goals. Your cohort administrator can now see your starting reflection."
             receiptId="IMP-SA-2026-048"
             receiptItems={[
-              { label: 'First Initial', value: 'M', mono: true },
-              { label: 'Last Name', value: 'Bayer' },
+              { label: 'Intern ID', value: 'IMP-26-0417', mono: true },
               { label: 'Employer', value: 'Eskenazi Health' },
               { label: 'Cohort', value: 'Eskenazi 2026' },
               { label: 'Submitted', value: '04.10.2026 · 16:45', mono: true },
@@ -739,8 +742,8 @@ export default function DevPrimitives() {
         <Section title="CompetencyAssessmentForm — 3-tier (Core + Cohort + Intern)">
           <p className="micro-label">
             Prototype: <code>competency-new.html</code>. Identity card subnote reads &ldquo;UNIQUE
-            KEY · FIRST INITIAL + LAST NAME + EMPLOYER + COHORT · MULTIPLE PHASES ALLOWED&rdquo;.
-            3-tier section heads render between rubric tiers via
+            KEY · INTERN ID · MULTIPLE PHASES ALLOWED&rdquo;. 3-tier section heads render between
+            rubric tiers via
             <code>&lt;RubricSectionHead&gt;</code>; action-bar caption is
             <code>PASS = ALL READY</code>.
           </p>
@@ -760,7 +763,7 @@ export default function DevPrimitives() {
             submitLabel="Save Competency Assessment"
             readOnly={false}
             meta={{
-              internName: 'M. Bayer',
+              internCode: 'IMP-26-0417',
               cohortName: 'Eskenazi 2026',
               employerName: 'Eskenazi Health',
               roleName: 'Medical Assistant',

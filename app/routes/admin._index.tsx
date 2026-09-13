@@ -69,7 +69,7 @@ export default function AdminHome() {
     activity.length === 0
       ? []
       : activity.map((a) => ({
-          actor: a.internLastName,
+          actor: a.internCode,
           body: (
             <>
               {activityLabel(a.type, a.phase)} &mdash; {a.cohortName}

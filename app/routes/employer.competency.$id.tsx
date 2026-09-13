@@ -22,6 +22,7 @@ import type { SerializedAnswers } from '~/lib/question-types';
 import { CompetencyAssessmentForm } from '~/components/forms/CompetencyAssessmentForm';
 import { PageHead } from '~/components/PageHead';
 import { MetaStrip } from '~/components/MetaStrip';
+import { InternCode } from '~/components/InternCode';
 import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [
@@ -100,12 +101,16 @@ export default function EmployerCompetencyDetail() {
               to={`/employer/interns/${intern.id}`}
               style={{ color: 'inherit', textDecoration: 'none' }}
             >
-              {intern.lastName.toUpperCase()}
+              <InternCode code={intern.internCode} />
             </Link>
             {' / COMPETENCY'}
           </>
         }
-        title={`COMPETENCY — ${intern.lastName.toUpperCase()}.`}
+        title={
+          <>
+            COMPETENCY — <InternCode code={intern.internCode} />.
+          </>
+        }
         sub={`Phase ${phaseLabel} · submitted ${submittedAt.toLocaleDateString()}.`}
         actions={
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -120,7 +125,7 @@ export default function EmployerCompetencyDetail() {
       >
         <MetaStrip
           items={[
-            { label: 'Intern', value: `${intern.firstInitial}. ${intern.lastName}` },
+            { label: 'Intern', value: intern.internCode, mono: true },
             { label: 'Phase', value: phaseLabel },
             { label: 'Cohort', value: cohort?.name ?? '—' },
             { label: 'Role', value: role?.label ?? '—' },
@@ -142,7 +147,7 @@ export default function EmployerCompetencyDetail() {
             submitLabel=""
             readOnly={true}
             meta={{
-              internName: `${intern.firstInitial}. ${intern.lastName}`,
+              internCode: intern.internCode,
               cohortName: cohort?.name ?? '—',
               employerName: employer?.name ?? '—',
               roleName: role?.label ?? '—',

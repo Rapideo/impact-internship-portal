@@ -37,6 +37,7 @@ import { CompetencyAssessmentForm } from '~/components/forms/CompetencyAssessmen
 import { PageHead } from '~/components/PageHead';
 import { MetaStrip } from '~/components/MetaStrip';
 import { useToast } from '~/components/ToastProvider';
+import { InternCode } from '~/components/InternCode';
 import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [
@@ -193,7 +194,7 @@ export default function EmployerCompetencyNew() {
               to={`/employer/interns/${intern.id}`}
               style={{ color: 'inherit', textDecoration: 'none' }}
             >
-              {intern.lastName.toUpperCase()}
+              <InternCode code={intern.internCode} />
             </Link>
             {' / COMPETENCY / NEW'}
           </>
@@ -209,7 +210,7 @@ export default function EmployerCompetencyNew() {
       >
         <MetaStrip
           items={[
-            { label: 'Intern', value: `${intern.firstInitial}. ${intern.lastName}` },
+            { label: 'Intern', value: intern.internCode, mono: true },
             { label: 'Cohort', value: cohort?.name ?? '—' },
             { label: 'Role', value: role?.label ?? '—' },
             { label: 'Employer', value: employer?.name ?? '—' },
@@ -234,7 +235,7 @@ export default function EmployerCompetencyNew() {
             readOnly={false}
             cancelHref={`/employer/interns/${intern.id}`}
             meta={{
-              internName: `${intern.firstInitial}. ${intern.lastName}`,
+              internCode: intern.internCode,
               cohortName: cohort?.name ?? '—',
               employerName: employer?.name ?? '—',
               roleName: role?.label ?? '—',

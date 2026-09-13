@@ -3,7 +3,7 @@
 //
 // SP7 Phase G rebuild: uppercase title, MetaStrip in PageHead for the cohort
 // summary (Role / Start / End / Members), Applicable Phases rendered as
-// `.col-phase` chips, enrolled-interns table uses NameInitial chip.
+// `.col-phase` chips, enrolled-interns table shows the Intern ID.
 //
 // Cross-employer protection: the cohort query filters by employerId, so an
 // employer who knows another tenant's cohortId still hits a 404 here. The
@@ -18,9 +18,9 @@ import { db } from '~/lib/db.server';
 import { cohortPhases, cohorts, interns, phases, roles } from '../../db/schema';
 import { PageHead } from '~/components/PageHead';
 import { MetaStrip } from '~/components/MetaStrip';
-import { NameInitial } from '~/components/tables/NameInitial';
+import { InternCode } from '~/components/InternCode';
 import { EmptyRow } from '~/components/EmptyRow';
-import { formatDate, initials } from '~/lib/format';
+import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Cohort — IMPACT Employer' }];
 
@@ -52,8 +52,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const internRows = await db
     .select({
       id: interns.id,
-      firstInitial: interns.firstInitial,
-      lastName: interns.lastName,
+      internCode: interns.internCode,
       startDate: interns.startDate,
       endDate: interns.endDate,
     })
@@ -129,7 +128,7 @@ export default function EmployerCohortDetail() {
           <table className="assessments">
             <thead>
               <tr>
-                <th style={{ width: '40%' }}>Intern</th>
+                <th style={{ width: '40%' }}>Intern ID</th>
                 <th style={{ width: '20%' }}>Start</th>
                 <th style={{ width: '20%' }}>End</th>
                 <th style={{ width: '20%' }}>Actions</th>
@@ -142,10 +141,7 @@ export default function EmployerCohortDetail() {
                 interns.map((i) => (
                   <tr key={i.id}>
                     <td>
-                      <NameInitial
-                        initials={initials(i.lastName)}
-                        name={`${i.firstInitial}. ${i.lastName}`}
-                      />
+                      <InternCode code={i.internCode} strong />
                     </td>
                     <td className="col-date">{formatDate(i.startDate)}</td>
                     <td className="col-date">{formatDate(i.endDate)}</td>

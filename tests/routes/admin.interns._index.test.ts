@@ -15,8 +15,6 @@ describe('admin.interns._index loader', () => {
       {
         id: 'i1',
         internCode: 'IMP-26-0001',
-        firstInitial: 'A',
-        lastName: 'Williams',
         startDate: '2026-04-01',
         endDate: '2026-09-30',
         cohortId: 'c1',

@@ -12,6 +12,7 @@ import * as schema from '../../db/schema';
 import { PageHead } from '~/components/PageHead';
 import { SettingsShell } from '~/components/SettingsShell';
 import { EmptyRow } from '~/components/EmptyRow';
+import { InternCode } from '~/components/InternCode';
 
 export const meta: Route.MetaFunction = () => [
   { title: 'Competency Questions — Settings — IMPACT Admin' },
@@ -59,8 +60,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     ? await db
         .select({
           id: schema.interns.id,
-          firstInitial: schema.interns.firstInitial,
-          lastName: schema.interns.lastName,
+          internCode: schema.interns.internCode,
           cohortId: schema.interns.cohortId,
         })
         .from(schema.interns)
@@ -91,7 +91,7 @@ export async function loader({ request }: Route.LoaderArgs) {
         const c = i ? cohortIndex.get(i.cohortId) : null;
         return {
           internId: s.internId,
-          internName: i ? `${i.firstInitial}. ${i.lastName}` : (s.internId ?? '—'),
+          internCode: i ? i.internCode : (s.internId ?? '—'),
           cohortName: c?.name ?? '—',
           questionCount: s.questions.length,
           lastEditedAt: s.lastEditedAt,
@@ -229,7 +229,7 @@ export default function CompetencyDetail() {
           <table className="assessments">
             <thead>
               <tr>
-                <th style={{ width: '30%' }}>Intern</th>
+                <th style={{ width: '30%' }}>Intern ID</th>
                 <th style={{ width: '30%' }}>Cohort</th>
                 <th style={{ width: '15%' }}>Questions</th>
                 <th style={{ width: '25%' }}>Last Edited</th>
@@ -265,7 +265,7 @@ export default function CompetencyDetail() {
                         to={`/admin/settings/questions/competency/intern/${r.internId}`}
                         style={{ color: 'inherit', textDecoration: 'none', display: 'block' }}
                       >
-                        {r.internName}
+                        <InternCode code={r.internCode} strong />
                       </Link>
                     </td>
                     <td>{r.cohortName}</td>
