@@ -77,20 +77,28 @@ for how the pipeline works and `CLAUDE.md` for current infra state.
 
 ## Follow-ups from the Intern ID rebuild (2026-09-11/12)
 
-- [ ] **Regenerate the Quick Start & Testing Guide** — its screenshots show the old chooser
-      (initial + last name) and the create form's name fields. `docs/quick-start-guide/capture.ts`
-      + `render.ts` against staging once PR C is there.
-- [ ] **Recover pre-2026-09-11 impact-dev `assessment_submissions`** from the Supabase backup
-      taken ~07:00Z that day (KP July data + the Whitaker record). Download it or restore into a
-      throwaway project and lift the rows; never "Restore" over live dev.
+- [x] **Regenerate the Quick Start & Testing Guide** — done 2026-09-13 (#151): copy for the
+      Intern ID and participation factors, all 18 screenshots recaptured from staging, PDF re-rendered.
+- [x] **Recover pre-2026-09-11 impact-dev data** — done 2026-09-13 via Database → Backups →
+      **Restore to new project** (clone of the 11 Sep 08:46Z backup), then lifted the 12
+      human-entered `assessment_submissions` (Whitaker ×4, Test1 ×2, Castillo ×3, Davenport,
+      Thornton, Dorsey) and the 10 missing `profiles` rows into impact-dev; clone deleted.
+      Runbook now in CLAUDE.md (Supabase → Backups).
+- [ ] **Whitaker "data-loss" report is a DISPLAY bug — reproduce it.** The restored rows show two
+      fully-answered competency submissions on 2026-07-08 (14:26Z phase `c40ad080…`, 15:01Z phase
+      `158ef798…`) plus two June 9 rows with phase text `'Phase 1'` and one answer each. The tester
+      saw a blank form on return, so the write succeeded; suspect the record view loads the wrong
+      phase (or the June rows). Also: `assessment_submissions.phase` mixes free text and phase
+      UUIDs — normalise while fixing. Rows are on impact-dev under intern `44444444-…4401`.
 - [ ] **`db:seed` profile-restore ordering** — the base seed restores `profiles` BEFORE
       `db:seed:demo` recreates the demo employers, so employer logins whose employer only exists
       in demo data are skipped (locked out). Two dev accounts hit this 2026-09-11
-      (`hoosierbakery@impact.app`, `hopebridge@impact.app`). Either run the restore again at the
-      end of the demo seed, or have the demo seed re-apply the skipped rows.
+      (`hoosierbakery@impact.app`, `hopebridge@impact.app`) — restored from backup 2026-09-13,
+      but the ordering bug remains. Either run the restore again at the end of the demo seed, or
+      have the demo seed re-apply the skipped rows.
 - [ ] **Remove the `[chooser:*]` step-timing logs** (#147) once a day of prod traffic confirms the
-      2026-09-12 stall is gone. Optionally unset `SENTRY_DSN`/`SENTRY_FORCE` on the `branch-deploy`
-      context (set for the incident reproduction).
+      2026-09-12 stall is gone. (The staging Sentry vars from the incident reproduction were
+      unset 2026-09-13.)
 - [ ] **Intern ID re-issue path** (spec D6 follow-up) — only if the program ever asks.
 - [ ] **Survey copy still says "barriers"** (`pf-barriers`, `pf-barriers-detail`, `ees-barriers`)
       — client note drafted in `KP Feedback July 2026/`; awaiting their wording.
