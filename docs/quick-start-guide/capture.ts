@@ -13,8 +13,7 @@ import { chromium, type Page, type BrowserContext } from 'playwright';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
-const BASE_URL =
-  process.env.BASE_URL ?? 'https://deploy-preview-128--impact-portal-app.netlify.app';
+const BASE_URL = process.env.BASE_URL ?? 'https://staging--impact-portal-app.netlify.app';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'admin@example.com';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? 'DevPassword123!';
 const OUT_DIR = join(process.cwd(), 'docs', 'quick-start-guide', 'screenshots');
@@ -153,9 +152,9 @@ async function main() {
     await shot(page, 'phases');
   });
 
-  await capture('barriers', async () => {
-    await go(page, '/admin/settings/barriers');
-    await shot(page, 'barriers');
+  await capture('participation-factors', async () => {
+    await go(page, '/admin/settings/participation-factors');
+    await shot(page, 'participation-factors');
   });
 
   await capture('questions', async () => {

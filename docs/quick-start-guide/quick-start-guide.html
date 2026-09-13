@@ -442,7 +442,7 @@
       <div class="meta">
         <div>Audience<b>Program Staff &amp; Testers</b></div>
         <div>Environment<b>Staging / Test</b></div>
-        <div>Version<b>June 2026 · v1</b></div>
+        <div>Version<b>2026-09-13 · v1</b></div>
       </div>
     </section>
 
@@ -507,7 +507,7 @@
         <div class="role">
           <span class="tag">Intern</span>
           <h3>Anonymous</h3>
-          <p>No login. Confirms identity (initial + last name + cohort) and completes three one-time self-assessments.</p>
+          <p>No login. Enters their Intern ID (plus employer and cohort) and completes three one-time self-assessments.</p>
         </div>
       </div>
 
@@ -557,7 +557,7 @@
         <li><strong>Interns</strong> — the roster and each intern's full record.</li>
         <li><strong>Assessments</strong> — start competency &amp; exit-employer surveys, and review intern self-assessments.</li>
         <li><strong>Reports</strong> — program metrics with employer/cohort filters.</li>
-        <li><strong>Settings</strong> — employers, cohorts, users, phases, barriers, questions, and program info.</li>
+        <li><strong>Settings</strong> — employers, cohorts, users, phases, participation factors, questions, and program info.</li>
       </ul>
 
       <div class="callout callout--tip">
@@ -639,15 +639,16 @@
           <p><strong>On the record you'll find:</strong></p>
           <ul class="clean">
             <li><strong>Identity &amp; placement</strong> — locked after creation.</li>
-            <li><strong>Entry Assessment</strong> — barriers at intake + notes.</li>
+            <li><strong>Entry Assessment</strong> — participation factors at intake + notes.</li>
             <li><strong>Self-Assessments</strong> — which of the three the intern has submitted.</li>
             <li><strong>Evaluations</strong> — competency &amp; exit-survey status.</li>
             <li><strong>Employment Details</strong> — 90-day &amp; 180-day outcome checkboxes + notes.</li>
           </ul>
           <div class="callout callout--note" style="margin-top: 10px">
             <span class="label">Minimum-PII by design</span>
-            Only <strong>first initial + last name + cohort</strong> are stored. The create form
-            accepts a first name for convenience but saves just the initial.
+            The portal stores <strong>no intern name</strong>. Each intern gets a portal-assigned
+            Intern ID (<code>IMP-26-0417</code>) when the record is saved; program staff keep the
+            ID-to-person roster offline and give the intern their ID at intake.
           </div>
         </div>
       </div>
@@ -722,7 +723,7 @@
         </div>
         <div class="mini">
           <ul class="clean">
-            <li>Identity = <strong>first initial + last name + employer + cohort</strong>.</li>
+            <li>Identity = <strong>Intern ID + employer + cohort</strong> — the ID is issued by the portal when staff create the record.</li>
             <li>Each form is <strong>one submission per intern and immutable</strong> once sent.</li>
             <li>Admins review every submission under <strong>Assessments → Self-assessment results</strong>.</li>
           </ul>
@@ -739,7 +740,7 @@
       <div class="callout callout--tip">
         <span class="label">Try this</span>
         From the test URL, open <code>/intern/assessments</code>, pick an employer and cohort, enter
-        an intern's initial + last name, and walk through Personal Goals.
+        an intern's ID (from the Interns list), and walk through Personal Goals.
       </div>
     </section>
 
@@ -760,13 +761,13 @@
       </p>
 
       <div class="frame frame--reports"><img src="screenshots/reports.png" alt="Reports dashboard" /></div>
-      <div class="caption">Program reports — KPIs, employment gauges, completion meters, barriers &amp; submissions trend</div>
+      <div class="caption">Program reports — KPIs, employment gauges, completion meters, participation factors &amp; submissions trend</div>
 
       <ul class="clean mini">
         <li><strong>KPI tiles</strong> — employers, active interns, 90-day employment, % assessed.</li>
         <li><strong>Employment Outcomes</strong> — 90- and 180-day gauges.</li>
         <li><strong>Assessment Completion</strong> — how far each assessment type has progressed.</li>
-        <li><strong>Entry Barriers</strong> &amp; <strong>Submissions Over Time</strong> round out the picture.</li>
+        <li><strong>Participation Factors</strong> &amp; <strong>Submissions Over Time</strong> round out the picture.</li>
       </ul>
 
       <div class="callout callout--tip">
@@ -812,8 +813,8 @@
           <div class="caption">Assessment Phases</div>
         </div>
         <div>
-          <div class="frame frame--sm"><img src="screenshots/barriers.png" alt="Barriers" /></div>
-          <div class="caption">Entry Barriers</div>
+          <div class="frame frame--sm"><img src="screenshots/participation-factors.png" alt="Participation factors" /></div>
+          <div class="caption">Participation Factors</div>
         </div>
         <div>
           <div class="frame frame--sm"><img src="screenshots/questions.png" alt="Questions" /></div>
@@ -849,7 +850,7 @@
         <div>Sign in and tour all five nav tabs</div>
         <div>Create a new employer, role &amp; cohort</div>
         <div>Add a new intern to a cohort</div>
-        <div>Record entry barriers &amp; notes</div>
+        <div>Record participation factors &amp; notes</div>
         <div>Complete a competency assessment</div>
         <div>Complete an exit-employer survey</div>
         <div>Submit an intern self-assessment</div>
@@ -877,7 +878,7 @@
       </div>
 
       <p style="margin-top: 16px; color: var(--muted); font-size: 10px; font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.05em">
-        IMPACT INTERNSHIP ASSESSMENT PORTAL · QUICK START &amp; TESTING GUIDE · JUNE 2026
+        IMPACT INTERNSHIP ASSESSMENT PORTAL · QUICK START &amp; TESTING GUIDE · 2026-09-13
       </p>
     </section>
   </body>
