@@ -1,6 +1,6 @@
 {
   "$schema-comment": "Sub-project status seed. Updated on milestone-close PRs per spec §2.13. Statuses: not-started | in-progress | complete. Counts are taken from the implementation plans committed under docs/superpowers/plans/.",
-  "asOf": "2026-09-12",
+  "asOf": "2026-09-14",
   "subProjects": [
     {
       "id": 0,
@@ -56,7 +56,7 @@
       "status": "in-progress",
       "taskCount": 52,
       "prCount": 11,
-      "summary": "Production launched on impact-prod 2026-05-26. Done (11 PRs): Playwright CI un-gate (#105), JWT-hook launch-blocker fix (#107), PostgREST write coverage (#108), Sentry server shell (#109), a11y/perf baselines (#110), logo perf + page metadata (#112), CI/CD overview doc (#113), launch-todo + status sync (#114), admin + employer Reports dashboards — Phase C (#119), admin User Management at Settings → Users (#121), Supabase keep-alive cron (#122). Phase I (prod seed/bootstrap: schema + RLS + JWT hook + reference-data seed + admin) and Phase J (cutover: GitHub→Netlify auto-deploy wired, DATABASE_POOL_URL set, DB password rotated, APP_URL set per-context) complete. Phase C (Reports) and Phase E (Sentry — DSN set on production context + handleError wired) are now CLOSED. Follow-on hardening outside the SP6 plan: CI RLS base-table grants (#128), Supabase CLI pinned to 2.107.0 (#129), Quick Start & Testing Guide for the program team (#130/#131), post-mortem case study (#135). Remaining, tracked in docs/launch-todo.md: custom SMTP + branded email templates, admin invite→accept E2E (F.2), #77 DB-role hardening, impact-prod free-tier upgrade (auto-pause took prod down once on 2026-06-08), and adding the two anon-key secrets the keep-alive cron needs. (a11y contrast finding left as-is by stakeholder decision; no visual changes for accessibility.)"
+      "summary": "Production launched on impact-prod 2026-05-26. Done (11 PRs): Playwright CI un-gate (#105), JWT-hook launch-blocker fix (#107), PostgREST write coverage (#108), Sentry server shell (#109), a11y/perf baselines (#110), logo perf + page metadata (#112), CI/CD overview doc (#113), launch-todo + status sync (#114), admin + employer Reports dashboards — Phase C (#119), admin User Management at Settings → Users (#121), Supabase keep-alive cron (#122). Phase I (prod seed/bootstrap: schema + RLS + JWT hook + reference-data seed + admin) and Phase J (cutover: GitHub→Netlify auto-deploy wired, DATABASE_POOL_URL set, DB password rotated, APP_URL set per-context) complete. Phase C (Reports) and Phase E (Sentry — DSN set on production context + handleError wired) are now CLOSED. Follow-on hardening outside the SP6 plan: CI RLS base-table grants (#128), Supabase CLI pinned to 2.107.0 (#129), Quick Start & Testing Guide for the program team (#130/#131), post-mortem case study (#135). Remaining, tracked in docs/launch-todo.md: custom SMTP + branded email templates, admin invite→accept E2E (F.2), #77 DB-role hardening, and adding the two anon-key secrets the keep-alive cron needs (the free-tier auto-pause risk — it took prod down once on 2026-06-08 — ended when both Supabase projects moved to Pro on 2026-09-11). (a11y contrast finding left as-is by stakeholder decision; no visual changes for accessibility.)"
     },
     {
       "id": 7,
@@ -73,6 +73,14 @@
       "taskCount": 22,
       "prCount": 3,
       "summary": "Replaced First Initial + Last Name with a portal-assigned Intern ID (IMP-YY-NNNN) at the client's request, 2026-09-11/12. Three PRs: A issued IDs (intern_code, backfill migration, generator with collision redraw, admin 'ID issued' callout); B switched the anonymous chooser to Employer → Cohort → Intern ID with a reserve-then-count per-IP throttle (identity_attempts, RLS on/no policies); C dropped the name columns and every name rendering. Built subagent-driven (task reviews + whole-branch reviews). Prod incident 2026-09-12 traced to postgres-js pipelining on Supavisor's transaction pooler — prod moved to the session pooler."
+    },
+    {
+      "id": 9,
+      "name": "Client Punchlist 9.11",
+      "status": "in-progress",
+      "taskCount": 8,
+      "prCount": 7,
+      "summary": "The program team's post-launch punchlist (received 2026-09-11), tracked in docs/launch-todo.md. Done: dynamic greeting; Entry-Assessment 'barriers' renamed to Internship Participation Factors with PII-safe values (#138/#139/#140); First Initial + Last Name replaced by the portal-assigned Intern ID (#143/#144/#150 — the SP8 work); Equus Workforce Solutions logo (a derived reversed SVG for the dark nav) and Equus green replacing the IMPACT gold accent (#154, 2026-09-14). Open: Start/End Date on the intern profile; delete users; Start/End Date on cohorts (needs a migration); and a pass over the July 2026 tester feedback."
     }
   ]
 }
