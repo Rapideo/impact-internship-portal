@@ -140,12 +140,19 @@ Already tracked: Whitaker display bug, favicon, survey "barriers" copy. Ordered 
       human-entered `assessment_submissions` (Whitaker ×4, Test1 ×2, Castillo ×3, Davenport,
       Thornton, Dorsey) and the 10 missing `profiles` rows into impact-dev; clone deleted.
       Runbook now in CLAUDE.md (Supabase → Backups).
-- [ ] **Whitaker "data-loss" report is a DISPLAY bug — reproduce it.** The restored rows show two
-      fully-answered competency submissions on 2026-07-08 (14:26Z phase `c40ad080…`, 15:01Z phase
-      `158ef798…`) plus two June 9 rows with phase text `'Phase 1'` and one answer each. The tester
-      saw a blank form on return, so the write succeeded; suspect the record view loads the wrong
-      phase (or the June rows). Also: `assessment_submissions.phase` mixes free text and phase
-      UUIDs — normalise while fixing. Rows are on impact-dev under intern `44444444-…4401`.
+- [x] **Whitaker "data-loss" report — ROOT-CAUSED 2026-09-14 (#159): test pollution, not a
+      display bug.** `tests/lib/assessment-submissions.server.test.ts` (unit project, since
+      2026-05-13) ran `DELETE FROM assessment_submissions WHERE intern_id = <Whitaker>` in a
+      `beforeEach` and inserted two `'Phase 1'`/one-answer fixture rows — against impact-dev, on
+      every `npm test`, because `tests/setup.ts` loads `.env.local`. The "blank form" the tester
+      opened in July was one of those fixture rows; her two July-8 submissions were intact and
+      render fully (verified 2026-09-14). The file now lives under `tests/rls/` (guarded), the
+      guard also checks `DATABASE_POOL_URL`/`DATABASE_SERVICE_URL`, and a unit-project tripwire
+      (`tests/guards/`) fails if any unit test opens a raw SQL client or carries a destructive
+      SQL literal. Whitaker's July rows were re-inserted from the 09-13 recovery JSON (kept with
+      the client files). Left over: the `phase` column still mixes free text and UUIDs, and the
+      detail view prints a raw UUID when a phase id no longer resolves (dev reseeds regenerate
+      `phases`) — both small hardening items.
 - [ ] **`db:seed` profile-restore ordering** — the base seed restores `profiles` BEFORE
       `db:seed:demo` recreates the demo employers, so employer logins whose employer only exists
       in demo data are skipped (locked out). Two dev accounts hit this 2026-09-11

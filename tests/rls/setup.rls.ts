@@ -43,8 +43,10 @@ function normalizeHost(hostname: string): string {
   return hostname;
 }
 
-function assertLocalDatabase(): void {
-  const raw = process.env.DATABASE_URL;
+type DbVar = 'DATABASE_URL' | 'DATABASE_POOL_URL' | 'DATABASE_SERVICE_URL';
+
+function assertLocalDatabase(varName: DbVar): void {
+  const raw = process.env[varName];
 
   if (!raw) {
     throw new Error(
@@ -62,7 +64,7 @@ function assertLocalDatabase(): void {
     hostname = new URL(raw).hostname;
   } catch {
     throw new Error(
-      `[rls-locality-guard] DATABASE_URL ("${raw}") could not be parsed as a URL, so its ` +
+      `[rls-locality-guard] ${varName} ("${raw}") could not be parsed as a URL, so its ` +
         'host cannot be verified as local.\n\n' +
         'RLS tests (tests/rls/**) DELETE rows — some of them without a WHERE clause — as ' +
         'part of their fixture cleanup. Refusing to connect anywhere whose host cannot be ' +
@@ -76,7 +78,7 @@ function assertLocalDatabase(): void {
 
   if (!LOCAL_HOSTS.has(host)) {
     throw new Error(
-      `[rls-locality-guard] DATABASE_URL points at host "${host}", which is not local ` +
+      `[rls-locality-guard] ${varName} points at host "${host}", which is not local ` +
         `(allowed hosts: ${[...LOCAL_HOSTS].join(', ')}).\n\n` +
         'RLS tests (tests/rls/**) DELETE rows — some of them without a WHERE clause — as ' +
         'part of their fixture cleanup. Running this suite against anything other than a ' +
@@ -90,4 +92,12 @@ function assertLocalDatabase(): void {
   }
 }
 
-assertLocalDatabase();
+assertLocalDatabase('DATABASE_URL');
+// The app's own Drizzle clients connect through the POOL url (`db`) and,
+// when set, the SERVICE url (`dbService`) — and this project exercises them
+// (tests/rls/assessment-submissions-helpers.test.ts). Any of these that is
+// set must be local too; a raw-SQL guard on DATABASE_URL alone would let a
+// helper test write to the cloud through the app's client.
+for (const v of ['DATABASE_POOL_URL', 'DATABASE_SERVICE_URL'] as const) {
+  if (process.env[v]) assertLocalDatabase(v);
+}
