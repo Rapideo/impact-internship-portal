@@ -30,6 +30,7 @@ import {
   internEntryAssessment,
   internParticipationFactors,
   interns,
+  phases,
   roles,
 } from '../../db/schema';
 import { PageHead } from '~/components/PageHead';
@@ -38,7 +39,7 @@ import { RubricPanel } from '~/components/RubricPanel';
 import { EmptyRow } from '~/components/EmptyRow';
 import { useToast } from '~/components/ToastProvider';
 import { InternCode } from '~/components/InternCode';
-import { formatDate } from '~/lib/format';
+import { formatDate, phaseDisplayLabel } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Intern — IMPACT Employer' }];
 
@@ -124,6 +125,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       entryParticipationFactors: entryParticipationFactorRows,
       outcomes: outcomes ?? null,
       submissions: submissionRows,
+      phases: await db.select({ id: phases.id, label: phases.label }).from(phases),
     },
     { headers },
   );
@@ -145,8 +147,16 @@ function viewHrefFor(s: { id: string; type: string; phase: string | null }): str
 }
 
 export default function EmployerInternRecord() {
-  const { intern, cohort, role, entry, entryParticipationFactors, outcomes, submissions } =
-    useLoaderData<typeof loader>();
+  const {
+    intern,
+    cohort,
+    role,
+    entry,
+    entryParticipationFactors,
+    outcomes,
+    submissions,
+    phases: phaseOptions,
+  } = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
   const toast = useToast();
 
@@ -287,7 +297,7 @@ export default function EmployerInternRecord() {
                         return (
                           <tr key={s.id}>
                             <td>{ASSESSMENT_LABELS[s.type] ?? s.type}</td>
-                            <td>{s.phase ?? '—'}</td>
+                            <td>{phaseDisplayLabel(s.phase, phaseOptions)}</td>
                             <td className="col-date">{submitted}</td>
                             <td>
                               <div className="col-actions">
