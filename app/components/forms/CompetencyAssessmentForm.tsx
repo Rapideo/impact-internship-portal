@@ -264,11 +264,13 @@ export function CompetencyAssessmentForm(props: CompetencyAssessmentFormProps) {
         </button>
       </ActionBar>
 
+      {/* The modal says what the button says (KP July-2026 feedback: "Submit"
+          opened a "Save?" modal and testers could not tell the two apart). */}
       <SubmitConfirmModal
         open={modalOpen}
-        title="Save competency assessment?"
-        body="The intern won't see this; you can edit it later from the same screen."
-        confirmLabel="Save"
+        title={`${props.submitLabel}?`}
+        body="The intern won't see this. You can still edit it later from this screen."
+        confirmLabel="Submit"
         onClose={() => setModalOpen(false)}
         onConfirm={() => {
           setModalOpen(false);

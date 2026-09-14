@@ -156,9 +156,17 @@ export default function EmployerInternRecord() {
   useEffect(() => {
     const submitted = searchParams.get('submitted');
     if (submitted === 'exit-survey') {
-      toast.show({ kind: 'success', label: 'SAVED', message: 'Exit Employer Survey saved.' });
+      toast.show({
+        kind: 'success',
+        label: 'SUBMITTED',
+        message: 'Exit Employer Survey submitted.',
+      });
     } else if (submitted === 'competency') {
-      toast.show({ kind: 'success', label: 'SAVED', message: 'Competency assessment saved.' });
+      toast.show({
+        kind: 'success',
+        label: 'SUBMITTED',
+        message: 'Competency assessment submitted.',
+      });
     } else {
       return;
     }

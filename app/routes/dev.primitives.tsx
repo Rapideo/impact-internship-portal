@@ -760,7 +760,7 @@ export default function DevPrimitives() {
             initialPhase={null}
             errors={{}}
             actionPath="#"
-            submitLabel="Save Competency Assessment"
+            submitLabel="Submit Assessment"
             readOnly={false}
             meta={{
               internCode: 'IMP-26-0417',

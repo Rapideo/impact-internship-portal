@@ -245,8 +245,8 @@ export default function EmployerExitSurvey() {
             initialAnswers={existingAnswers}
             errors={errors}
             setLevelError={setLevelError}
-            submitLabel="Save Survey"
-            modalTitle="Save the Exit Employer Survey?"
+            submitLabel="Submit Survey"
+            modalTitle="Submit the Exit Employer Survey?"
             modalBody="You can re-open and update this record later from the intern record."
             readOnly={false}
             cancelHref={`/employer/interns/${intern.id}`}

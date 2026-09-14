@@ -231,7 +231,7 @@ export default function EmployerCompetencyNew() {
             errors={errors}
             setLevelError={setLevelError}
             actionPath={`/employer/competency/new?internId=${intern.id}`}
-            submitLabel="Save Competency Assessment"
+            submitLabel="Submit Assessment"
             readOnly={false}
             cancelHref={`/employer/interns/${intern.id}`}
             meta={{

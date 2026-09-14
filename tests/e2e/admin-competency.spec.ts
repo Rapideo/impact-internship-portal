@@ -162,12 +162,13 @@ test('admin can run the picker, submit a competency, then edit a rating', async 
 
   // Save → confirm modal → confirm. SP7 Phase F — new-mode submit button
   // copy aligned to prototype's "Submit Assessment"; edit-mode uses
-  // "Submit Changes". The ConfirmModal's confirm button is "Save". Wait
+  // "Submit Changes". Since the KP-feedback fix the modal title mirrors the
+  // button ("Submit Assessment?") and its confirm button is "Submit". Wait
   // for the modal title before clicking the confirm button so the click
   // doesn't fire before React mounts the modal.
   await page.getByRole('button', { name: /Submit Assessment/i }).click();
-  await expect(page.getByText('Save competency assessment?')).toBeVisible();
-  await page.getByRole('button', { name: /^Save$/ }).click();
+  await expect(page.getByText('Submit Assessment?')).toBeVisible();
+  await page.getByRole('button', { name: /^Submit$/ }).click();
 
   // The new-action redirects to /admin/assessments/competency/<uuid>?saved=1
   // and renders the read-only detail view. Bump timeout to 15s — the action
@@ -203,8 +204,8 @@ test('admin can run the picker, submit a competency, then edit a rating', async 
   // SP7 Phase F — edit-mode submit button label is "Submit Changes".
   // Same ConfirmModal pattern — wait for modal mount before confirming.
   await page.getByRole('button', { name: /Submit Changes/i }).click();
-  await expect(page.getByText('Save competency assessment?')).toBeVisible();
-  await page.getByRole('button', { name: /^Save$/ }).click();
+  await expect(page.getByText('Submit Changes?')).toBeVisible();
+  await page.getByRole('button', { name: /^Submit$/ }).click();
 
   // After save, the edit action redirects to the detail page with ?saved=1.
   await expect(page).toHaveURL(

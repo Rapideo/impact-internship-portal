@@ -146,16 +146,16 @@ test('admin can submit and re-edit an exit employer survey', async ({ page }) =>
   await offeredRow.getByRole('radio', { name: 'Yes' }).check();
 
   // Save → confirm modal → confirm.
-  // SP7 Phase F — submit button copy is now just "Save Survey" (the
+  // SP7 Phase F — submit button copy is "Submit Survey" (the
   // prototype's exact wording; "Exit" was dropped to avoid redundancy
   // with the page title). Clicking opens the SubmitConfirmModal whose
   // confirm button on <AssessmentForm> is labeled "Submit" (see
   // AssessmentForm.tsx — `confirmLabel="Submit"`); the modal title is
-  // "Save this Exit Employer Survey?" (the page-supplied modalTitle
+  // "Submit this Exit Employer Survey?" (the page-supplied modalTitle
   // prop). Wait for the title to confirm the modal is mounted before
   // clicking the confirm button.
-  await page.getByRole('button', { name: /Save Survey/i }).click();
-  await expect(page.getByText('Save this Exit Employer Survey?')).toBeVisible();
+  await page.getByRole('button', { name: /Submit Survey/i }).click();
+  await expect(page.getByText('Submit this Exit Employer Survey?')).toBeVisible();
   await page.getByRole('button', { name: /^Submit$/ }).click();
 
   // SP7 Phase F — the action redirects to the admin assessments hub. The
@@ -192,11 +192,11 @@ test('admin can submit and re-edit an exit employer survey', async ({ page }) =>
     .getByRole('radio', { name: 'Completed — not hired' })
     .check();
 
-  // Same Save Survey → modal → Submit pattern for the re-save round-trip.
+  // Same Submit Survey → modal → Submit pattern for the re-submit round-trip.
   // Confirm button is "Submit" (see comment above); redirect lands on the
   // assessments hub, which strips `?submitted=exit-survey` after toasting.
-  await page.getByRole('button', { name: /Save Survey/i }).click();
-  await expect(page.getByText('Save this Exit Employer Survey?')).toBeVisible();
+  await page.getByRole('button', { name: /Submit Survey/i }).click();
+  await expect(page.getByText('Submit this Exit Employer Survey?')).toBeVisible();
   await page.getByRole('button', { name: /^Submit$/ }).click();
   await expect(page).toHaveURL(/\/admin\/assessments(?:\?|$)/, {
     timeout: 15_000,

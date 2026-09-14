@@ -229,7 +229,7 @@ export default function EmployerCompetencyEdit() {
             errors={errors}
             setLevelError={setLevelError}
             actionPath={`/employer/competency/edit?id=${submission.id}`}
-            submitLabel="Save Changes"
+            submitLabel="Submit Changes"
             readOnly={false}
             cancelHref={`/employer/interns/${intern.id}`}
             meta={{

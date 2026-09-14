@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { createRoutesStub } from 'react-router';
 import '@testing-library/jest-dom/vitest';
 import { CompetencyAssessmentForm } from '~/components/forms/CompetencyAssessmentForm';
@@ -166,5 +166,28 @@ describe('<CompetencyAssessmentForm>', () => {
       />,
     );
     expect(screen.queryByRole('button', { name: 'Save Assessment' })).toBeNull();
+  });
+
+  it('confirm modal says Submit, matching the button (KP feedback: Save/Submit mismatch)', () => {
+    renderWithRouter(
+      <CompetencyAssessmentForm
+        internId="intern-1"
+        phases={[{ id: 'p1', label: 'Mid-program' }]}
+        questions={Q}
+        sectionBoundaries={boundaries}
+        initialAnswers={{}}
+        initialPhase={null}
+        errors={{}}
+        actionPath="/admin/assessments/competency"
+        submitLabel="Submit Assessment"
+        readOnly={false}
+        meta={meta}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /Submit Assessment/ }));
+    expect(screen.getByText('Submit Assessment?')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Submit$/ })).toBeInTheDocument();
+    expect(screen.queryByText(/Save competency assessment/i)).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Save$/ })).toBeNull();
   });
 });
