@@ -1,3 +1,14 @@
+// Live-DB helper tests for app/lib/assessment-submissions.server.ts.
+//
+// Lives under tests/rls/ ON PURPOSE (moved 2026-09-14 from tests/lib/): the
+// beforeEach below DELETEs every submission for one seed intern, and the
+// unit project's setup loads `.env.local` — the shared impact-dev cloud
+// database on a developer machine. From 2026-05-13 to 2026-09-14 this file
+// ran on every `npm test` and erased that intern's real submissions,
+// including the July-2026 tester data behind the "Whitaker" report. Here it
+// only runs under the `rls` project, whose setup file refuses any non-local
+// DATABASE_URL / DATABASE_POOL_URL — i.e. CI on `supabase start`.
+// tests/guards/unit-project-no-raw-sql.test.ts keeps it from moving back.
 import { config } from 'dotenv';
 config({ path: '.env.local' });
 config();
