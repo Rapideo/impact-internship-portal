@@ -8,6 +8,7 @@ import {
   formatCompletionDate,
   greetingFor,
   formatActivityTime,
+  phaseDisplayLabel,
 } from '~/lib/format';
 
 describe('formatDate', () => {
@@ -137,5 +138,25 @@ describe('formatActivityTime', () => {
   it('honours standard time in winter', () => {
     // 17:30 UTC = 12:30 EST (UTC-5)
     expect(formatActivityTime(new Date('2026-01-15T17:30:00Z'))).toBe('01.15.2026 · 12:30');
+  });
+});
+
+describe('phaseDisplayLabel', () => {
+  const phases = [
+    { id: 'c40ad080-ccad-4053-bf74-eb1237d7bd1f', label: 'Phase 1' },
+    { id: '158ef798-46bd-49aa-8345-df880138414f', label: 'Phase 2' },
+  ];
+  it('resolves a phase id to its label', () => {
+    expect(phaseDisplayLabel('158ef798-46bd-49aa-8345-df880138414f', phases)).toBe('Phase 2');
+  });
+  it('shows legacy free-text phases as written', () => {
+    expect(phaseDisplayLabel('Phase 1', phases)).toBe('Phase 1');
+  });
+  it('never prints a raw UUID — a phase id that no longer resolves reads "Phase removed"', () => {
+    expect(phaseDisplayLabel('9b1d3a4e-0000-4000-8000-000000000000', phases)).toBe('Phase removed');
+  });
+  it('is a dash when there is no phase', () => {
+    expect(phaseDisplayLabel(null, phases)).toBe('—');
+    expect(phaseDisplayLabel('', phases)).toBe('—');
   });
 });

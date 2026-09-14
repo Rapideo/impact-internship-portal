@@ -761,6 +761,13 @@
   gap: 4px;
   padding: 14px 24px;
 }
+.participation-factor-check-list__intro {
+  grid-column: 1 / -1;
+  margin: 0 0 6px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+}
 .participation-factor-check-list__desc {
   display: block;
   margin-top: 2px;
