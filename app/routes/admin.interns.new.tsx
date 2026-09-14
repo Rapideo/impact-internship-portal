@@ -18,6 +18,7 @@ import {
   parseFormFields,
   requireUuid,
   requireDate,
+  dateRangeError,
   optionalUuid,
   optionalString,
   errorsByField,
@@ -64,6 +65,8 @@ export async function action({ request }: Route.ActionArgs) {
     endDate: requireDate('End Date'),
     entryNotes: optionalString('Notes'),
   });
+  const rangeError = dateRangeError(values.startDate, values.endDate);
+  if (rangeError) errors.push(rangeError);
   const participationFactorIds = formData
     .getAll('participationFactorIds')
     .map((v) => String(v))

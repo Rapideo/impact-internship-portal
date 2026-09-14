@@ -8,6 +8,7 @@ import {
   requirePositiveInt,
   requireDate,
   requireUuid,
+  dateRangeError,
   type FieldError,
 } from '~/lib/validation';
 
@@ -165,5 +166,24 @@ describe('parseInlineRows', () => {
     fd.set('phases[0].label', 'Week 4');
     const { rows } = parseInlineRows(fd, 'phases');
     expect(rows[0]!.description).toBeNull();
+  });
+});
+
+describe('dateRangeError', () => {
+  it('returns null when end is on or after start', () => {
+    expect(dateRangeError('2026-04-01', '2026-06-30')).toBeNull();
+    expect(dateRangeError('2026-04-01', '2026-04-01')).toBeNull();
+  });
+
+  it('returns an endDate field error when end precedes start', () => {
+    expect(dateRangeError('2026-06-30', '2026-04-01')).toEqual({
+      field: 'endDate',
+      message: 'End Date must be on or after Start Date.',
+    });
+  });
+
+  it('is silent when either side is missing (the per-field validators own that)', () => {
+    expect(dateRangeError('', '2026-04-01')).toBeNull();
+    expect(dateRangeError('2026-04-01', null)).toBeNull();
   });
 });

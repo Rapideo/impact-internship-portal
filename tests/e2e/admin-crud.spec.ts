@@ -93,7 +93,11 @@ test('admin can create employer -> cohort -> intern, then edit the intern', asyn
   const issuedCode = (await callout.locator('.intern-code').textContent())?.trim() ?? '';
   expect(issuedCode).toMatch(/^IMP-\d{2}-\d{4}$/);
 
-  // --- Edit: toggle 90-day employment + save ------------------------------
+  // --- Edit: correct the End Date + toggle 90-day employment + save --------
+  // Punchlist 9.11 #3: the internship dates are editable on the record
+  // (employer/cohort/role stay locked). The panel is pre-filled from the row.
+  await expect(page.getByLabel(/Start Date/i)).toHaveValue('2026-04-01');
+  await page.getByLabel(/End Date/i).fill('2026-07-31');
   // On the edit form (not the new form) o1-check is enabled and bound to
   // name="employed90".
   await page.locator('#o1-check').check();
@@ -101,6 +105,9 @@ test('admin can create employer -> cohort -> intern, then edit the intern', asyn
   // The edit form's Save Changes button submits directly (no confirm modal
   // on edit — only the New form added it in Phase F).
   await page.getByRole('button', { name: /save changes/i }).click();
+  await expect(page.getByText('Intern record saved.')).toBeVisible();
+  // The head's meta strip re-renders from the loader after the save.
+  await expect(page.locator('.meta-strip')).toContainText('07.31.2026');
 
   // --- Return to interns list and confirm the new intern shows there ------
   await page

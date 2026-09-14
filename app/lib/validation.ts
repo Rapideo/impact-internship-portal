@@ -102,6 +102,23 @@ export function optionalDate(label: string): Validator<string | null> {
   };
 }
 
+/**
+ * Cross-field rule for a start/end pair: end must not precede start. Runs
+ * AFTER the per-field validators — a missing or malformed side is their
+ * error to report, so this stays silent unless both are well-formed
+ * YYYY-MM-DD strings (which compare correctly as plain text).
+ */
+export function dateRangeError(
+  startDate: string | null | undefined,
+  endDate: string | null | undefined,
+): FieldError | null {
+  if (!startDate || !endDate || !DATE_RE.test(startDate) || !DATE_RE.test(endDate)) return null;
+  if (endDate < startDate) {
+    return { field: 'endDate', message: 'End Date must be on or after Start Date.' };
+  }
+  return null;
+}
+
 export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function requireUuid(label: string): Validator<string> {
