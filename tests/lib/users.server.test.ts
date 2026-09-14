@@ -32,6 +32,7 @@ import {
   changeAccountRole,
   deactivateAccount,
   reactivateAccount,
+  deleteAccount,
 } from '~/lib/users.server';
 
 beforeEach(() => vi.clearAllMocks());
@@ -126,5 +127,17 @@ describe('deactivate / reactivate', () => {
     expect(mockAdmin.auth.admin.updateUserById).toHaveBeenCalledWith('u1', {
       ban_duration: 'none',
     });
+  });
+});
+
+describe('deleteAccount', () => {
+  it('hard-deletes the auth user (profiles cascade; submissions keep their rows)', async () => {
+    mockAdmin.auth.admin.deleteUser.mockResolvedValue({ data: {}, error: null });
+    await deleteAccount({ userId: 'u1' });
+    expect(mockAdmin.auth.admin.deleteUser).toHaveBeenCalledWith('u1');
+  });
+  it('surfaces a Supabase error', async () => {
+    mockAdmin.auth.admin.deleteUser.mockResolvedValue({ data: null, error: { message: 'nope' } });
+    await expect(deleteAccount({ userId: 'u1' })).rejects.toThrow('nope');
   });
 });

@@ -1,5 +1,6 @@
 // app/routes/admin.settings.users._index.tsx
-import { data, Link, useLoaderData, useNavigate } from 'react-router';
+import { useEffect } from 'react';
+import { data, Link, useLoaderData, useNavigate, useSearchParams } from 'react-router';
 import type { Route } from './+types/admin.settings.users._index';
 import { requireAdmin } from '~/lib/admin-guard.server';
 import { listAccounts } from '~/lib/users.server';
@@ -7,6 +8,7 @@ import { PageHead } from '~/components/PageHead';
 import { SettingsShell } from '~/components/SettingsShell';
 import { EmptyRow } from '~/components/EmptyRow';
 import { UserStatusPill } from '~/components/UserStatusPill';
+import { useToast } from '~/components/toast/ToastProvider';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Users — Settings — IMPACT Admin' }];
 
@@ -18,6 +20,25 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export default function UsersList() {
   const { accounts } = useLoaderData<typeof loader>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const toast = useToast();
+
+  // Toast on arrival from the detail page's delete redirect, then strip the
+  // flag so a refresh doesn't re-toast (same pattern as the Assessments hub).
+  useEffect(() => {
+    if (searchParams.get('deleted') !== '1') return;
+    toast.show({ kind: 'success', label: 'Deleted', message: 'Account deleted.' });
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete('deleted');
+        return next;
+      },
+      { replace: true },
+    );
+    // toast + setSearchParams are stable refs; intentional one-shot on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const navigate = useNavigate();
   return (
     <>

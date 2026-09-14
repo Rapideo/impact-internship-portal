@@ -5,6 +5,7 @@ import {
   validateRoleEmployer,
   mergeAccounts,
   guardLockout,
+  guardDelete,
   type AccountRow,
 } from '../../app/lib/users.server';
 
@@ -175,5 +176,30 @@ describe('guardLockout', () => {
         action: 'deactivate',
       }),
     ).toMatch(/not found/i);
+  });
+});
+
+describe('guardDelete', () => {
+  const base: AccountRow = {
+    userId: 'emp1',
+    email: 'e1@x',
+    role: 'employer',
+    employerId: 'e1',
+    employerName: 'R',
+    status: 'deactivated',
+  };
+  it('blocks deleting your own account', () => {
+    expect(guardDelete({ actingUserId: 'emp1', target: base })).toMatch(/your own/i);
+  });
+  it('requires the account to be deactivated first', () => {
+    expect(guardDelete({ actingUserId: 'admin1', target: { ...base, status: 'active' } })).toBe(
+      'Deactivate the account before deleting it.',
+    );
+    expect(guardDelete({ actingUserId: 'admin1', target: { ...base, status: 'invited' } })).toBe(
+      'Deactivate the account before deleting it.',
+    );
+  });
+  it('allows deleting a deactivated account that is not your own', () => {
+    expect(guardDelete({ actingUserId: 'admin1', target: base })).toBeNull();
   });
 });
