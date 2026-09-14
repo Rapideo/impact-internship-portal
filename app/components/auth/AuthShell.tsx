@@ -1,7 +1,7 @@
 // Two-column auth shell — rewritten in SP7 Phase B against the prototype's
 // login.html: left intro column with micro-label + Archivo Black headline +
 // lede + optional numbered facts list, right column with form card sporting
-// a 3px gold accent rail (`.login__form::before`). Existing prop API is
+// a 3px green accent rail (`.login__form::before`). Existing prop API is
 // preserved verbatim (microLabel / title / sub / children / facts) so the
 // five auth routes that consume this don't change.
 //

@@ -1,13 +1,13 @@
 // KPI card primitive — ported from the prototype's `.kpi-card` block
 // (admin.html). White card with a 3px navy accent rail by default; variant
-// modifiers swap the rail color to gold / cyan / success. The `value` slot
+// modifiers swap the rail color to green / cyan / success. The `value` slot
 // renders in Archivo Black at 52px line-height:1; `label` is a mono
 // micro-label; `delta` is a mono sub-line (cyan by default) and `sub`
 // renders as a prose sub-line beneath the value.
 
 import type { ReactNode } from 'react';
 
-export type KpiCardVariant = 'default' | 'gold' | 'cyan' | 'success';
+export type KpiCardVariant = 'default' | 'green' | 'cyan' | 'success';
 
 export interface KpiCardProps {
   label: ReactNode;

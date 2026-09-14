@@ -189,12 +189,12 @@ h3 {
   color: var(--on-dark-muted);
 }
 .back-link:hover {
-  color: var(--gold);
+  color: var(--green);
 }
 
 /* ---------- Accent underline (used by hero + other display headlines) ---------- */
 .accent-underline {
-  background-image: linear-gradient(var(--gold), var(--gold));
+  background-image: linear-gradient(var(--green), var(--green));
   background-repeat: no-repeat;
   background-size: 100% 12px;
   background-position: 0 92%;
@@ -261,7 +261,7 @@ h3 {
 }
 
 .hero__headline .accent-underline {
-  background-image: linear-gradient(var(--gold), var(--gold));
+  background-image: linear-gradient(var(--green), var(--green));
   background-repeat: no-repeat;
   background-size: 100% 12px;
   background-position: 0 92%;
@@ -292,8 +292,8 @@ h3 {
   left: -14px;
   width: 14px;
   height: 14px;
-  border-top: 3px solid var(--gold);
-  border-left: 3px solid var(--gold);
+  border-top: 3px solid var(--green);
+  border-left: 3px solid var(--green);
 }
 
 /* ---------- Section + Pillars ---------- */
@@ -451,8 +451,8 @@ h3 {
 .modal__card--success {
   border-top-color: var(--success);
 }
-.modal__card--gold {
-  border-top-color: var(--gold);
+.modal__card--green {
+  border-top-color: var(--green);
 }
 
 .modal__card--wide {
@@ -552,8 +552,8 @@ h3 {
 .toast--danger {
   border-left-color: var(--danger);
 }
-.toast--gold {
-  border-left-color: var(--gold);
+.toast--green {
+  border-left-color: var(--green);
 }
 
 .toast__label {
@@ -593,7 +593,7 @@ h3 {
   width: 88px;
   height: 88px;
   border-radius: 50%;
-  background: var(--gold);
+  background: var(--green);
   color: var(--navy-deep);
   display: flex;
   align-items: center;
@@ -607,7 +607,7 @@ h3 {
   content: '';
   position: absolute;
   inset: -6px;
-  border: 1px dashed var(--gold);
+  border: 1px dashed var(--green);
   border-radius: 50%;
   opacity: 0.5;
 }
@@ -650,7 +650,7 @@ h3 {
   left: 32px;
   width: 56px;
   height: 3px;
-  background: var(--gold);
+  background: var(--green);
   transform: translateY(-2px);
 }
 
@@ -777,7 +777,7 @@ h3 {
   display: inline-block;
   padding: 4px 10px;
   border-radius: 999px;
-  background: var(--gold);
+  background: var(--green);
   margin-bottom: 12px;
 }
 

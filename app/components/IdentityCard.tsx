@@ -1,7 +1,7 @@
 // Identity card primitive — rewritten in SP7 Phase B against the
 // prototype's `.identity-card` block (cohort-detail.html,
 // settings-employer.html, competency-new.html). White surface card with
-// a 3px gold accent rail (`.identity-card::before`), micro-label subnote
+// a 3px green accent rail (`.identity-card::before`), micro-label subnote
 // in the head row, and a flexible body slot for grids of fields or
 // content blocks.
 //

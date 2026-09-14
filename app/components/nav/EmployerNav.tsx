@@ -1,6 +1,6 @@
 // Employer shell nav — mirrors AdminNav's prototype-true structure but renders
 // the employer-scoped link set and a cyan-accented identity chip per spec §8
-// decision 7. Dark navy surface, 64px wordmark, 3px gold underline rail on
+// decision 7. Dark navy surface, 64px wordmark, 3px green underline rail on
 // active link. The cyan accent on the chip distinguishes the employer surface
 // from admin at a glance. Layout rules ported into app/styles/admin.css
 // (`.admin-chip--employer` modifier + `.employer-chip__*` extras).

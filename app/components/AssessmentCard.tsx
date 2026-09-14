@@ -1,6 +1,6 @@
 // Assessment-card primitive — ported from the prototype's
 // `.assessment-card` block (assessments.html admin hub). White surface
-// card with an optional gold "stage" pill, a mono meta line
+// card with an optional green "stage" pill, a mono meta line
 // ("COMPETENCY ASSESSMENT"), an Archivo Black title, body prose, and an
 // action slot at the bottom (typically a `.btn` or a `.assessment-card__pill`
 // completed-state badge).
@@ -8,7 +8,7 @@
 import type { ReactNode } from 'react';
 
 export interface AssessmentCardProps {
-  /** Optional gold-pill stage hint (e.g. "PER INTERN · PHASED"). */
+  /** Optional green-pill stage hint (e.g. "PER INTERN · PHASED"). */
   stage?: ReactNode;
   /** Mono meta label above the title (e.g. "COMPETENCY ASSESSMENT"). */
   meta: ReactNode;

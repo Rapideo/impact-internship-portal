@@ -30,7 +30,7 @@ const STATUS_LABEL: Record<EmployerAccountStatus, string> = {
 
 const STATUS_PILL_CLASS: Record<EmployerAccountStatus, string> = {
   none: 'pill pill--neutral',
-  pending: 'pill pill--gold',
+  pending: 'pill pill--green',
   active: 'pill pill--cyan',
 };
 

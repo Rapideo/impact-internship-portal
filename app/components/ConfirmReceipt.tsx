@@ -1,6 +1,6 @@
 // Confirm receipt primitive — ported from the prototype's `.confirm` block
 // (assessment-confirmation.html + 404.html). A centered confirmation
-// surface with a 88px circular badge (gold for success, canvas-alt with a
+// surface with a 88px circular badge (green for success, canvas-alt with a
 // muted X glyph for error), a micro-label eyebrow, an Archivo Black title,
 // body prose, and an optional receipt card (with mono submission id and a
 // nested `<MetaStrip />`) plus an action row.

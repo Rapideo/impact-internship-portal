@@ -96,9 +96,9 @@ function ToastDemoButtons() {
       <button
         type="button"
         className="btn btn--outline btn--sm"
-        onClick={() => toast.show({ kind: 'gold', label: 'NOTICE', message: 'Heads up.' })}
+        onClick={() => toast.show({ kind: 'green', label: 'NOTICE', message: 'Heads up.' })}
       >
-        Fire gold
+        Fire green
       </button>
     </div>
   );
@@ -252,7 +252,7 @@ export default function DevPrimitives() {
               label="Assessments Needed"
               value="03"
               sub="Interns without a competency submission this week."
-              variant="gold"
+              variant="green"
             />
           </div>
         </Section>
@@ -348,7 +348,7 @@ export default function DevPrimitives() {
               progress={{ state: 'ready', label: 'Ready' }}
             >
               <div style={{ padding: 28, color: 'var(--muted)' }}>
-                data-state=&apos;ready&apos; (gold).
+                data-state=&apos;ready&apos; (green).
               </div>
             </RubricPanel>
           </div>
@@ -628,7 +628,7 @@ export default function DevPrimitives() {
             microLabel="ERROR / 404 / PAGE NOT FOUND"
             title={
               <>
-                <span style={{ color: 'var(--gold)' }}>404.</span>
+                <span style={{ color: 'var(--green)' }}>404.</span>
                 <br />
                 Page not found.
               </>
