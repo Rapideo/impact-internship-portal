@@ -118,18 +118,8 @@ const ONE_SHOT_CARDS: ReadonlyArray<{
 // not back to assessments.
 const CHOOSER_NAV_LINKS = [{ to: '/', label: 'Back to home', back: true }] as const;
 
-// Incident 2026-09-12 diagnostics: per-step wall-clock for the chooser's loader and action,
-// so the Netlify function log names the exact step a request stalls on. Info-level, one line
-// per step; remove once the production hang is understood.
-function stepTimer(scope: string) {
-  const t0 = Date.now();
-  return (label: string) => console.info('[chooser:%s] %s +%dms', scope, label, Date.now() - t0);
-}
-
 export async function loader({ request }: Route.LoaderArgs) {
-  const lap = stepTimer('loader');
   const identity = await getCurrentInternIdentity(request);
-  lap('identity');
 
   // Pull dropdown data (used by the un-gated form). Cheap enough to load
   // unconditionally — keeps the action's failure-rerender path simple.
@@ -148,7 +138,6 @@ export async function loader({ request }: Route.LoaderArgs) {
       .orderBy(asc(cohortsTable.name)),
   ]);
 
-  lap('employers+cohorts');
   const employerOptions: EmployerOption[] = employerRows;
   const cohortOptions: CohortOption[] = cohortRows;
 
@@ -198,9 +187,7 @@ interface ActionError {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const lap = stepTimer('action');
   const formData = await request.formData();
-  lap('formData');
   const intent = String(formData.get('intent') ?? '');
 
   if (intent !== 'confirm') {
@@ -219,11 +206,7 @@ export async function action({ request }: Route.ActionArgs) {
   // 1. Throttle pre-check (spec §7). Read-only and first, so a blocked IP learns
   // nothing else and never writes a row.
   const ip = clientIp(request);
-  if (await isThrottled(ip)) {
-    lap('isThrottled → refused');
-    return throttled;
-  }
-  lap('isThrottled');
+  if (await isThrottled(ip)) return throttled;
 
   // 2. Shape. Not a failed attempt — it never reaches the database. The two ids
   // must be UUIDs before they hit a query (malformed → PG 22P02 → 500).
@@ -246,7 +229,6 @@ export async function action({ request }: Route.ActionArgs) {
   // committed peer, so at most THROTTLE_MAX_FAILURES pass per window however
   // large the burst. Released below if the attempt succeeds.
   const attempt = await reserveAttempt(ip);
-  lap('reserveAttempt');
   if (attempt && attempt.n > THROTTLE_MAX_FAILURES) {
     await releaseAttempt(attempt.id); // refused, not a failure — keep the table bounded
     return throttled;
@@ -259,13 +241,11 @@ export async function action({ request }: Route.ActionArgs) {
     .from(cohortsTable)
     .where(and(eq(cohortsTable.id, cohortId), eq(cohortsTable.employerId, employerId)))
     .limit(1);
-  lap('cohortMatch');
 
   // 5. Lookup. ONE message for "unknown ID" and "right ID, wrong cohort" —
   // distinguishing them would tell a guesser when they have found a live ID.
   // On a miss the reserved row stays: it IS the failure record.
   const intern = cohortMatch.length > 0 ? await lookupInternByCode({ internCode, cohortId }) : null;
-  lap('lookup');
   if (!intern || !cohortMatch[0]) {
     return {
       error:
@@ -288,7 +268,6 @@ export async function action({ request }: Route.ActionArgs) {
     'Set-Cookie',
     serializeInternIdentityCookie(signed, { isProd: env.APP_URL.startsWith('https://') }),
   );
-  lap('signed');
   throw redirect('/intern/assessments', { headers });
 }
 
