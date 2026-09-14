@@ -141,7 +141,11 @@ export default function AdminCompetencyDetail() {
 
   useEffect(() => {
     if (searchParams.get('saved') === '1') {
-      toast.show({ kind: 'success', label: 'SAVED', message: 'Competency assessment saved.' });
+      toast.show({
+        kind: 'success',
+        label: 'SUBMITTED',
+        message: 'Competency assessment submitted.',
+      });
       searchParams.delete('saved');
       setSearchParams(searchParams, { replace: true });
     }

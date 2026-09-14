@@ -49,9 +49,17 @@ export default function AdminAssessmentsHub() {
     const submitted = searchParams.get('submitted');
     const deleted = searchParams.get('deleted');
     if (submitted === 'exit-survey') {
-      toast.show({ kind: 'success', label: 'Submitted', message: 'Exit Employer Survey saved.' });
+      toast.show({
+        kind: 'success',
+        label: 'Submitted',
+        message: 'Exit Employer Survey submitted.',
+      });
     } else if (submitted === 'competency') {
-      toast.show({ kind: 'success', label: 'Submitted', message: 'Competency assessment saved.' });
+      toast.show({
+        kind: 'success',
+        label: 'Submitted',
+        message: 'Competency assessment submitted.',
+      });
     } else if (deleted === 'competency') {
       toast.show({ kind: 'success', label: 'Deleted', message: 'Competency assessment deleted.' });
     } else {

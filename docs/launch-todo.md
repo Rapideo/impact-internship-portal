@@ -17,7 +17,7 @@ The client's list, received 2026-09-11; the original file lives outside this pub
 | 2 | Rename "Entry Assessment Barriers" → "Internship Participation Factors" | Done — #138/#139/#140 |
 | 3 | Add Start Date / End Date to the Intern Profile | Done — #156 (2026-09-14). Both dates were captured on create and *displayed* on the record since SP2; the gap was that they were locked with identity. Now editable on the record (End ≥ Start rule; Intern ID not re-issued) |
 | 4 | Replace First Initial / Last Name with a unique ID | Done — #143/#144/#150 (Intern ID `IMP-YY-NNNN`) |
-| 5 | Add the ability to delete users | In review — #157. **Deactivate-first** (Matt, 2026-09-14): Delete appears on the user page only once the account is deactivated; confirm modal; hard-deletes the auth user (profiles cascade, submissions keep their rows with attribution cleared) |
+| 5 | Add the ability to delete users | Done — #157 (2026-09-14). **Deactivate-first** (Matt, 2026-09-14): Delete appears on the user page only once the account is deactivated; confirm modal; hard-deletes the auth user (profiles cascade, submissions keep their rows with attribution cleared) |
 | 6 | Add Start Date / End Date to Cohort | **Already built** (since SP2): the cohort create + edit forms require both, the cohort detail and both employer views show them. Only the cohort table on the admin employer page lacks an End column. **Ask KP where they expected to see the dates** before doing anything |
 | 7 | Replace the logo with the Equus logo | Done — #154 |
 | 8 | Update colours to Equus green (replace the yellow) | Done — #154 |
@@ -31,11 +31,10 @@ next to the client files. Already addressed: Intern ID, participation-factor val
 Already tracked: Whitaker display bug, favicon, survey "barriers" copy. Ordered by value:
 
 **No client decision needed**
-- [ ] **Save/Submit copy mismatch (S, headline).** Admin "New Competency Assessment": the button
-      says *Submit Assessment* but the modal is hard-coded *"Save competency assessment?" / Save*
-      (`CompetencyAssessmentForm.tsx`). That is the exact sequence in the Whitaker report and the
-      root of the "is Save automatic? what's the difference?" questions. Derive the modal from
-      `submitLabel`; settle Submit-vs-Save wording across admin/employer while there.
+- [x] **Save/Submit copy mismatch** — done 2026-09-14 (#158). **"Submit" is the word** (Matt's
+      call): the competency modal now mirrors the button (`"${submitLabel}?"` / Submit), the
+      employer competency + both exit-survey forms say Submit, and the post-submit toasts say
+      "submitted". The modal body still states that admin/employer submissions stay editable.
 - [ ] **Saving/Submitting state + disabled button while in flight (M)** — the reported "lag"
       with no feedback; also closes the double-submit risk.
 - [ ] **"Editable" vs "one-time, locked" badge on assessment list/detail (S/M)** — admin forms

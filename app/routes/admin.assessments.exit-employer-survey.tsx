@@ -177,8 +177,8 @@ export default function AdminExitEmployerSurvey() {
             initialAnswers={existingAnswers}
             errors={errors}
             setLevelError={setLevelError}
-            submitLabel="Save Survey"
-            modalTitle="Save this Exit Employer Survey?"
+            submitLabel="Submit Survey"
+            modalTitle="Submit this Exit Employer Survey?"
             modalBody="The survey will be stored against this intern's record. You can return to edit it from the Evaluations panel."
             readOnly={false}
             cancelHref={`/admin/interns/${internId}`}
