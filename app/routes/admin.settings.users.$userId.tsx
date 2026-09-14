@@ -1,4 +1,5 @@
 // app/routes/admin.settings.users.$userId.tsx
+import { useState } from 'react';
 import { data, Form, Link, redirect, useActionData, useLoaderData } from 'react-router';
 import type { Route } from './+types/admin.settings.users.$userId';
 import { requireAdmin } from '~/lib/admin-guard.server';
@@ -12,7 +13,9 @@ import {
   reactivateAccount,
   resendInvite,
   cancelInvite,
+  deleteAccount,
   getAccount,
+  guardDelete,
   guardLockout,
   listAccounts,
   type AccountRole,
@@ -20,6 +23,7 @@ import {
 import { PageHead } from '~/components/PageHead';
 import { SettingsShell } from '~/components/SettingsShell';
 import { UserStatusPill } from '~/components/UserStatusPill';
+import { ConfirmModal } from '~/components/ConfirmModal';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Manage User — Settings — IMPACT Admin' }];
 
@@ -105,6 +109,14 @@ export async function action({ request, params }: Route.ActionArgs) {
       await cancelInvite({ userId });
       throw redirect('/admin/settings/users?cancelled=1', { headers });
     }
+    if (intent === 'delete') {
+      const target = await getAccount(userId);
+      if (!target) return data({ error: 'Account not found.' }, { headers });
+      const block = guardDelete({ actingUserId, target });
+      if (block) return data({ error: block }, { headers });
+      await deleteAccount({ userId });
+      throw redirect('/admin/settings/users?deleted=1', { headers });
+    }
     return data({ error: `Unknown action: ${intent}` }, { headers });
   } catch (err) {
     if (err instanceof Response) throw err;
@@ -115,6 +127,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 export default function ManageUser() {
   const { account, employers } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (
     <>
@@ -180,12 +193,22 @@ export default function ManageUser() {
         </div>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           {account.status === 'deactivated' ? (
-            <Form method="post">
-              <input type="hidden" name="intent" value="reactivate" />
-              <button className="btn btn--outline" type="submit">
-                Reactivate
+            <>
+              <Form method="post">
+                <input type="hidden" name="intent" value="reactivate" />
+                <button className="btn btn--outline" type="submit">
+                  Reactivate
+                </button>
+              </Form>
+              {/* Deactivate-first: the irreversible step only appears once the
+                  login is already off. Submits the hidden form after confirm. */}
+              <Form method="post" id="delete-account-form">
+                <input type="hidden" name="intent" value="delete" />
+              </Form>
+              <button type="button" className="btn btn--danger" onClick={() => setDeleteOpen(true)}>
+                Delete account
               </button>
-            </Form>
+            </>
           ) : (
             <Form method="post">
               <input type="hidden" name="intent" value="deactivate" />
@@ -213,6 +236,18 @@ export default function ManageUser() {
           <Link to="/admin/settings/users" className="btn btn--outline">
             Back to Users
           </Link>
+          <ConfirmModal
+            open={deleteOpen}
+            onClose={() => setDeleteOpen(false)}
+            onConfirm={() => {
+              (document.getElementById('delete-account-form') as HTMLFormElement).submit();
+            }}
+            label="DELETE ACCOUNT"
+            title="Delete this account?"
+            body={`This permanently removes the login for ${account.email}. Assessments they submitted are kept — only the "submitted by" attribution is cleared. This cannot be undone.`}
+            confirmText="Delete Permanently"
+            variant="danger"
+          />
         </div>
       </SettingsShell>
     </>

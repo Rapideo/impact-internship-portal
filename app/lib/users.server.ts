@@ -111,6 +111,18 @@ export function guardLockout(opts: {
   return null;
 }
 
+/**
+ * Deleting is deactivate-first (client punchlist 9.11 #5, decided 2026-09-14):
+ * a live account must be deactivated before it can be removed, so the
+ * irreversible step is never one click away from an active login. Pure.
+ */
+export function guardDelete(opts: { actingUserId: string; target: AccountRow }): string | null {
+  const { actingUserId, target } = opts;
+  if (target.userId === actingUserId) return "You can't remove your own account.";
+  if (target.status !== 'deactivated') return 'Deactivate the account before deleting it.';
+  return null;
+}
+
 /** Fetch profile rows joined to employer names. */
 export async function queryProfileRows(): Promise<ProfileRow[]> {
   const rows = await db
@@ -234,6 +246,15 @@ export async function reactivateAccount(args: { userId: string }): Promise<void>
 
 /** Cancel a pending invite (or remove an account): delete the auth user; profiles cascades. */
 export async function cancelInvite(args: { userId: string }): Promise<void> {
+  await deleteAccount(args);
+}
+
+/**
+ * Hard-delete the auth user. `profiles` cascades (FK on delete cascade);
+ * `assessment_submissions.submitted_by` is set null, so everything they
+ * submitted stays — only the attribution is cleared. Irreversible.
+ */
+export async function deleteAccount(args: { userId: string }): Promise<void> {
   const admin = getSupabaseAdmin();
   const { error } = await admin.auth.admin.deleteUser(args.userId);
   if (error) throw new Error(error.message);
