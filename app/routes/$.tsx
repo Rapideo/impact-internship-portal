@@ -39,7 +39,7 @@ export function ErrorBoundary() {
         microLabel="ERROR / 404 / PAGE NOT FOUND"
         title={
           <>
-            <span style={{ color: 'var(--gold)' }}>404.</span>
+            <span style={{ color: 'var(--green)' }}>404.</span>
             <br />
             Page not found.
           </>

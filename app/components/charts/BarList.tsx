@@ -10,7 +10,7 @@ export interface BarListRow {
 
 export interface BarListProps {
   rows: BarListRow[];
-  variant?: 'navy' | 'gold';
+  variant?: 'navy' | 'green';
   emptyLabel?: string;
 }
 
@@ -28,7 +28,7 @@ export function BarList({ rows, variant = 'navy', emptyLabel = 'No data yet.' }:
           </span>
           <div className="barlist__track">
             <div
-              className={`barlist__fill${variant === 'gold' ? ' barlist__fill--gold' : ''}`}
+              className={`barlist__fill${variant === 'green' ? ' barlist__fill--green' : ''}`}
               style={{ width: `${Math.round((r.value / max) * 100)}%` }}
             />
           </div>

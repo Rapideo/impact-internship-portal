@@ -39,7 +39,7 @@ export function ReportsDashboard({ data }: { data: ReportsData }) {
               label="Assessed"
               value={`${kpis.assessedPct}%`}
               delta="HAVE A COMPETENCY"
-              variant="gold"
+              variant="green"
             />
           </div>
         </div>
@@ -105,7 +105,7 @@ export function ReportsDashboard({ data }: { data: ReportsData }) {
               </div>
               <BarList
                 rows={participationFactors.map((f) => ({ label: f.label, value: f.count }))}
-                variant="gold"
+                variant="green"
                 emptyLabel="No participation factors recorded."
               />
             </article>

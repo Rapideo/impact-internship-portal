@@ -51,8 +51,8 @@
   margin: 32px 0 0;
   display: grid;
   gap: 10px;
-  border-top: 3px solid var(--gold);
-  border-left: 3px solid var(--gold);
+  border-top: 3px solid var(--green);
+  border-left: 3px solid var(--green);
   padding: 16px 18px;
   background: var(--white);
 }
@@ -265,7 +265,7 @@
   left: 40px;
   width: 56px;
   height: 3px;
-  background: var(--gold);
+  background: var(--green);
   transform: translateY(-2px);
 }
 
@@ -284,7 +284,7 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--navy-deep);
-  background: var(--gold);
+  background: var(--green);
   padding: 5px 9px;
   border-radius: 2px;
   font-weight: 500;

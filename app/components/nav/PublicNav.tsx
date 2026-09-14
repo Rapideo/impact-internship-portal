@@ -8,7 +8,7 @@ import { NavLink } from 'react-router';
 export interface PublicNavLink {
   to: string;
   label: string;
-  /** Render as the gold pill CTA (e.g. "Admin Sign In") instead of a plain link. */
+  /** Render as the green pill CTA (e.g. "Admin Sign In") instead of a plain link. */
   cta?: boolean;
   /** Render as the muted back-link variant (e.g. "← Back to home"). */
   back?: boolean;
@@ -33,8 +33,8 @@ export function PublicNav({ links = DEFAULT_LINKS, homeHref = '/' }: PublicNavPr
   return (
     <header className="nav">
       <div className="nav__inner">
-        <NavLink to={homeHref} className="wordmark" aria-label="IMPACT — Expand Your Opportunities">
-          <img src="/logo.png" alt="IMPACT — Expand Your Opportunities" className="wordmark__img" />
+        <NavLink to={homeHref} className="wordmark" aria-label="Equus Workforce Solutions">
+          <img src="/logo-reverse.svg" alt="Equus Workforce Solutions" className="wordmark__img" />
         </NavLink>
         <nav className="nav__links">
           {links.map((l) => {

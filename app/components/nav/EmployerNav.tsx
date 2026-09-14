@@ -1,6 +1,6 @@
 // Employer shell nav — mirrors AdminNav's prototype-true structure but renders
 // the employer-scoped link set and a cyan-accented identity chip per spec §8
-// decision 7. Dark navy surface, 64px wordmark, 3px gold underline rail on
+// decision 7. Dark navy surface, 64px wordmark, 3px green underline rail on
 // active link. The cyan accent on the chip distinguishes the employer surface
 // from admin at a glance. Layout rules ported into app/styles/admin.css
 // (`.admin-chip--employer` modifier + `.employer-chip__*` extras).
@@ -26,12 +26,8 @@ export function EmployerNav({ employerName, userEmail }: EmployerNavProps) {
   return (
     <header className="nav">
       <div className="nav__inner">
-        <NavLink
-          to="/employer"
-          className="wordmark"
-          aria-label="IMPACT — Expand Your Opportunities"
-        >
-          <img src="/logo.png" alt="IMPACT — Expand Your Opportunities" className="wordmark__img" />
+        <NavLink to="/employer" className="wordmark" aria-label="Equus Workforce Solutions">
+          <img src="/logo-reverse.svg" alt="Equus Workforce Solutions" className="wordmark__img" />
         </NavLink>
         <nav className="nav__links" aria-label="Employer navigation">
           {LINKS.map((l) => (

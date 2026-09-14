@@ -1,7 +1,7 @@
 // Hero primitive — ported from the prototype's `.hero` block (index.html).
 // Canvas background section with a mono micro-label row (with the
 // `::before` baseline rule), an Archivo Black headline that uses the
-// `.accent-underline` gold-bar treatment on a final word, a subhead
+// `.accent-underline` green-bar treatment on a final word, a subhead
 // paragraph, and a CTA row. The headline rendering accepts a ReactNode
 // so callers can pass the multi-line + accent-underline structure
 // directly (e.g. `<>EXPAND YOUR<br/><span className="accent-underline">
@@ -18,7 +18,7 @@ export interface HeroSectionProps {
   subhead: ReactNode;
   /** CTA button row (typically a `.btn.btn--primary` link or two). */
   ctas: ReactNode;
-  /** Render the gold-corner glyph in the headline corner. */
+  /** Render the green-corner glyph in the headline corner. */
   showCorner?: boolean;
 }
 

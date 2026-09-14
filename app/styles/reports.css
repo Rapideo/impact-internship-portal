@@ -40,8 +40,8 @@
   border-radius: 7px;
   background: linear-gradient(90deg, var(--navy), var(--navy-mid));
 }
-.barlist__fill--gold {
-  background: linear-gradient(90deg, #e9b800, var(--gold));
+.barlist__fill--green {
+  background: linear-gradient(90deg, var(--green-deep), var(--green));
 }
 .barlist__val {
   font-family: var(--font-mono);

@@ -96,10 +96,26 @@ for how the pipeline works and `CLAUDE.md` for current infra state.
       (`hoosierbakery@impact.app`, `hopebridge@impact.app`) — restored from backup 2026-09-13,
       but the ordering bug remains. Either run the restore again at the end of the demo seed, or
       have the demo seed re-apply the skipped rows.
-- [ ] **Remove the `[chooser:*]` step-timing logs** (#147) once a day of prod traffic confirms the
-      2026-09-12 stall is gone. (The staging Sentry vars from the incident reproduction were
-      unset 2026-09-13.)
+- [x] **Remove the `[chooser:*]` step-timing logs** (#147) — done 2026-09-14 (#153). (The staging
+      Sentry vars from the incident reproduction were unset 2026-09-13.)
 - [ ] **Intern ID re-issue path** (spec D6 follow-up) — only if the program ever asks.
+
+## Follow-ups from the Equus rebrand (2026-09-14, punchlist 9.11 items 7–8)
+
+- [ ] **Regenerate the Quick Start & Testing Guide** — `docs/quick-start-guide/quick-start-guide.html`
+      has its own `--gold` token copy and all 18 screenshots show the IMPACT logo + gold accent.
+      Same job as #151 (`capture.ts` from staging, then `render.ts`).
+- [ ] **Ask Equus for their official reversed (white) logo.** `public/logo-reverse.svg` is *our*
+      derivation (wordmark + tagline recoloured white, green "E" kept); if they have a sanctioned
+      reversed mark, drop it in under the same filename — `BrandMark.test.tsx` only pins src/alt.
+- [ ] **Favicon** — there has never been one. The green "E" from the Equus mark would do; the
+      SVG's paths are grouped, so it needs a small extraction, not a crop.
+- [ ] **`--success` vs `--green`** — two greens now sit side by side (pass pills / 90-day rail vs
+      the accent). Deliberately left distinct; revisit if the program team finds them confusing.
+- [ ] **Email templates** (`app/emails/`) still say IMPACT in the header wordmark and use navy
+      only — no gold to swap, but the brand name/logo should follow once the templates are
+      actually installed in Supabase (see "Branded email templates" above).
+
 - [ ] **Survey copy still says "barriers"** (`pf-barriers`, `pf-barriers-detail`, `ees-barriers`)
       — client note drafted in `KP Feedback July 2026/`; awaiting their wording.
 

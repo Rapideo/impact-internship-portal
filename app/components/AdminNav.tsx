@@ -1,8 +1,8 @@
 // Admin shell nav — rewritten in SP7 Phase B to match the prototype's
 // admin.html structure verbatim: dark navy surface, 64px wordmark, 5 nav
-// links (Home / Interns / Assessments / Reports / Settings), 3px gold
+// links (Home / Interns / Assessments / Reports / Settings), 3px green
 // underline rail under the active link, admin-chip on the right with
-// square gold avatar, divider, and logout form. Tokens come from
+// square green avatar, divider, and logout form. Tokens come from
 // app/styles/tokens.css; component rules ported into app/styles/admin.css
 // (sp7-b block, appended).
 
@@ -24,8 +24,8 @@ export function AdminNav({ active, userEmail }: AdminNavProps) {
   return (
     <header className="nav">
       <div className="nav__inner">
-        <NavLink to="/admin" className="wordmark" aria-label="IMPACT — Expand Your Opportunities">
-          <img src="/logo.png" alt="IMPACT — Expand Your Opportunities" className="wordmark__img" />
+        <NavLink to="/admin" className="wordmark" aria-label="Equus Workforce Solutions">
+          <img src="/logo-reverse.svg" alt="Equus Workforce Solutions" className="wordmark__img" />
         </NavLink>
         <nav className="nav__links">
           <NavLink to="/admin" end className={() => isActive(active, 'home')}>

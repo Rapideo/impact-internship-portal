@@ -8,7 +8,7 @@
    - .qs-type-picker                   inline "Add Question" type chooser
    - .qs-options-list / .qs-options-row option rows shared with OptionsListEditor
 
-   Tokens (--rule, --ink, --navy, --muted, --canvas-alt, --gold, --gold-soft,
+   Tokens (--rule, --ink, --navy, --muted, --canvas-alt, --green, --green-soft,
    --radius-md, --radius-sm) come from app/styles/tokens.css.
 */
 
@@ -101,7 +101,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--navy);
-  background: var(--gold-soft);
+  background: var(--green-soft);
   padding: 3px 8px;
   border-radius: 999px;
   white-space: nowrap;
@@ -176,7 +176,7 @@
 
 .qs-type-picker__btn:hover {
   border-color: var(--navy);
-  background: var(--gold-soft);
+  background: var(--green-soft);
 }
 
 /* Options list (shared with OptionsListEditor) */

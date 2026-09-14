@@ -9,14 +9,14 @@ export interface RadialGaugeProps {
   value: number;
   total: number;
   label: string;
-  tone?: 'success' | 'navy' | 'cyan' | 'gold';
+  tone?: 'success' | 'navy' | 'cyan' | 'green';
 }
 
 const TONE: Record<NonNullable<RadialGaugeProps['tone']>, string> = {
   success: 'var(--success)',
   navy: 'var(--navy)',
   cyan: 'var(--cyan)',
-  gold: 'var(--gold)',
+  green: 'var(--green)',
 };
 
 export function RadialGauge({ value, total, label, tone = 'navy' }: RadialGaugeProps) {
