@@ -96,9 +96,8 @@ for how the pipeline works and `CLAUDE.md` for current infra state.
       (`hoosierbakery@impact.app`, `hopebridge@impact.app`) — restored from backup 2026-09-13,
       but the ordering bug remains. Either run the restore again at the end of the demo seed, or
       have the demo seed re-apply the skipped rows.
-- [ ] **Remove the `[chooser:*]` step-timing logs** (#147) once a day of prod traffic confirms the
-      2026-09-12 stall is gone. (The staging Sentry vars from the incident reproduction were
-      unset 2026-09-13.)
+- [x] **Remove the `[chooser:*]` step-timing logs** (#147) — done 2026-09-14 (#153). (The staging
+      Sentry vars from the incident reproduction were unset 2026-09-13.)
 - [ ] **Intern ID re-issue path** (spec D6 follow-up) — only if the program ever asks.
 
 ## Follow-ups from the Equus rebrand (2026-09-14, punchlist 9.11 items 7–8)
