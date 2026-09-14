@@ -15,13 +15,56 @@ The client's list, received 2026-09-11; the original file lives outside this pub
 |---|---|---|
 | 1 | Make the "Good Morning" greeting dynamic | Done (time-of-day greeting on admin home) |
 | 2 | Rename "Entry Assessment Barriers" → "Internship Participation Factors" | Done — #138/#139/#140 |
-| 3 | Add Start Date / End Date to the Intern Profile | **Open** — the columns exist on `interns`; check what the record view shows |
+| 3 | Add Start Date / End Date to the Intern Profile | In review — #156. Both dates were captured on create and *displayed* on the record since SP2; the gap was that they were locked with identity. Now editable on the record (End ≥ Start rule; Intern ID not re-issued) |
 | 4 | Replace First Initial / Last Name with a unique ID | Done — #143/#144/#150 (Intern ID `IMP-YY-NNNN`) |
 | 5 | Add the ability to delete users | **Open** — Settings → Users has reversible deactivate (Supabase ban) only |
-| 6 | Add Start Date / End Date to Cohort | **Open** — needs a schema migration (`cohorts` has no dates) |
+| 6 | Add Start Date / End Date to Cohort | **Already built** (since SP2): the cohort create + edit forms require both, the cohort detail and both employer views show them. Only the cohort table on the admin employer page lacks an End column. **Ask KP where they expected to see the dates** before doing anything |
 | 7 | Replace the logo with the Equus logo | Done — #154 |
 | 8 | Update colours to Equus green (replace the yellow) | Done — #154 |
-| — | "Review KP feedback for add items" | **Open** — July 2026 tester feedback (Whitaker display bug, Save/Submit, outcome statuses) |
+| — | "Review KP feedback for add items" | Parsed 2026-09-14 into 17 candidates (Save/Submit modal copy mismatch is the cheap headline; outcome-status model and employer-transfer history need KP definitions first) — see the "KP July 2026 feedback" section below |
+
+## KP July 2026 feedback — to-do candidates (triaged 2026-09-14)
+
+Seventeen candidates parsed from the July tester feedback (meeting notes, two testers' logs);
+the full inventory with source citations is `TRIAGE_KP_Feedback_ToDo_Candidates_2026-09-14.md`
+next to the client files. Already addressed: Intern ID, participation-factor values, logo.
+Already tracked: Whitaker display bug, favicon, survey "barriers" copy. Ordered by value:
+
+**No client decision needed**
+- [ ] **Save/Submit copy mismatch (S, headline).** Admin "New Competency Assessment": the button
+      says *Submit Assessment* but the modal is hard-coded *"Save competency assessment?" / Save*
+      (`CompetencyAssessmentForm.tsx`). That is the exact sequence in the Whitaker report and the
+      root of the "is Save automatic? what's the difference?" questions. Derive the modal from
+      `submitLabel`; settle Submit-vs-Save wording across admin/employer while there.
+- [ ] **Saving/Submitting state + disabled button while in flight (M)** — the reported "lag"
+      with no feedback; also closes the double-submit risk.
+- [ ] **"Editable" vs "one-time, locked" badge on assessment list/detail (S/M)** — admin forms
+      stay editable, intern self-assessments never are; nothing shows which after the fact.
+- [ ] **Unsaved-changes warning on long forms (S/M).**
+- [ ] **One-line instruction above the Participation Factors checklist (S, copy)** — "checked =
+      applied to this intern's participation". The 09-11 rename fixed the values, not this.
+- [ ] **"Not yet tracked" pill tooltip (S)** — it just means no 90/180-day outcome recorded.
+- [ ] **Assessment Phases copy (S)** — say phase selection is manual, per submission, scoped
+      to the cohort's phases; not date/milestone-driven.
+- [ ] **Required-field marker before submit + clearer question-vs-answer styling (S/M)** —
+      the prompt is already non-editable; the confusion is visual.
+- [ ] **In-app Help (S/M as a nav link to the rendered Quick Start guide; L as a real section)**
+      + a "how it connects" explainer (Program → Employer → Cohort → Intern → Assessment →
+      Phase → Factor) and the answer to "does editing Settings change submitted assessments?"
+      (no — answers are a jsonb snapshot at submission).
+- [ ] **Page 8 of the testing guide is unclear** — bundle with the guide regen; need someone to
+      say what page 8 is.
+
+**Needs a KP decision first**
+- [ ] **Outcome / intern-status model (L)** — On Hold, Not Yet Placed, Waiting for
+      Requalification, active/paused/ineligible/exited; today outcomes are two booleans. KP has
+      not yet defined what 90D means or which states they want.
+- [ ] **Employer / role transfer with history (L)** — `interns.cohort_id` is a single FK, no
+      history, and submissions carry no employer/cohort/role snapshot. Needs their rules.
+- [ ] **Participation-factor change history** — none today (re-editing overwrites). Ask if it
+      matters.
+- [ ] **Autosave / drafts for long forms (L)** — never for the one-shot intern forms.
+- [ ] **Employer-to-employer connection / monthly check-in** — in-platform or a program process?
 
 ## Before real team / employer use
 
