@@ -15,7 +15,7 @@ The client's list, received 2026-09-11; the original file lives outside this pub
 |---|---|---|
 | 1 | Make the "Good Morning" greeting dynamic | Done (time-of-day greeting on admin home) |
 | 2 | Rename "Entry Assessment Barriers" → "Internship Participation Factors" | Done — #138/#139/#140 |
-| 3 | Add Start Date / End Date to the Intern Profile | In review — #156. Both dates were captured on create and *displayed* on the record since SP2; the gap was that they were locked with identity. Now editable on the record (End ≥ Start rule; Intern ID not re-issued) |
+| 3 | Add Start Date / End Date to the Intern Profile | Done — #156 (2026-09-14). Both dates were captured on create and *displayed* on the record since SP2; the gap was that they were locked with identity. Now editable on the record (End ≥ Start rule; Intern ID not re-issued) |
 | 4 | Replace First Initial / Last Name with a unique ID | Done — #143/#144/#150 (Intern ID `IMP-YY-NNNN`) |
 | 5 | Add the ability to delete users | **Open** — Settings → Users has reversible deactivate (Supabase ban) only |
 | 6 | Add Start Date / End Date to Cohort | **Already built** (since SP2): the cohort create + edit forms require both, the cohort detail and both employer views show them. Only the cohort table on the admin employer page lacks an End column. **Ask KP where they expected to see the dates** before doing anything |
