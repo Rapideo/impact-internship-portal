@@ -24,8 +24,8 @@ export function AdminNav({ active, userEmail }: AdminNavProps) {
   return (
     <header className="nav">
       <div className="nav__inner">
-        <NavLink to="/admin" className="wordmark" aria-label="IMPACT — Expand Your Opportunities">
-          <img src="/logo.png" alt="IMPACT — Expand Your Opportunities" className="wordmark__img" />
+        <NavLink to="/admin" className="wordmark" aria-label="Equus Workforce Solutions">
+          <img src="/logo-reverse.svg" alt="Equus Workforce Solutions" className="wordmark__img" />
         </NavLink>
         <nav className="nav__links">
           <NavLink to="/admin" end className={() => isActive(active, 'home')}>

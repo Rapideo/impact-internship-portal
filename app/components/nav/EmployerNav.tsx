@@ -26,12 +26,8 @@ export function EmployerNav({ employerName, userEmail }: EmployerNavProps) {
   return (
     <header className="nav">
       <div className="nav__inner">
-        <NavLink
-          to="/employer"
-          className="wordmark"
-          aria-label="IMPACT — Expand Your Opportunities"
-        >
-          <img src="/logo.png" alt="IMPACT — Expand Your Opportunities" className="wordmark__img" />
+        <NavLink to="/employer" className="wordmark" aria-label="Equus Workforce Solutions">
+          <img src="/logo-reverse.svg" alt="Equus Workforce Solutions" className="wordmark__img" />
         </NavLink>
         <nav className="nav__links" aria-label="Employer navigation">
           {LINKS.map((l) => (

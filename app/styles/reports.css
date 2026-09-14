@@ -41,7 +41,7 @@
   background: linear-gradient(90deg, var(--navy), var(--navy-mid));
 }
 .barlist__fill--gold {
-  background: linear-gradient(90deg, #e9b800, var(--gold));
+  background: linear-gradient(90deg, #5c9424, var(--gold));
 }
 .barlist__val {
   font-family: var(--font-mono);

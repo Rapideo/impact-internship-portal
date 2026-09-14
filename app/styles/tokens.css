@@ -12,13 +12,14 @@
   --ink: #0b1020;
   --muted: #51596b;
 
-  /* Brand — sampled directly from the IMPACT logo */
+  /* Brand — navy/cyan sampled from the IMPACT logo; the accent green is
+     Equus Workforce Solutions' brand green (from the Equus logo, 2026-09). */
   --navy: #153a98; /* wordmark royal blue */
   --navy-deep: #051028; /* logo dark background */
   --navy-mid: #2947a8; /* state-shape secondary blue */
   --cyan: #00a6f6; /* state-shape bright stripe */
-  --gold: #ffd71f; /* state-shape gold stripe */
-  --gold-soft: #ffeda3;
+  --gold: #73af2f; /* Equus green — accent (was the IMPACT gold stripe) */
+  --gold-soft: #e3efd5; /* light tint for pill/callout fills */
 
   /* Dark-surface set for nav + footer (logo-native context) */
   --surface-dark: #051028;

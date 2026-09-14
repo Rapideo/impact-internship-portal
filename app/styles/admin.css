@@ -39,7 +39,7 @@
   color: var(--gold);
 }
 .wordmark__img {
-  height: 32px;
+  height: 44px;
   display: block;
 }
 
@@ -1133,7 +1133,7 @@
 }
 
 .wordmark__img {
-  height: 100%;
+  height: 44px; /* Equus mark is wide (4.4:1); 44px in the 64px band */
   width: auto;
   display: block;
 }
@@ -1209,7 +1209,7 @@
   background: #fff;
   border-color: #fff;
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px -8px rgba(255, 215, 31, 0.55);
+  box-shadow: 0 6px 20px -8px rgba(115, 175, 47, 0.55);
 }
 
 /* ---------- Admin chip ---------- */

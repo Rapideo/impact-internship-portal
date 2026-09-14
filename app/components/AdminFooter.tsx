@@ -10,8 +10,8 @@ export function AdminFooter() {
   return (
     <footer className="footer">
       <div className="container footer__row">
-        <NavLink to="/admin" className="wordmark" aria-label="IMPACT — Expand Your Opportunities">
-          <img src="/logo.png" alt="IMPACT — Expand Your Opportunities" className="wordmark__img" />
+        <NavLink to="/admin" className="wordmark" aria-label="Equus Workforce Solutions">
+          <img src="/logo-reverse.svg" alt="Equus Workforce Solutions" className="wordmark__img" />
         </NavLink>
         <div className="footer__links">
           <NavLink to="/admin/assessments">Assessments</NavLink>

@@ -81,7 +81,7 @@ h3 {
 }
 
 .wordmark__img {
-  height: 64px;
+  height: 44px; /* Equus mark is wide (4.4:1); 44px in the 64px band */
   width: auto;
 }
 
@@ -599,7 +599,7 @@ h3 {
   align-items: center;
   justify-content: center;
   margin-bottom: 32px;
-  box-shadow: 0 24px 48px -16px rgba(255, 215, 31, 0.55);
+  box-shadow: 0 24px 48px -16px rgba(115, 175, 47, 0.55);
   position: relative;
 }
 

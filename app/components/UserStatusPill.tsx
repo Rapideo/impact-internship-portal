@@ -6,7 +6,7 @@ import type { AccountStatus } from '~/lib/users.server';
 
 const STYLE: Record<AccountStatus, { label: string; bg: string; color: string }> = {
   active: { label: 'Active', bg: 'rgba(27,143,74,.14)', color: 'var(--success)' },
-  invited: { label: 'Invited', bg: 'rgba(255,215,31,.22)', color: '#8a6a00' },
+  invited: { label: 'Invited', bg: 'rgba(115,175,47,.22)', color: '#3f6b14' },
   deactivated: { label: 'Deactivated', bg: 'var(--canvas-alt)', color: 'var(--muted)' },
 };
 
