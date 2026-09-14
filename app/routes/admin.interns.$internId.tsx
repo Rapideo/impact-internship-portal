@@ -30,7 +30,13 @@ import {
   assessmentSubmissions,
 } from '../../db/schema';
 import { and, eq, isNull, desc } from 'drizzle-orm';
-import { parseFormFields, optionalString, errorsByField } from '~/lib/validation';
+import {
+  parseFormFields,
+  optionalString,
+  requireDate,
+  dateRangeError,
+  errorsByField,
+} from '~/lib/validation';
 import { PageHead } from '~/components/PageHead';
 import { MetaStrip } from '~/components/MetaStrip';
 import { RubricPanel } from '~/components/RubricPanel';
@@ -101,10 +107,14 @@ export async function action({ request, params }: Route.ActionArgs) {
   }
 
   const { values, errors } = parseFormFields(formData, {
+    startDate: requireDate('Start Date'),
+    endDate: requireDate('End Date'),
     entryNotes: optionalString('Notes'),
     employed90Notes: optionalString('90-Day Notes'),
     employed180Notes: optionalString('180-Day Notes'),
   });
+  const rangeError = dateRangeError(values.startDate, values.endDate);
+  if (rangeError) errors.push(rangeError);
   const participationFactorIds = formData
     .getAll('participationFactorIds')
     .map((v) => String(v))
@@ -117,6 +127,14 @@ export async function action({ request, params }: Route.ActionArgs) {
   }
 
   await db.transaction(async (tx) => {
+    // Internship dates (punchlist 9.11 #3). Employer/cohort/role stay locked;
+    // the Intern ID is NOT re-issued when the start year changes — the ID is
+    // immutable by contract (spec 2026-09-11 §4), the YY is just its birth year.
+    await tx
+      .update(interns)
+      .set({ startDate: values.startDate, endDate: values.endDate, updatedAt: new Date() })
+      .where(eq(interns.id, internId));
+
     // Upsert entry assessment notes.
     await tx
       .insert(internEntryAssessment)
@@ -262,7 +280,7 @@ export default function EditIntern() {
           </>
         }
         title="EDIT INTERN."
-        sub="Identity and internship assignment are locked. Entry assessment and employment outcomes stay editable."
+        sub="Identity and internship assignment are locked. Dates, entry assessment and employment outcomes stay editable."
       >
         <MetaStrip
           items={[
@@ -284,6 +302,37 @@ export default function EditIntern() {
         <div className="container">
           <Form method="post">
             <div className="rubric">
+              <RubricPanel
+                num="02"
+                title="Internship Details"
+                meta="Employer, cohort and role are locked. Correct the internship dates here."
+              >
+                <div className="id-grid" style={{ padding: '22px 28px' }}>
+                  <div className={`field${errs.startDate ? ' field--error' : ''}`}>
+                    <label htmlFor="startDate">Start Date</label>
+                    <input
+                      className="input"
+                      id="startDate"
+                      name="startDate"
+                      type="date"
+                      defaultValue={intern.startDate ?? ''}
+                    />
+                    {errs.startDate ? <span className="field__error">{errs.startDate}</span> : null}
+                  </div>
+                  <div className={`field${errs.endDate ? ' field--error' : ''}`}>
+                    <label htmlFor="endDate">End Date</label>
+                    <input
+                      className="input"
+                      id="endDate"
+                      name="endDate"
+                      type="date"
+                      defaultValue={intern.endDate ?? ''}
+                    />
+                    {errs.endDate ? <span className="field__error">{errs.endDate}</span> : null}
+                  </div>
+                </div>
+              </RubricPanel>
+
               <RubricPanel
                 num="03"
                 title="Entry Assessment"
