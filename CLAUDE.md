@@ -51,21 +51,23 @@ The selected design lives at `Prototypes/PROTOTYPE/` — static HTML/CSS with a 
 
 ## Brand & style system
 
-Palette **sampled directly from pixels in the IMPACT logo**. All tokens are CSS custom properties in `:root`.
+**Equus branding since 2026-09-14** (client punchlist 9.11 items 7–8): the brand mark is the **Equus Workforce Solutions** logo and the accent is **Equus green**; the navy/cyan/canvas set from the IMPACT era stays. All tokens are CSS custom properties in `:root` (`app/styles/tokens.css`).
 
 | Token | Hex | Role |
 |---|---|---|
-| `--navy` | `#153A98` | Primary brand / "IMPACT" wordmark |
+| `--navy` | `#153A98` | Primary brand / buttons / headings |
 | `--navy-deep` | `#051028` | Dark-surface backgrounds (nav, footer) |
 | `--cyan` | `#00A6F6` | Secondary / info / focus accent |
-| `--gold` | `#FFD71F` | Highlight / CTA / active-state |
+| `--green` | `#73AF2F` | Accent — active-state rail, CTA pill, KPI/pill/toast modifiers (sampled from the Equus logo; **replaced `--gold #FFD71F`**) |
+| `--green-soft` / `--green-deep` | `#E3EFD5` / `#5C9424` | Light fill tint / dark gradient stop |
+| `--success` | `#1B8F4A` | Pass/positive semantics — a *different* green, kept distinct on purpose |
 | `--canvas` | `#EFF1F5` | Body canvas (cool off-white) |
 
-Navbar/footer use the dark surface so the logo's glow bleed blends. **Don't place the logo PNG on the light canvas** — the baked-in glow reads as a dirty halo. For a brand mark on a light surface, use a typographic wordmark (Archivo Black, `--navy`).
+**Logo files** (`public/`): `logo.svg` is the Equus mark as delivered — a *light-surface* logo (near-black wordmark, Equus-blue `#004081` tagline) that vanishes on the dark nav. `logo-reverse.svg` is our derived reversed variant (wordmark + tagline white, green "E" kept) and is what all six nav/footer components render, at 44px inside the 64px `.wordmark` band (the mark is ~4.4:1). `tests/components/BrandMark.test.tsx` pins the `src`/`alt` across all six. If Equus supplies an official reversed logo, drop it in as `logo-reverse.svg`. There is no `--gold` token or `--gold` class modifier any more — `.kpi-card--green`, `.pill--green`, `.toast--green`, `.modal__card--green`, `.barlist__fill--green`, and the `'green'` variant/tone/kind unions.
 
 Fonts (Google Fonts): Display **Archivo Black** · Body **IBM Plex Sans** · Micro/tabular **IBM Plex Mono**.
 
-`Prototypes/PROTOTYPE/logo.png` is tight-cropped from `References/IMPACT LOGO.png`. The source has soft glow baked in; prefer a vector/SVG if one is provided later.
+The frozen prototype (`Prototypes/PROTOTYPE/`) and its `logo.png` keep the IMPACT gold branding — it is a reference-only seed, not restyled. The Quick Start guide (`docs/quick-start-guide/`) carries its own token copy and screenshots and needs a regeneration pass to pick up the rebrand.
 
 ## Product rules to know (from PRD)
 
@@ -222,7 +224,7 @@ Read through service-role `db` and return employer-scoped result sets. They do N
 
 ### Branded auth pages — AuthShell pattern
 
-The five auth routes (`_public.login.tsx`, `_public.auth.forgot.tsx`, `_public.auth.reset.tsx`, `_public.auth.accept.tsx`, `_public.auth.callback.tsx`) wrap content in `<AuthShell>` (`app/components/auth/AuthShell.tsx`) with navy/cyan/gold tokens in `app/styles/auth.css`. The callback route's `?next=` is open-redirect-protected with regex `/^\/(?!\/)/.test(rawNext)` — only same-origin paths that don't start with `//`. **Don't loosen without re-reviewing.**
+The five auth routes (`_public.login.tsx`, `_public.auth.forgot.tsx`, `_public.auth.reset.tsx`, `_public.auth.accept.tsx`, `_public.auth.callback.tsx`) wrap content in `<AuthShell>` (`app/components/auth/AuthShell.tsx`) with navy/cyan/green tokens in `app/styles/auth.css`. The callback route's `?next=` is open-redirect-protected with regex `/^\/(?!\/)/.test(rawNext)` — only same-origin paths that don't start with `//`. **Don't loosen without re-reviewing.**
 
 `/auth/reset` calls SP1's `signOut()` after a successful reset (UX defense — invalidates the recovery session so the user logs in fresh with the new password). Keep that behavior.
 
