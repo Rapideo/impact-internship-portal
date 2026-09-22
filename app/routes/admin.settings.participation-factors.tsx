@@ -102,7 +102,7 @@ export default function ParticipationFactorsSettings() {
       <PageHead
         breadcrumb="ADMIN / SETTINGS / PARTICIPATION FACTORS"
         title="PARTICIPATION FACTORS."
-        sub="Entry Assessment participation factor checklist used on every intern record."
+        sub="The Entry Assessment checklist on every intern record. Checking a factor there means it applied to that intern's participation; unchecked means it did not."
       />
       <SettingsShell active="participation-factors">
         <Form method="post">

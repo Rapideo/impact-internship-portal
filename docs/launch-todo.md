@@ -40,11 +40,14 @@ Already tracked: Whitaker display bug, favicon, survey "barriers" copy. Ordered 
 - [ ] **"Editable" vs "one-time, locked" badge on assessment list/detail (S/M)** — admin forms
       stay editable, intern self-assessments never are; nothing shows which after the fact.
 - [ ] **Unsaved-changes warning on long forms (S/M).**
-- [ ] **One-line instruction above the Participation Factors checklist (S, copy)** — "checked =
-      applied to this intern's participation". The 09-11 rename fixed the values, not this.
-- [ ] **"Not yet tracked" pill tooltip (S)** — it just means no 90/180-day outcome recorded.
-- [ ] **Assessment Phases copy (S)** — say phase selection is manual, per submission, scoped
-      to the cohort's phases; not date/milestone-driven.
+- [x] **One-line instruction above the Participation Factors checklist** — done 2026-09-14 (#160):
+      "Check each factor that applied… Leave a factor unchecked if it did not apply." Settings →
+      Participation Factors subtitle says the same.
+- [x] **"Not yet tracked" pill tooltip** — done 2026-09-14 (#160): hover title on both the admin
+      and employer interns lists (non-visual).
+- [x] **Assessment Phases copy** — done 2026-09-14 (#160): Settings → Assessment Phases subtitle
+      says the phase is chosen by hand per competency assessment; nothing moves interns
+      automatically.
 - [ ] **Required-field marker before submit + clearer question-vs-answer styling (S/M)** —
       the prompt is already non-editable; the confusion is visual.
 - [ ] **In-app Help (S/M as a nav link to the rendered Quick Start guide; L as a real section)**
@@ -150,9 +153,9 @@ Already tracked: Whitaker display bug, favicon, survey "barriers" copy. Ordered 
       guard also checks `DATABASE_POOL_URL`/`DATABASE_SERVICE_URL`, and a unit-project tripwire
       (`tests/guards/`) fails if any unit test opens a raw SQL client or carries a destructive
       SQL literal. Whitaker's July rows were re-inserted from the 09-13 recovery JSON (kept with
-      the client files). Left over: the `phase` column still mixes free text and UUIDs, and the
-      detail view prints a raw UUID when a phase id no longer resolves (dev reseeds regenerate
-      `phases`) — both small hardening items.
+      the client files). Left over: the `phase` column still mixes free text and UUIDs (a migration; low value). The
+      raw-UUID display is fixed in #160 (`phaseDisplayLabel`: label → legacy text as-is →
+      "Phase removed" for a dangling id → "—").
 - [ ] **`db:seed` profile-restore ordering** — the base seed restores `profiles` BEFORE
       `db:seed:demo` recreates the demo employers, so employer logins whose employer only exists
       in demo data are skipped (locked out). Two dev accounts hit this 2026-09-11

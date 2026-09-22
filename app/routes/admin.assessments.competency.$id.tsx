@@ -34,7 +34,7 @@ import { MetaStrip } from '~/components/MetaStrip';
 import { DetailHeader } from '~/components/DetailHeader';
 import { ConfirmModal } from '~/components/ConfirmModal';
 import { useToast } from '~/components/ToastProvider';
-import { formatDate } from '~/lib/format';
+import { formatDate, phaseDisplayLabel } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Competency Assessment · Equus Admin' }];
 
@@ -155,8 +155,7 @@ export default function AdminCompetencyDetail() {
     typeof submission.submittedAt === 'string'
       ? new Date(submission.submittedAt)
       : submission.submittedAt;
-  const phaseLabel =
-    phases.find((p) => p.id === submission.phase)?.label ?? submission.phase ?? '—';
+  const phaseLabel = phaseDisplayLabel(submission.phase, phases);
 
   // Phase-out: prototype shows a `.pill--pass` chip in the page-head row.
   // The real pass rule is pending program-staff input — for now any saved

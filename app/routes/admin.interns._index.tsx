@@ -37,7 +37,14 @@ export async function action({ request }: Route.ActionArgs) {
 function outcomePill(employed90: boolean | null, employed180: boolean | null) {
   if (employed180) return <span className="pill pill--employed-180">Employed + Still at 180d</span>;
   if (employed90) return <span className="pill pill--employed-90">Employed at 90d</span>;
-  return <span className="pill pill--tracked">Not yet tracked</span>;
+  return (
+    <span
+      className="pill pill--tracked"
+      title="No 90-day or 180-day employment outcome has been recorded for this intern yet."
+    >
+      Not yet tracked
+    </span>
+  );
 }
 
 export default function AdminInterns() {

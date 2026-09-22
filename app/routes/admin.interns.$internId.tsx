@@ -21,6 +21,7 @@ import {
   getEmployerOrNull,
   getRoleOrNull,
   listParticipationFactors,
+  listPhases,
 } from '~/lib/admin-queries.server';
 import {
   interns,
@@ -45,7 +46,7 @@ import { ConfirmModal } from '~/components/ConfirmModal';
 import { ParticipationFactorCheckList } from '~/components/ParticipationFactorCheckList';
 import { useToast } from '~/components/ToastProvider';
 import { InternIdIssuedCallout } from '~/components/InternIdIssuedCallout';
-import { formatDate } from '~/lib/format';
+import { formatDate, phaseDisplayLabel } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [{ title: 'Edit Intern — Equus Admin' }];
 
@@ -90,6 +91,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       outcomes,
       allParticipationFactors,
       submissions,
+      phases: (await listPhases(db)).map((p) => ({ id: p.id, label: p.label })),
     },
     { headers },
   );
@@ -240,6 +242,7 @@ export default function EditIntern() {
     outcomes,
     allParticipationFactors,
     submissions,
+    phases,
   } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const nav = useNavigation();
@@ -395,7 +398,7 @@ export default function EditIntern() {
                       >
                         <div className="record-link__head">
                           <span className="record-link__label">
-                            COMPETENCY · {(c.phase ?? '').toUpperCase()}
+                            COMPETENCY · {phaseDisplayLabel(c.phase, phases).toUpperCase()}
                           </span>
                           <span className="record-link__title">Competency Detail</span>
                         </div>

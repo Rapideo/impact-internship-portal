@@ -136,3 +136,21 @@ export function formatActivityTime(d: Date | string): string {
   const part = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
   return `${part('month')}.${part('day')}.${part('year')} · ${part('hour')}:${part('minute')}`;
 }
+
+const UUID_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Human label for a stored competency `phase`. The column carries phase
+ * UUIDs (current) and, on older rows, free-text labels — and a UUID can stop
+ * resolving (phase deleted in Settings; dev reseeds regenerate `phases`).
+ * Never prints a raw UUID.
+ */
+export function phaseDisplayLabel(
+  phase: string | null | undefined,
+  phases: ReadonlyArray<{ id: string; label: string }>,
+): string {
+  if (!phase) return '—';
+  const match = phases.find((p) => p.id === phase);
+  if (match) return match.label;
+  return UUID_SHAPE.test(phase) ? 'Phase removed' : phase;
+}
