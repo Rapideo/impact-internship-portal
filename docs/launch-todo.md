@@ -18,7 +18,7 @@ The client's list, received 2026-09-11; the original file lives outside this pub
 | 3 | Add Start Date / End Date to the Intern Profile | Done — #156 (2026-09-14). Both dates were captured on create and *displayed* on the record since SP2; the gap was that they were locked with identity. Now editable on the record (End ≥ Start rule; Intern ID not re-issued) |
 | 4 | Replace First Initial / Last Name with a unique ID | Done — #143/#144/#150 (Intern ID `IMP-YY-NNNN`) |
 | 5 | Add the ability to delete users | Done — #157 (2026-09-14). **Deactivate-first** (Matt, 2026-09-14): Delete appears on the user page only once the account is deactivated; confirm modal; hard-deletes the auth user (profiles cascade, submissions keep their rows with attribution cleared) |
-| 6 | Add Start Date / End Date to Cohort | **Already built** (since SP2): the cohort create + edit forms require both, the cohort detail and both employer views show them. Only the cohort table on the admin employer page lacks an End column. **Ask KP where they expected to see the dates** before doing anything |
+| 6 | Add Start Date / End Date to Cohort | Closed 2026-09-21 — already built since SP2 (cohort create + edit require both; cohort detail and both employer views show them). Confirmed with the client: in place, no issue, no change needed |
 | 7 | Replace the logo with the Equus logo | Done — #154 |
 | 8 | Update colours to Equus green (replace the yellow) | Done — #154 |
 | — | "Review KP feedback for add items" | Parsed 2026-09-14 into 17 candidates (Save/Submit modal copy mismatch is the cheap headline; outcome-status model and employer-transfer history need KP definitions first) — see the "KP July 2026 feedback" section below |
@@ -171,9 +171,9 @@ Already tracked: Whitaker display bug, favicon, survey "barriers" copy. Ordered 
 - [ ] **Regenerate the Quick Start & Testing Guide** — `docs/quick-start-guide/quick-start-guide.html`
       has its own `--gold` token copy and all 18 screenshots show the IMPACT logo + gold accent.
       Same job as #151 (`capture.ts` from staging, then `render.ts`).
-- [ ] **Ask Equus for their official reversed (white) logo.** `public/logo-reverse.svg` is *our*
-      derivation (wordmark + tagline recoloured white, green "E" kept); if they have a sanctioned
-      reversed mark, drop it in under the same filename — `BrandMark.test.tsx` only pins src/alt.
+- [x] **Official reversed (white) Equus logo** — asked 2026-09-15; Equus has none. Our derived
+      `public/logo-reverse.svg` (wordmark + tagline white, green "E" kept) is the logo. Closed
+      2026-09-21.
 - [ ] **Favicon** — there has never been one. The green "E" from the Equus mark would do; the
       SVG's paths are grouped, so it needs a small extraction, not a crop.
 - [ ] **`--success` vs `--green`** — two greens now sit side by side (pass pills / 90-day rail vs
@@ -182,8 +182,9 @@ Already tracked: Whitaker display bug, favicon, survey "barriers" copy. Ordered 
       only — no gold to swap, but the brand name/logo should follow once the templates are
       actually installed in Supabase (see "Branded email templates" above).
 
-- [ ] **Survey copy still says "barriers"** (`pf-barriers`, `pf-barriers-detail`, `ees-barriers`)
-      — client note drafted in `KP Feedback July 2026/`; awaiting their wording.
+- [x] **Survey copy still says "barriers"** (`pf-barriers`, `pf-barriers-detail`, `ees-barriers`)
+      — note sent 2026-09-15; **client approved the current wording as-is for now** (2026-09-21).
+      Reopen only if they send new wording.
 
 ## Tooling / developer experience
 

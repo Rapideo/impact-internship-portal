@@ -41,7 +41,7 @@ Check these before inventing answers about scope, field names, or flows. Product
 
 ## Prototype
 
-The selected design lives at `Prototypes/PROTOTYPE/` — static HTML/CSS with a shared `app.js` module. No build tooling, no framework, no test runner. To view: `start "" "Prototypes/PROTOTYPE/index.html"` (git bash on Windows). The full 34-page inventory and `app.js` API reference live in the prototype repo (`Rapideo/impact-prototype`); the copy here is a reference-only seed. `Prototypes/archive/` (and `archive.zip`) hold discarded earlier design variations — don't modify archived files.
+The prototype no longer lives in this repo — the duplicate copy was removed 2026-05-11 (`4d2c37f`). The frozen 34-page prototype, its `app.js` API reference and full history are in `Rapideo/impact-prototype` (local clone `C:\Projects\impact-prototype\`, live at `impact-internship-portal.netlify.app`). What remains here is `Prototypes/impact-prototype.zip` — an archive snapshot of that original project, committed 2026-09-21 for posterity; don't unpack or edit it in place.
 
 **Key prototype facts that the production rebuild inherits:**
 - Admin navbar order: Home · Interns · Assessments · Reports · Settings · admin-chip.
@@ -67,7 +67,7 @@ The selected design lives at `Prototypes/PROTOTYPE/` — static HTML/CSS with a 
 
 Fonts (Google Fonts): Display **Archivo Black** · Body **IBM Plex Sans** · Micro/tabular **IBM Plex Mono**.
 
-The frozen prototype (`Prototypes/PROTOTYPE/`) and its `logo.png` keep the IMPACT gold branding — it is a reference-only seed, not restyled. The Quick Start guide (`docs/quick-start-guide/`) carries its own token copy and screenshots and needs a regeneration pass to pick up the rebrand.
+The frozen prototype (`Rapideo/impact-prototype`) keeps the IMPACT gold branding — it is a reference, not restyled. The Quick Start guide (`docs/quick-start-guide/`) carries its own token copy and screenshots and needs a regeneration pass to pick up the rebrand.
 
 ## Product rules to know (from PRD)
 
@@ -96,7 +96,7 @@ Branch `main` (renamed from `master` 2026-05-11). GitHub remote: `https://github
 **Local working path:** `C:\Projects\impact-internship-portal\` (moved out of OneDrive 2026-05-11).
 
 **Repo split (2 repos):**
-- **This repo** (`Rapideo/impact-internship-portal`, public) — production rebuild. `Prototypes/PROTOTYPE/` is a reference-only seed.
+- **This repo** (`Rapideo/impact-internship-portal`, public) — production rebuild. Only `Prototypes/impact-prototype.zip` (archive snapshot) remains of the prototype here.
 - **`Rapideo/impact-prototype`** (public) — frozen 34-page prototype, full 177-commit history. Local clone at `C:\Projects\impact-prototype\`. Rare maintenance edits only.
 
 **Netlify (2 projects):**

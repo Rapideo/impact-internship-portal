@@ -1,9 +1,15 @@
 version: 2
 updates:
+  # Tuned 2026-09-21 after ten stale PRs piled up over the summer: weekly
+  # instead of daily, Actions bumps arrive as one grouped PR, and majors for
+  # the framework/toolchain packages are ignored — those upgrades are planned
+  # work we open ourselves (React, TypeScript). Every Dependabot PR still goes
+  # through the normal route: CI → staging → explicit merge.
   - package-ecosystem: npm
     directory: "/"
     schedule:
-      interval: daily
+      interval: weekly
+      day: monday
       time: "06:00"
       timezone: America/Indiana/Indianapolis
     open-pull-requests-limit: 5
@@ -19,11 +25,23 @@ updates:
         update-types:
           - minor
           - patch
+    ignore:
+      - dependency-name: react
+        update-types: ["version-update:semver-major"]
+      - dependency-name: react-dom
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
-      interval: daily
+      interval: weekly
+      day: monday
       time: "06:00"
       timezone: America/Indiana/Indianapolis
     open-pull-requests-limit: 5
@@ -33,3 +51,7 @@ updates:
     labels:
       - dependencies
       - ci
+    groups:
+      github-actions:
+        patterns:
+          - "*"
