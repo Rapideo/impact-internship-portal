@@ -59,3 +59,18 @@ yarn-error.log*
 # and the scratch worktrees its isolated agents check out.
 .claude/settings.local.json
 .claude/worktrees/
+
+# ---- moved in-tree 2026-09-22, NEVER commit ----
+# This repo is PUBLIC. Both folders lived outside it until now; they are kept
+# here for convenience and are ignored by path, by name at any depth, and with
+# trailing-slash and bare variants so a rename or a nested copy stays covered.
+# Verify after touching this file:  git check-ignore -v _secrets client-docs
+/_secrets
+/_secrets/
+_secrets/
+/client-docs
+/client-docs/
+client-docs/
+# Belt and braces: plaintext credential notes wherever they land.
+**/supa_prd_password.md
+**/*password*.md
