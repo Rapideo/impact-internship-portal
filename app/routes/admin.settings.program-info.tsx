@@ -28,7 +28,7 @@ import { IdentityCard } from '~/components/IdentityCard';
 import { ActionBar } from '~/components/ActionBar';
 import { useToast } from '~/components/ToastProvider';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Program Info — Settings — IMPACT Admin' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Program Info — Settings — Equus Admin' }];
 
 const MONTHS = [
   'January',

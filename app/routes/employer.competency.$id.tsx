@@ -25,9 +25,7 @@ import { MetaStrip } from '~/components/MetaStrip';
 import { InternCode } from '~/components/InternCode';
 import { formatDate, phaseDisplayLabel } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [
-  { title: 'Competency Assessment · IMPACT Employer' },
-];
+export const meta: Route.MetaFunction = () => [{ title: 'Competency Assessment · Equus Employer' }];
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const headers = new Headers();

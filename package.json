@@ -27,6 +27,7 @@
     "db:seed-prod": "tsx db/seed-prod.ts",
     "db:apply-policies": "tsx db/apply-policies.ts",
     "admin:create": "tsx scripts/create-admin.ts",
+    "email:logo": "tsx scripts/render-email-logo.ts",
     "prepare": "husky"
   },
   "lint-staged": {

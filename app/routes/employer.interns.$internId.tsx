@@ -41,7 +41,7 @@ import { useToast } from '~/components/ToastProvider';
 import { InternCode } from '~/components/InternCode';
 import { formatDate, phaseDisplayLabel } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Intern — IMPACT Employer' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Intern — Equus Employer' }];
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const headers = new Headers();

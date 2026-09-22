@@ -23,8 +23,8 @@ export const meta: Route.MetaFunction = ({ data: loaderData }) => [
   {
     title:
       loaderData?.mode === 'edit' && loaderData?.boundInternCode
-        ? `${loaderData.boundInternCode} — Intern Competency — IMPACT Admin`
-        : 'New Intern Competency — IMPACT Admin',
+        ? `${loaderData.boundInternCode} — Intern Competency — Equus Admin`
+        : 'New Intern Competency — Equus Admin',
   },
 ];
 

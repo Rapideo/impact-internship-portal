@@ -30,7 +30,7 @@ import { ActionBar } from '~/components/ActionBar';
 import { ParticipationFactorCheckList } from '~/components/ParticipationFactorCheckList';
 import { ConfirmModal } from '~/components/ConfirmModal';
 
-export const meta: Route.MetaFunction = () => [{ title: 'New Intern — IMPACT Admin' }];
+export const meta: Route.MetaFunction = () => [{ title: 'New Intern — Equus Admin' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);

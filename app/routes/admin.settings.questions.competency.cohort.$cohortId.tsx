@@ -23,8 +23,8 @@ export const meta: Route.MetaFunction = ({ data: loaderData }) => [
   {
     title:
       loaderData?.mode === 'edit' && loaderData?.boundCohortName
-        ? `${loaderData.boundCohortName} — Cohort Competency — IMPACT Admin`
-        : 'New Cohort Competency — IMPACT Admin',
+        ? `${loaderData.boundCohortName} — Cohort Competency — Equus Admin`
+        : 'New Cohort Competency — Equus Admin',
   },
 ];
 

@@ -15,7 +15,7 @@ import { SettingsShell } from '~/components/SettingsShell';
 import { IdentityCard } from '~/components/IdentityCard';
 import { ActionBar } from '~/components/ActionBar';
 
-export const meta: Route.MetaFunction = () => [{ title: 'New Employer — Settings — IMPACT Admin' }];
+export const meta: Route.MetaFunction = () => [{ title: 'New Employer — Settings — Equus Admin' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);

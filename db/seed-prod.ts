@@ -22,7 +22,7 @@ import { SEED_QUESTION_SETS } from './seed-data/question-sets';
  *   - question_sets of kind 'standard' or 'competency-core' (no cohort/intern fixtures)
  *
  * Does NOT seed: employers, roles, cohorts, interns, sample question sets tied
- * to specific cohorts. Those are populated by the IMPACT team via the admin UI.
+ * to specific cohorts. Those are populated by the program team via the admin UI.
  *
  * Usage: only run once against fresh prod database (post-migrate).
  *   PROD_DATABASE_URL=... npx tsx db/seed-prod.ts

@@ -28,7 +28,7 @@ import { useToast } from '~/components/ToastProvider';
 import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [
-  { title: 'New Competency Assessment · IMPACT Admin' },
+  { title: 'New Competency Assessment · Equus Admin' },
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {

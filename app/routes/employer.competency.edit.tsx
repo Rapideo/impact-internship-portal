@@ -34,7 +34,7 @@ import { InternCode } from '~/components/InternCode';
 import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [
-  { title: 'Edit Competency Assessment · IMPACT Employer' },
+  { title: 'Edit Competency Assessment · Equus Employer' },
 ];
 
 async function loadSubmissionInScope(id: string, employerId: string) {

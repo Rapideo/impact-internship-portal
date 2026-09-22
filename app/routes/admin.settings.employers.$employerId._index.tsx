@@ -32,7 +32,7 @@ import { formatDate, formatPhone, initials } from '~/lib/format';
 
 export const meta: Route.MetaFunction = ({ data: loaderData }) => [
   {
-    title: `${(loaderData as { employer?: { name: string } } | undefined)?.employer?.name ?? 'Employer'} — Settings — IMPACT Admin`,
+    title: `${(loaderData as { employer?: { name: string } } | undefined)?.employer?.name ?? 'Employer'} — Settings — Equus Admin`,
   },
 ];
 

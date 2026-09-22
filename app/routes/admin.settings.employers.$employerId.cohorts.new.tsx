@@ -31,7 +31,7 @@ import { IdentityCard } from '~/components/IdentityCard';
 import { ActionBar } from '~/components/ActionBar';
 import { PhaseMultiSelect } from '~/components/PhaseMultiSelect';
 
-export const meta: Route.MetaFunction = () => [{ title: 'New Cohort — IMPACT Admin' }];
+export const meta: Route.MetaFunction = () => [{ title: 'New Cohort — Equus Admin' }];
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);

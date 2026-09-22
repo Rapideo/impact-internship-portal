@@ -29,7 +29,7 @@ import { useToast } from '~/components/ToastProvider';
 import { initials } from '~/lib/format';
 import { useMemo, useState } from 'react';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Roles — IMPACT Employer' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Roles — Equus Employer' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const headers = new Headers();

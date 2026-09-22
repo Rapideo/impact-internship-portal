@@ -24,7 +24,7 @@ import { PickerList } from '~/components/PickerList';
 import { InternCode } from '~/components/InternCode';
 import { formatDate } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Assessments · IMPACT Employer' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Assessments · Equus Employer' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const headers = new Headers();

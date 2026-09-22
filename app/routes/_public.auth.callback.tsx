@@ -15,7 +15,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const next = rawNext && /^\/(?!\/)/.test(rawNext) ? rawNext : '/login';
 
   if (!code) {
-    throw redirect('/login');
+    throw redirect('/login?error=link-invalid');
   }
 
   const headers = new Headers();
@@ -23,7 +23,11 @@ export async function loader({ request }: Route.LoaderArgs) {
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
-    throw redirect('/login');
+    // Usually an expired/reused link, or a PKCE exchange with no code verifier
+    // cookie — which happens when the link is opened in a different browser
+    // from the one that requested it. Either way the user needs a new link, so
+    // say so rather than bouncing them to a blank sign-in page.
+    throw redirect('/login?error=link-invalid');
   }
 
   throw redirect(next, { headers });

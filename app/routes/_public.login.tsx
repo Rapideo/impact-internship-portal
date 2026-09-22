@@ -11,7 +11,7 @@
 // `.auth__submit` action + an `.login__divider`-equivalent OR rail + a
 // `.login__secondary` outbound link to /intern/assessments.
 
-import { Form, Link, redirect, useActionData, useNavigation } from 'react-router';
+import { Form, Link, redirect, useActionData, useNavigation, useSearchParams } from 'react-router';
 import {
   createSupabaseServerClient,
   decodeRoleFromJwtPayload,
@@ -33,10 +33,10 @@ const LOGIN_FOOTER_LINKS = [
 ] as const;
 
 export const meta: Route.MetaFunction = () => [
-  { title: 'Sign in · IMPACT Portal' },
+  { title: 'Sign in · Equus Portal' },
   {
     name: 'description',
-    content: 'Administrator and employer sign-in for the IMPACT Internship Assessment Portal.',
+    content: 'Administrator and employer sign-in for the Equus Internship Assessment Portal.',
   },
 ];
 
@@ -76,10 +76,45 @@ export async function action({ request }: Route.ActionArgs) {
   throw redirect(auth.role === 'admin' ? '/admin' : '/employer', { headers });
 }
 
+export interface LoginNotice {
+  tone: 'success' | 'danger';
+  message: string;
+}
+
+/**
+ * Notices other routes redirect here with. Every one of these codes was already
+ * being sent — by /auth/callback, /auth/reset and the employer layout — and
+ * none of them were rendered, so a failed recovery link looked identical to
+ * simply landing on the sign-in page. Exported for test.
+ */
+export function loginNotice(params: URLSearchParams): LoginNotice | null {
+  if (params.get('reset') === 'ok') {
+    return { tone: 'success', message: 'Password updated. Sign in with your new password.' };
+  }
+  switch (params.get('error')) {
+    case 'link-invalid':
+      return {
+        tone: 'danger',
+        message:
+          'That link has expired or has already been used. Request a new one, and open it in the same browser you requested it from.',
+      };
+    case 'no-employer':
+    case 'employer-missing':
+      return {
+        tone: 'danger',
+        message: 'This account is not linked to an employer. Contact your administrator.',
+      };
+    default:
+      return null;
+  }
+}
+
 export default function Login() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
+  const [searchParams] = useSearchParams();
+  const notice = loginNotice(searchParams);
 
   return (
     <>
@@ -88,7 +123,7 @@ export default function Login() {
       <AuthShell
         microLabel="SIGN IN / 2026"
         title="Welcome back."
-        sub="Administrator access for the IMPACT Internship Assessment Portal. Manage cohorts, run competency assessments, and record placement outcomes."
+        sub="Administrator access for the Equus Internship Assessment Portal. Manage cohorts, run competency assessments, and record placement outcomes."
         facts={[
           { mono: '01', label: 'Intake — at placement' },
           { mono: '02', label: 'Competency — multi-phase' },
@@ -98,6 +133,12 @@ export default function Login() {
         <div className="auth__form-head">
           <span className="micro-label micro-label--navy">Credentials</span>
         </div>
+
+        {notice ? (
+          <div role="alert" className={`auth__alert auth__alert--${notice.tone}`}>
+            {notice.message}
+          </div>
+        ) : null}
 
         {actionData?.error ? (
           <div role="alert" className="auth__alert auth__alert--danger">
@@ -115,7 +156,7 @@ export default function Login() {
               name="email"
               required
               autoComplete="email"
-              placeholder="kortney@impact.org"
+              placeholder="you@example.org"
             />
           </label>
 

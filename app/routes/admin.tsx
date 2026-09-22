@@ -12,7 +12,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const email = user?.email ?? 'admin@impact';
+  const email = user?.email ?? 'admin@equus';
   return Response.json({ auth, email }, { headers });
 }
 

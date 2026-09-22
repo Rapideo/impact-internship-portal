@@ -41,7 +41,7 @@ import { InternCode } from '~/components/InternCode';
 import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [
-  { title: 'New Competency Assessment · IMPACT Employer' },
+  { title: 'New Competency Assessment · Equus Employer' },
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {

@@ -36,7 +36,7 @@ import { ConfirmModal } from '~/components/ConfirmModal';
 import { useToast } from '~/components/ToastProvider';
 import { formatDate, phaseDisplayLabel } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Competency Assessment · IMPACT Admin' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Competency Assessment · Equus Admin' }];
 
 /**
  * Resolve the admin reviewer email for a competency submission.

@@ -29,7 +29,7 @@ import { useToast } from '~/components/ToastProvider';
 import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [
-  { title: 'Edit Competency Assessment · IMPACT Admin' },
+  { title: 'Edit Competency Assessment · Equus Admin' },
 ];
 
 export async function loader({ request, params }: Route.LoaderArgs) {

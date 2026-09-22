@@ -48,7 +48,7 @@ import { useToast } from '~/components/ToastProvider';
 import { InternIdIssuedCallout } from '~/components/InternIdIssuedCallout';
 import { formatDate, phaseDisplayLabel } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Edit Intern — IMPACT Admin' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Edit Intern — Equus Admin' }];
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);

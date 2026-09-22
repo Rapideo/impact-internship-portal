@@ -22,7 +22,7 @@ import { InlineEditableList } from '~/components/InlineEditableList';
 import { useToast } from '~/components/ToastProvider';
 
 export const meta: Route.MetaFunction = () => [
-  { title: 'Participation Factors — Settings — IMPACT Admin' },
+  { title: 'Participation Factors — Settings — Equus Admin' },
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {

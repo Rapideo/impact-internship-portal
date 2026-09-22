@@ -11,7 +11,7 @@ import { PageHead } from '~/components/PageHead';
 import { SettingsShell } from '~/components/SettingsShell';
 import { initials } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Assessments — Settings — IMPACT Admin' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Assessments — Settings — Equus Admin' }];
 
 function fmtTimestamp(iso: string | null | undefined): string {
   if (!iso) return '—';

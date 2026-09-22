@@ -24,7 +24,7 @@ import { InternCode } from '~/components/InternCode';
 import { useToast } from '~/components/toast/ToastProvider';
 import { formatDate } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Assessments · IMPACT Admin' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Assessments · Equus Admin' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);

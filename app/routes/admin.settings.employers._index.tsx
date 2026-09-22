@@ -8,7 +8,7 @@ import { SettingsShell } from '~/components/SettingsShell';
 import { EmptyRow } from '~/components/EmptyRow';
 import { initials } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Employers — Settings — IMPACT Admin' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Employers — Settings — Equus Admin' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);

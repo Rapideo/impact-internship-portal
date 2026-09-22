@@ -2,7 +2,9 @@
 // Last Name (spec: docs/superpowers/specs/2026-09-11-intern-id-identity-design.md).
 //
 // Format: IMP-YY-NNNN, e.g. IMP-26-0417.
-//   IMP   the IMPACT program; a constant, not a setting (D2)
+//   IMP   a fixed program prefix; a constant, not a setting (D2). Kept
+//         verbatim through the 2026-09 Equus rebrand — interns hold printed
+//         cards, and the code is immutable once issued.
 //   YY    year the intern entered the program (D3)
 //   NNNN  0001–9999, drawn at random, unique across all interns (D4, D5)
 //

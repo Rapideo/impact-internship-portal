@@ -34,7 +34,7 @@ import { MetaStrip } from '~/components/MetaStrip';
 import { useToast } from '~/components/ToastProvider';
 import { formatDate } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Exit Employer Survey · IMPACT Admin' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Exit Employer Survey · Equus Admin' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);

@@ -15,7 +15,7 @@ import { PageHead } from '~/components/PageHead';
 import { ReportsScopeBar } from '~/components/reports/ReportsScopeBar';
 import { ReportsDashboard } from '~/components/reports/ReportsDashboard';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Reports — IMPACT Employer' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Reports — Equus Employer' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const headers = new Headers();

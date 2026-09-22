@@ -57,7 +57,7 @@ import { useToast } from '~/components/ToastProvider';
 import { formatDate, initials } from '~/lib/format';
 import { sql } from 'drizzle-orm';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Edit Role — IMPACT Employer' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Edit Role — Equus Employer' }];
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const headers = new Headers();

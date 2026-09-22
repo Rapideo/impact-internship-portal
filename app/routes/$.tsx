@@ -23,7 +23,7 @@ const NOT_FOUND_FOOTER_LINKS = [
   { to: '/login', label: 'Admin' },
 ] as const;
 
-export const meta: Route.MetaFunction = () => [{ title: '404 — Page Not Found — IMPACT' }];
+export const meta: Route.MetaFunction = () => [{ title: '404 — Page Not Found — Equus' }];
 
 export function loader() {
   // Return a 404 status so search engines and Sentry treat it correctly.

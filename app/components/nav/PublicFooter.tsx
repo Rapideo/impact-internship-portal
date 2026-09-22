@@ -13,7 +13,7 @@ export interface PublicFooterProps {
   links?: ReadonlyArray<PublicFooterLink>;
   /** Brand logo destination. Defaults to `/`. */
   homeHref?: string;
-  /** Copyright string. Defaults to `© 2026 IMPACT / Indiana`. */
+  /** Copyright string. Defaults to `© 2026 Equus / Indiana`. */
   copyright?: string;
 }
 
@@ -26,7 +26,7 @@ const DEFAULT_LINKS: ReadonlyArray<PublicFooterLink> = [
 export function PublicFooter({
   links = DEFAULT_LINKS,
   homeHref = '/',
-  copyright = '© 2026 IMPACT / Indiana',
+  copyright = '© 2026 Equus / Indiana',
 }: PublicFooterProps) {
   return (
     <footer className="footer">

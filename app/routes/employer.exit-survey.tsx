@@ -43,7 +43,7 @@ import { useToast } from '~/components/ToastProvider';
 import { InternCode } from '~/components/InternCode';
 import { formatDate } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Exit Employer Survey · IMPACT Employer' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Exit Employer Survey · Equus Employer' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const headers = new Headers();

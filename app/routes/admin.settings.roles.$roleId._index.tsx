@@ -25,7 +25,7 @@ import { formatDate, initials } from '~/lib/format';
 
 export const meta: Route.MetaFunction = ({ data: loaderData }) => [
   {
-    title: `${(loaderData as { role?: { label: string } } | undefined)?.role?.label ?? 'Role'} — Role — IMPACT Admin`,
+    title: `${(loaderData as { role?: { label: string } } | undefined)?.role?.label ?? 'Role'} — Role — Equus Admin`,
   },
 ];
 

@@ -10,7 +10,7 @@ import { EmptyRow } from '~/components/EmptyRow';
 import { UserStatusPill } from '~/components/UserStatusPill';
 import { useToast } from '~/components/toast/ToastProvider';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Users — Settings — IMPACT Admin' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Users — Settings — Equus Admin' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);
