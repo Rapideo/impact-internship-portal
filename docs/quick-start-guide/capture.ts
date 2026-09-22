@@ -1,5 +1,5 @@
 /**
- * Screenshot capture for the IMPACT Quick Start & Testing Guide.
+ * Screenshot capture for the Equus Quick Start & Testing Guide.
  *
  * Logs into the STAGING app (impact-dev, populated with demo data) as the admin
  * and captures the screens referenced by the guide. Read-only: it navigates and
