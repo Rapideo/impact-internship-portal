@@ -94,7 +94,7 @@ export default function PhasesSettings() {
       <PageHead
         breadcrumb="ADMIN / SETTINGS / ASSESSMENT PHASES"
         title="ASSESSMENT PHASES."
-        sub="Phases used by the Competency Assessment. Each cohort selects which phases apply to it."
+        sub="Phases used by the Competency Assessment. Each cohort selects which phases apply to it; the phase is then chosen by hand on each competency assessment — nothing moves an intern between phases automatically."
       />
       <SettingsShell active="phases">
         <Form method="post">

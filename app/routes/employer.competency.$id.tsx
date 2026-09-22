@@ -23,7 +23,7 @@ import { CompetencyAssessmentForm } from '~/components/forms/CompetencyAssessmen
 import { PageHead } from '~/components/PageHead';
 import { MetaStrip } from '~/components/MetaStrip';
 import { InternCode } from '~/components/InternCode';
-import { formatDate } from '~/lib/format';
+import { formatDate, phaseDisplayLabel } from '~/lib/format';
 
 export const meta: Route.MetaFunction = () => [
   { title: 'Competency Assessment · IMPACT Employer' },
@@ -85,8 +85,7 @@ export default function EmployerCompetencyDetail() {
     typeof submission.submittedAt === 'string'
       ? new Date(submission.submittedAt)
       : submission.submittedAt;
-  const phaseLabel =
-    phases.find((p) => p.id === submission.phase)?.label ?? submission.phase ?? '—';
+  const phaseLabel = phaseDisplayLabel(submission.phase, phases);
 
   return (
     <>

@@ -52,4 +52,10 @@ describe('ParticipationFactorCheckList', () => {
     // A factor with no description renders no helper element at all.
     expect(document.querySelectorAll('.participation-factor-check-list__desc')).toHaveLength(1);
   });
+
+  it('says what a check means — checked = the factor applied (KP feedback)', () => {
+    render(<ParticipationFactorCheckList factors={factors} checkedIds={[]} />);
+    expect(screen.getByText(/Check each factor that applied to this intern/i)).toBeInTheDocument();
+    expect(screen.getByText(/unchecked if it did not apply/i)).toBeInTheDocument();
+  });
 });
