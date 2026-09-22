@@ -3,7 +3,7 @@
 // dev so Matt can walk it during Gate G2 review against the prototype.
 //
 // The corresponding registration in `app/routes.ts` is spread-guarded with
-// `process.env.NODE_ENV !== 'production' ? [...] : []` so production
+// `import.meta.env.DEV` at build time so production
 // builds don't ship the route at all.
 
 import { useState } from 'react';
@@ -42,7 +42,8 @@ import { QuestionSetEditor } from '~/components/question-editor/QuestionSetEdito
 import type { Question, SectionBoundary } from '~/lib/question-types';
 
 export async function loader() {
-  if (process.env.NODE_ENV === 'production') {
+  // Build-time flag — see dev.reseed.ts; runtime NODE_ENV is unset on Lambda.
+  if (!import.meta.env.DEV) {
     throw new Response('Not Found', { status: 404 });
   }
   return null;

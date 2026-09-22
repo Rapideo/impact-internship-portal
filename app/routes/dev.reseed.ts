@@ -2,7 +2,7 @@
 //
 // Three layers of defense keep this off production:
 //   1. `app/routes.ts` spreads the route registration behind
-//      `process.env.NODE_ENV !== 'production'` so production builds don't
+//      `import.meta.env.DEV` so production builds don't
 //      ship the route at all.
 //   2. Each handler below short-circuits to 404 when invoked in production
 //      (defense-in-depth in case a build leaks the route).
@@ -20,7 +20,9 @@ import { spawn } from 'node:child_process';
 import { requireAdmin } from '~/lib/admin-guard.server';
 
 function refuseInProd(): never | void {
-  if (process.env.NODE_ENV === 'production') {
+  // `import.meta.env.DEV`, not `process.env.NODE_ENV`: the Lambda that serves a
+  // Netlify build has NODE_ENV unset, so the old check never fired anywhere.
+  if (!import.meta.env.DEV) {
     throw new Response('Not Found', { status: 404 });
   }
 }
