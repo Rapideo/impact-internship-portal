@@ -13,7 +13,7 @@ import { ConfirmModal } from '~/components/ConfirmModal';
 import { InternCode } from '~/components/InternCode';
 import { formatDate } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Interns — IMPACT Admin' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Interns — Equus Admin' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);

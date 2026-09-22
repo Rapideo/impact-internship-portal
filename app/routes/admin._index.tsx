@@ -10,13 +10,13 @@ import { QuickLinks } from '~/components/QuickLinks';
 import { RecentActivity, type ActivityEntry } from '~/components/RecentActivity';
 import { greetingFor, formatActivityTime } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Admin Home — IMPACT' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Admin Home — Equus' }];
 
 /**
  * Derive a display first name from a Supabase user email. Strips the
  * domain, takes the local-part before any `.` or `+` separator, and
  * uppercases. e.g. `admin@example.com` -> `ADMIN`,
- * `kortney.bayer@impact.org` -> `KORTNEY`. Falls back to "ADMIN" if the
+ * `kortney.bayer@equus.example` -> `KORTNEY`. Falls back to "ADMIN" if the
  * email is empty or malformed.
  */
 function deriveFirstName(email: string | null | undefined): string {

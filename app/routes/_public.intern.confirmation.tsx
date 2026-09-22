@@ -61,7 +61,7 @@ const COPY: Record<AllowedType, { micro: string; title: string; body: string }> 
 
 const CONFIRM_NAV_LINKS = [{ to: '/', label: 'Back to home', back: true }] as const;
 
-export const meta: Route.MetaFunction = () => [{ title: 'Thank You — IMPACT' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Thank You — Equus' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);

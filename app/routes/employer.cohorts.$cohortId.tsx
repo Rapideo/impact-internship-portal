@@ -22,7 +22,7 @@ import { InternCode } from '~/components/InternCode';
 import { EmptyRow } from '~/components/EmptyRow';
 import { formatDate } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Cohort — IMPACT Employer' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Cohort — Equus Employer' }];
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const headers = new Headers();

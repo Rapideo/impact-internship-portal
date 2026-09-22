@@ -33,10 +33,10 @@ const LOGIN_FOOTER_LINKS = [
 ] as const;
 
 export const meta: Route.MetaFunction = () => [
-  { title: 'Sign in · IMPACT Portal' },
+  { title: 'Sign in · Equus Portal' },
   {
     name: 'description',
-    content: 'Administrator and employer sign-in for the IMPACT Internship Assessment Portal.',
+    content: 'Administrator and employer sign-in for the Equus Internship Assessment Portal.',
   },
 ];
 
@@ -88,7 +88,7 @@ export default function Login() {
       <AuthShell
         microLabel="SIGN IN / 2026"
         title="Welcome back."
-        sub="Administrator access for the IMPACT Internship Assessment Portal. Manage cohorts, run competency assessments, and record placement outcomes."
+        sub="Administrator access for the Equus Internship Assessment Portal. Manage cohorts, run competency assessments, and record placement outcomes."
         facts={[
           { mono: '01', label: 'Intake — at placement' },
           { mono: '02', label: 'Competency — multi-phase' },
@@ -115,7 +115,7 @@ export default function Login() {
               name="email"
               required
               autoComplete="email"
-              placeholder="kortney@impact.org"
+              placeholder="you@example.org"
             />
           </label>
 

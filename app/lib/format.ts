@@ -90,11 +90,11 @@ export function formatCompletionDate(date: Date | null | undefined): string {
 }
 
 /**
- * The program's timezone. IMPACT is Indiana-based and its staff are in-state,
- * so time-of-day copy is pinned here rather than read off the server clock:
- * Netlify Functions run on Lambda with TZ unset, which makes a bare
- * `new Date().getHours()` return UTC. Using the IANA zone (not a fixed offset)
- * keeps this correct across DST, which Indiana observes.
+ * The program's timezone. The internship program is Indiana-based and its
+ * staff are in-state, so time-of-day copy is pinned here rather than read off
+ * the server clock: Netlify Functions run on Lambda with TZ unset, which makes
+ * a bare `new Date().getHours()` return UTC. Using the IANA zone (not a fixed
+ * offset) keeps this correct across DST, which Indiana observes.
  */
 export const PROGRAM_TIME_ZONE = 'America/Indiana/Indianapolis';
 

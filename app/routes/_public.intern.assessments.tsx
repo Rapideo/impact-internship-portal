@@ -51,7 +51,7 @@ import { IdentityConfirmedChip } from '~/components/forms/IdentityConfirmedChip'
 import { PageHead } from '~/components/PageHead';
 import { PublicNav } from '~/components/nav/PublicNav';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Intern Assessments — IMPACT 2026' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Intern Assessments — Equus 2026' }];
 
 interface EmployerOption {
   id: string;

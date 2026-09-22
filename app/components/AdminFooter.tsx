@@ -17,7 +17,7 @@ export function AdminFooter() {
           <NavLink to="/admin/assessments">Assessments</NavLink>
           <NavLink to="/admin/interns">Interns</NavLink>
         </div>
-        <div className="footer__meta">&copy; 2026 IMPACT / Indiana</div>
+        <div className="footer__meta">&copy; 2026 Equus / Indiana</div>
       </div>
     </footer>
   );

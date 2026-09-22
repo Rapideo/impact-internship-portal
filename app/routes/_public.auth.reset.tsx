@@ -20,7 +20,7 @@ const FOOTER_LINKS = [
   { to: '/login', label: 'Sign in' },
 ] as const;
 
-export const meta: Route.MetaFunction = () => [{ title: 'Reset your password · IMPACT Portal' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Reset your password · Equus Portal' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const headers = new Headers();

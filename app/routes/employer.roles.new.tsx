@@ -28,7 +28,7 @@ import { MetaStrip } from '~/components/MetaStrip';
 import { IdentityCard } from '~/components/IdentityCard';
 import { ActionBar } from '~/components/ActionBar';
 
-export const meta: Route.MetaFunction = () => [{ title: 'New Role — IMPACT Employer' }];
+export const meta: Route.MetaFunction = () => [{ title: 'New Role — Equus Employer' }];
 
 type EmployerCtx = { employer: { id: string; name: string }; userEmail: string };
 

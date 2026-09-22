@@ -17,7 +17,7 @@ import { createAccountWithPassword, inviteAccount, type AccountRole } from '~/li
 import { PageHead } from '~/components/PageHead';
 import { SettingsShell } from '~/components/SettingsShell';
 
-export const meta: Route.MetaFunction = () => [{ title: 'New User — Settings — IMPACT Admin' }];
+export const meta: Route.MetaFunction = () => [{ title: 'New User — Settings — Equus Admin' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);

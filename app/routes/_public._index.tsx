@@ -10,11 +10,11 @@ import { PublicNav } from '~/components/nav/PublicNav';
 import { PublicFooter } from '~/components/nav/PublicFooter';
 
 export const meta: Route.MetaFunction = () => [
-  { title: 'IMPACT Internship Assessment Portal' },
+  { title: 'Equus Internship Assessment Portal' },
   {
     name: 'description',
     content:
-      'Assessment portal for the IMPACT internship program: intake, multi-phase competency reviews, intern self-assessments, and 90-day employment outcomes.',
+      'Assessment portal for the Equus internship program: intake, multi-phase competency reviews, intern self-assessments, and 90-day employment outcomes.',
   },
 ];
 
@@ -80,7 +80,7 @@ export default function Landing() {
               One trajectory.
             </>
           }
-          intro="Every IMPACT participant moves through a structured sequence: capturing intake details, demonstrating competency, and delivering a measured outcome within 90 days of placement."
+          intro="Every Equus participant moves through a structured sequence: capturing intake details, demonstrating competency, and delivering a measured outcome within 90 days of placement."
           pillars={PILLARS}
         />
       </main>

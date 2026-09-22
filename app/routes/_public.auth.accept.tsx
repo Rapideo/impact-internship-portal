@@ -19,7 +19,7 @@ const FOOTER_LINKS = [
   { to: '/login', label: 'Sign in' },
 ] as const;
 
-export const meta: Route.MetaFunction = () => [{ title: 'Accept your invite · IMPACT Portal' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Accept your invite · Equus Portal' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const headers = new Headers();
@@ -68,7 +68,7 @@ export default function AcceptInvitePage() {
       <AuthShell
         microLabel="ACCEPT INVITE / 2026"
         title="Set your password."
-        sub="Welcome to IMPACT. Pick a strong password — at least 12 characters. You’ll use this to sign in alongside your email."
+        sub="Welcome to Equus. Pick a strong password — at least 12 characters. You’ll use this to sign in alongside your email."
         facts={[
           { mono: '01', label: 'Read your cohorts and interns' },
           { mono: '02', label: 'Submit competency assessments' },

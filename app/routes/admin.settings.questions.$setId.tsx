@@ -23,7 +23,7 @@ import {
 import type { Question } from '~/lib/question-types';
 
 export const meta: Route.MetaFunction = ({ data: loaderData }) => [
-  { title: `${loaderData?.set?.name ?? 'Question Set'} — IMPACT Admin` },
+  { title: `${loaderData?.set?.name ?? 'Question Set'} — Equus Admin` },
 ];
 
 export async function loader({ request, params }: Route.LoaderArgs) {

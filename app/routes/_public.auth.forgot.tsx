@@ -23,10 +23,10 @@ const FOOTER_LINKS = [
 ] as const;
 
 export const meta: Route.MetaFunction = () => [
-  { title: 'Forgot password · IMPACT Portal' },
+  { title: 'Forgot password · Equus Portal' },
   {
     name: 'description',
-    content: 'Request a password recovery link for your IMPACT Portal account.',
+    content: 'Request a password recovery link for your Equus Portal account.',
   },
 ];
 
@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
         <AuthShell
           microLabel="RECOVER PASSWORD / 2026"
           title="Check your email."
-          sub="If an account exists for that email, we’ve sent a branded reset link from IMPACT. It expires in 1 hour."
+          sub="If an account exists for that email, we’ve sent a branded reset link from Equus. It expires in 1 hour."
         >
           <p className="auth__secondary">
             <Link to="/login">Back to sign in &rarr;</Link>
@@ -98,7 +98,7 @@ export default function ForgotPasswordPage() {
               name="email"
               required
               autoComplete="email"
-              placeholder="kortney@impact.org"
+              placeholder="you@example.org"
             />
           </label>
           <button type="submit" className="auth__submit" disabled={isSubmitting}>

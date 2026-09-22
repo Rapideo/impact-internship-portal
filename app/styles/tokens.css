@@ -1,5 +1,5 @@
 /* =========================================================
-   IMPACT Internship Assessment Portal — Civic Minimal (02)
+   Equus Internship Assessment Portal — Civic Minimal (02)
    Ported verbatim from Prototypes/PROTOTYPE/styles.css :root block
    per SP7 Phase A, spec §1.2 (CSS: same tokens as prototype).
    ========================================================= */
@@ -12,7 +12,7 @@
   --ink: #0b1020;
   --muted: #51596b;
 
-  /* Brand — navy/cyan sampled from the IMPACT logo; the accent green is
+  /* Brand — navy/cyan sampled from the original IMPACT logo; the accent green is
      Equus Workforce Solutions' brand green (from the Equus logo, 2026-09). */
   --navy: #153a98; /* wordmark royal blue */
   --navy-deep: #051028; /* logo dark background */

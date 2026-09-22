@@ -49,7 +49,7 @@ export async function inviteEmployerUser(args: {
   const { subject, html, text } = renderEmployerInvite({
     employerName: employer.name,
     acceptUrl,
-    programName: 'IMPACT Internship Program',
+    programName: 'Equus Internship Program',
   });
   // TODO(sp5-phase-d): once RESEND_API_KEY is set, the catch can be tightened.
   try {

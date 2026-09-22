@@ -25,7 +25,7 @@ export function emailLayout({ previewText, bodyHtml }: EmailLayoutArgs): string 
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>IMPACT Internship Program</title>
+    <title>Equus Internship Program</title>
   </head>
   <body style="margin:0;padding:0;background:#EFF1F5;font-family:'IBM Plex Sans', Arial, sans-serif;color:#14171F;">
     <span style="display:none!important;visibility:hidden;opacity:0;color:transparent;height:0;width:0;overflow:hidden;">${escapeHtml(previewText)}</span>
@@ -35,7 +35,7 @@ export function emailLayout({ previewText, bodyHtml }: EmailLayoutArgs): string 
           <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;background:#ffffff;border:1px solid #D6DAE3;border-radius:8px;overflow:hidden;">
             <tr>
               <td style="background:#051028;color:#ffffff;padding:24px 28px;font-family:'Archivo Black', Arial, sans-serif;letter-spacing:0.04em;">
-                IMPACT &middot; Internship Program
+                Equus &middot; Internship Program
               </td>
             </tr>
             <tr>
@@ -45,7 +45,7 @@ export function emailLayout({ previewText, bodyHtml }: EmailLayoutArgs): string 
             </tr>
             <tr>
               <td style="background:#EFF1F5;color:#5B6376;padding:18px 28px;font-size:12px;font-family:'IBM Plex Mono', Courier, monospace;">
-                &copy; 2026 IMPACT / Indiana &middot; This message was sent from a transactional address; please do not reply.
+                &copy; 2026 Equus / Indiana &middot; This message was sent from a transactional address; please do not reply.
               </td>
             </tr>
           </table>

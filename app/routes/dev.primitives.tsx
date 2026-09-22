@@ -202,7 +202,7 @@ export default function DevPrimitives() {
             </div>
             <div>
               <span className="micro-label">AdminNav (admin.html)</span>
-              <AdminNav active="home" userEmail="kortney@impact.org" />
+              <AdminNav active="home" userEmail="kortney@equus.example" />
             </div>
             <div>
               <span className="micro-label">EmployerNav — cyan accent (decision §8.7)</span>
@@ -533,7 +533,7 @@ export default function DevPrimitives() {
             <AuthShell
               microLabel="ADMIN / SIGN-IN / 2026"
               title="Sign in."
-              sub="Administrator access for the IMPACT Internship Assessment Portal. Manage cohorts, run competency assessments, and record placement outcomes."
+              sub="Administrator access for the Equus Internship Assessment Portal. Manage cohorts, run competency assessments, and record placement outcomes."
               facts={[
                 { mono: '01', label: 'Intake — at placement' },
                 { mono: '02', label: 'Competency — multi-phase' },
@@ -574,7 +574,7 @@ export default function DevPrimitives() {
                 One trajectory.
               </>
             }
-            intro="Every IMPACT participant moves through a structured sequence: capturing intake details, demonstrating competency, and delivering a measured outcome within 90 days of placement."
+            intro="Every Equus participant moves through a structured sequence: capturing intake details, demonstrating competency, and delivering a measured outcome within 90 days of placement."
             pillars={[
               {
                 num: '01 / Stage One',

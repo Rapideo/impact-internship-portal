@@ -24,7 +24,7 @@ import { QuickLinks } from '~/components/QuickLinks';
 import { RecentActivity, type ActivityEntry } from '~/components/RecentActivity';
 import { formatActivityTime } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Dashboard — IMPACT Employer' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Dashboard — Equus Employer' }];
 
 const QUICK_LINKS = [
   { to: '/employer/cohorts', label: 'Cohorts' },

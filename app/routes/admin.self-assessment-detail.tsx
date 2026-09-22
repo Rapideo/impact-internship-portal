@@ -32,7 +32,7 @@ import { DetailHeader } from '~/components/DetailHeader';
 import { ConfirmModal } from '~/components/ConfirmModal';
 import { InternCode } from '~/components/InternCode';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Self-Assessment Detail · IMPACT Admin' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Self-Assessment Detail · Equus Admin' }];
 
 const VALID_TYPES = ['personal-goals', 'midpoint-reflection', 'participant-feedback'] as const;
 type SelfType = (typeof VALID_TYPES)[number];

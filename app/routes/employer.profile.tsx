@@ -38,7 +38,7 @@ import { ActionBar } from '~/components/ActionBar';
 import { useToast } from '~/components/ToastProvider';
 import { formatPhone } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Org Details — IMPACT' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Org Details — Equus' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const headers = new Headers();

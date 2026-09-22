@@ -32,7 +32,7 @@ import { formatDate } from '~/lib/format';
 
 export const meta: Route.MetaFunction = ({ data: loaderData }) => [
   {
-    title: `${(loaderData as { cohort?: { name: string } } | undefined)?.cohort?.name ?? 'Cohort'} — Cohort — IMPACT Admin`,
+    title: `${(loaderData as { cohort?: { name: string } } | undefined)?.cohort?.name ?? 'Cohort'} — Cohort — Equus Admin`,
   },
 ];
 

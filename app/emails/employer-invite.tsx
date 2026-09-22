@@ -25,7 +25,7 @@ export function renderEmployerInvite(args: EmployerInviteArgs): RenderedEmail {
   const bodyHtml = `
       <h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:22px;color:#051028;margin:0 0 16px;">Welcome to ${escapeHtml(args.programName)}.</h2>
       <p style="margin:0 0 16px;">
-        An account has been created for <strong>${escapeHtml(args.employerName)}</strong> in the IMPACT Internship Assessment Portal. Click the button below to set your password and start completing competency assessments for your interns.
+        An account has been created for <strong>${escapeHtml(args.employerName)}</strong> in the Equus Internship Assessment Portal. Click the button below to set your password and start completing competency assessments for your interns.
       </p>
       <p style="margin:24px 0;">
         <a href="${escapeHtml(args.acceptUrl)}" style="display:inline-block;background:#153A98;color:#ffffff;text-decoration:none;padding:14px 22px;border-radius:4px;font-weight:600;">
@@ -41,7 +41,7 @@ export function renderEmployerInvite(args: EmployerInviteArgs): RenderedEmail {
     `;
   const text = `Welcome to ${args.programName}.
 
-An account has been created for ${args.employerName} in the IMPACT Internship Assessment Portal.
+An account has been created for ${args.employerName} in the Equus Internship Assessment Portal.
 
 Set your password to start: ${args.acceptUrl}
 

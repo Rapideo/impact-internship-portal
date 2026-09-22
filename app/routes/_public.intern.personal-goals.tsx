@@ -36,7 +36,7 @@ import { AssessmentForm } from '~/components/forms/AssessmentForm';
 import { PageHead } from '~/components/PageHead';
 import { PublicNav } from '~/components/nav/PublicNav';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Personal Goals — IMPACT 2026' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Personal Goals — Equus 2026' }];
 
 const FORM_NAV_LINKS = [
   { to: '/intern/assessments', label: 'Back to assessments', back: true },

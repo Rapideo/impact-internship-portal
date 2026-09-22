@@ -25,7 +25,7 @@ import { SettingsShell } from '~/components/SettingsShell';
 import { UserStatusPill } from '~/components/UserStatusPill';
 import { ConfirmModal } from '~/components/ConfirmModal';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Manage User — Settings — IMPACT Admin' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Manage User — Settings — Equus Admin' }];
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const { headers } = await requireAdmin(request);

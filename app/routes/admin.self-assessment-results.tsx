@@ -28,7 +28,7 @@ import { EmptyRow } from '~/components/EmptyRow';
 import { InternCode } from '~/components/InternCode';
 import { formatDate } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Self-Assessment Results · IMPACT Admin' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Self-Assessment Results · Equus Admin' }];
 
 const SELF_ASSESSMENT_TYPES = [
   'personal-goals',

@@ -15,7 +15,7 @@ import { EmptyRow } from '~/components/EmptyRow';
 import { InternCode } from '~/components/InternCode';
 
 export const meta: Route.MetaFunction = () => [
-  { title: 'Competency Questions — Settings — IMPACT Admin' },
+  { title: 'Competency Questions — Settings — Equus Admin' },
 ];
 
 function fmtTimestamp(iso: string | null | undefined): string {

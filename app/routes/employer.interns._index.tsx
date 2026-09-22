@@ -26,7 +26,7 @@ import { InternCode } from '~/components/InternCode';
 import { EmptyRow } from '~/components/EmptyRow';
 import { formatDate } from '~/lib/format';
 
-export const meta: Route.MetaFunction = () => [{ title: 'Interns — IMPACT Employer' }];
+export const meta: Route.MetaFunction = () => [{ title: 'Interns — Equus Employer' }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const headers = new Headers();
