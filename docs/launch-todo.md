@@ -70,17 +70,78 @@ Already tracked: Whitaker display bug, favicon, survey "barriers" copy. Ordered 
 
 ## Before real team / employer use
 
-- [ ] **Custom SMTP for transactional email.** Supabase's built-in mailer only
-      reliably delivers to the project owner address, so employer invites and
-      their password resets won't arrive. Wire any SMTP provider (Resend is off
-      the table per stakeholder; Google Workspace SMTP / Amazon SES / Mailgun /
-      SendGrid / Postmark all work) in Supabase → Authentication → Emails → SMTP.
-- [ ] **Branded email templates in Supabase.** impact-prod is using Supabase's
-      default email HTML. Paste the branded invite/reset templates from
-      `app/emails/` into the Supabase dashboard (procedure in `docs/deployment.md`).
+- [ ] **Custom SMTP for transactional email. BLOCKED on buying a sending domain
+      (2026-09-22).** Supabase's built-in mailer is rate-limited to a handful of
+      sends per hour and the dashboard itself flags it as "not meant to be used
+      for production apps", so employer invites and password resets won't
+      reliably arrive. Wire a provider in Supabase → Authentication → Emails →
+      SMTP.
+      - **Provider is unsettled.** This list previously said "Resend is off the
+        table per stakeholder"; on 2026-09-22 Matt proposed Resend himself.
+        Confirm which decision stands before wiring anything. Resend is the path
+        of least resistance in code — `sendEmail` (`app/lib/email.server.ts`)
+        already wraps the Resend SDK and `RESEND_API_KEY` / `RESEND_FROM` are
+        already declared in `env.server.ts`, just unset in every Netlify context.
+      - **There are TWO paths, and they are not the same job.** Supabase sends
+        the invite/reset mail, so pointing *that* at a provider means putting
+        SMTP credentials in Supabase's SMTP Settings. Our own app sends (the
+        branded builders in `app/emails/`) need `RESEND_API_KEY` set per Netlify
+        context. We likely want both.
+      - Either way it needs a **verified sending domain with DNS records**, which
+        is the actual blocker.
+- [x] **Branded email templates in Supabase** — done 2026-09-22. All four pasted
+      and verified after reload: **Reset password** + **Invite user**, on **both**
+      impact-dev and impact-prod. Subjects are "Reset your Equus Internship
+      Program password" and "You're invited: Equus Internship Program Employer
+      Portal". Procedure in `docs/deployment.md`.
+      - **The program name is frozen at paste time.** `resolveProgramName()` makes
+        the *Resend* path follow Settings → Program Info, but a pasted template is
+        a literal string — rename the program and these must be re-rendered and
+        re-pasted.
+      - The masthead logo is `public/email-logo.png`, referenced by absolute URL
+        and generated from `logo-reverse.svg` by `npm run email:logo`. It is a PNG
+        because Gmail and Outlook strip inline SVG.
 - [ ] **Real program data.** Enter employers / cohorts / roles / interns via the
       admin UI (by design these are not seeded — `db:seed-prod` only loads
       program-wide reference data). prod is empty until the team does this.
+
+- [ ] **Real contact details on `program_info`.** Both environments still carry the
+      seeded placeholders: `kortney@impact.org` (old domain) and `(317) 555-0100`
+      (the reserved fictional 555-01xx block). Testers see these on Settings →
+      Program Info. Editable in the admin UI, no deploy needed. Same domain
+      blocker as custom SMTP for the email; the phone is independent.
+
+## Closed 2026-09-22 — auth defects found during the Equus rename
+
+Neither was a branding problem; both were found while verifying the rename.
+
+- [x] **Supabase redirect allow-list was empty on impact-dev.** A staging reset mail
+      arrived pointing at `http://localhost:3000` — the Supabase scaffold default, and
+      not even a port this app uses. **Supabase silently DISCARDS a `redirectTo` that is
+      not on the allow list and substitutes the Site URL, with no error anywhere.**
+      Fixed in the dashboard: Site URL `https://staging--impact-portal-app.netlify.app`
+      plus wildcard entries for staging, `localhost:5173` and deploy previews.
+      impact-prod was already configured correctly (2026-05-26) and was never affected.
+      `docs/deployment.md` §3 had documented this failure mode before it happened — it
+      was an execution gap, not a knowledge gap.
+- [x] **Password reset was broken in EVERY environment since it was built** (#163).
+      `_public.auth.forgot.tsx` built a `Headers`, handed it to the Supabase client, then
+      returned a bare `{ sent: true }` — dropping it. `@supabase/ssr` runs the PKCE flow,
+      so `resetPasswordForEmail()` writes the **code verifier** cookie through the cookie
+      adapter into exactly those headers; no cookie meant `exchangeCodeForSession()` in
+      `/auth/callback` failed and the user was bounced to `/login` with no explanation.
+      Now `data({ sent: true }, { headers })`.
+      **Rule: any action that calls a Supabase auth method and RETURNS DATA — rather than
+      `throw redirect(..., { headers })` — must return the headers.**
+      `/login` now also renders the query-string notices four routes were already sending
+      and nothing displayed (`link-invalid`, `no-employer`, `employer-missing`, `reset=ok`),
+      which is what made this expensive to diagnose.
+- [x] **Dev-only features were gated on runtime `process.env.NODE_ENV`** (#165). Netlify
+      builds with `NODE_ENV=production` but serves from a Lambda where it is **unset**, so
+      `routes.ts` (build time) correctly left `/dev/reseed` unregistered while the Danger
+      Zone card (runtime) rendered on staging and prod — a red destructive button whose
+      target 404s. All dev-only gates now use `import.meta.env.DEV`, which Vite substitutes
+      at build time. Guarded by `tests/guards/dev-only-gating.test.ts`.
 
 ## SP6 launch-plan phases still open
 
@@ -168,9 +229,12 @@ Already tracked: Whitaker display bug, favicon, survey "barriers" copy. Ordered 
 
 ## Follow-ups from the Equus rebrand (2026-09-14, punchlist 9.11 items 7–8)
 
-- [ ] **Regenerate the Quick Start & Testing Guide** — `docs/quick-start-guide/quick-start-guide.html`
-      has its own `--gold` token copy and all 18 screenshots show the IMPACT logo + gold accent.
-      Same job as #151 (`capture.ts` from staging, then `render.ts`).
+- [x] **Regenerate the Quick Start & Testing Guide** — done 2026-09-22 (#166). Its private
+      `--gold: #ffd71f` token became `--green #73af2f`; the hand-built `IM/P/ACT` cover wordmark
+      became the real reversed Equus mark (copied into the guide folder); body copy that said
+      "things to be aware of are in gold" now says green; all 18 screenshots recaptured from
+      staging. PDF is now `Equus-Portal-Quick-Start-Guide.pdf` — the IMPACT-named file was
+      deleted so it cannot be handed out by mistake.
 - [x] **Official reversed (white) Equus logo** — asked 2026-09-15; Equus has none. Our derived
       `public/logo-reverse.svg` (wordmark + tagline white, green "E" kept) is the logo. Closed
       2026-09-21.
@@ -178,9 +242,10 @@ Already tracked: Whitaker display bug, favicon, survey "barriers" copy. Ordered 
       SVG's paths are grouped, so it needs a small extraction, not a crop.
 - [ ] **`--success` vs `--green`** — two greens now sit side by side (pass pills / 90-day rail vs
       the accent). Deliberately left distinct; revisit if the program team finds them confusing.
-- [ ] **Email templates** (`app/emails/`) still say IMPACT in the header wordmark and use navy
-      only — no gold to swap, but the brand name/logo should follow once the templates are
-      actually installed in Supabase (see "Branded email templates" above).
+- [x] **Email templates** (`app/emails/`) — done 2026-09-22 (#163). The text masthead is now the
+      Equus logo on the navy-deep band with the green accent rule beneath, and the IMPACT wording
+      is gone from the layout, the invite body and both subject lines. Installed in Supabase the
+      same day (see "Branded email templates" above).
 
 - [x] **Survey copy still says "barriers"** (`pf-barriers`, `pf-barriers-detail`, `ees-barriers`)
       — note sent 2026-09-15; **client approved the current wording as-is for now** (2026-09-21).
