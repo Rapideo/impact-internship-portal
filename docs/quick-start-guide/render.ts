@@ -10,13 +10,13 @@ import { join } from 'node:path';
 
 const DIR = join(process.cwd(), 'docs', 'quick-start-guide');
 const HTML = join(DIR, 'quick-start-guide.html');
-const PDF = join(DIR, 'IMPACT-Portal-Quick-Start-Guide.pdf');
+const PDF = join(DIR, 'Equus-Portal-Quick-Start-Guide.pdf');
 
 const footer = `
   <div style="width:100%; font-family:'IBM Plex Mono', monospace; font-size:7px;
               letter-spacing:0.08em; text-transform:uppercase; color:#5b6480;
               padding:0 0.7in; display:flex; justify-content:space-between; align-items:center;">
-    <span>IMPACT Internship Assessment Portal &middot; Quick Start &amp; Testing Guide</span>
+    <span>Equus Internship Assessment Portal &middot; Quick Start &amp; Testing Guide</span>
     <span>Page <span class="pageNumber"></span> / <span class="totalPages"></span></span>
   </div>`;
 

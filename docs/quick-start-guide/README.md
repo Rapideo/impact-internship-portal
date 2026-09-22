@@ -1,14 +1,14 @@
 # Quick Start & Testing Guide
 
 A branded, ~10-page onboarding PDF for the program team, styled to match the app
-(navy/cyan/gold tokens, Archivo Black + IBM Plex). The deliverable is
-**`IMPACT-Portal-Quick-Start-Guide.pdf`**.
+(navy/cyan/green tokens, Archivo Black + IBM Plex). The deliverable is
+**`Equus-Portal-Quick-Start-Guide.pdf`**.
 
 ## Files
 
 | File | Purpose |
 | --- | --- |
-| `IMPACT-Portal-Quick-Start-Guide.pdf` | The deliverable. Open / print / share this. |
+| `Equus-Portal-Quick-Start-Guide.pdf` | The deliverable. Open / print / share this. |
 | `quick-start-guide.html` | Source document (edit copy + layout here). |
 | `screenshots/` | App screenshots captured from staging, embedded by the HTML. |
 | `capture.ts` | Playwright script that logs into staging and (re)captures the screenshots. |
