@@ -9,7 +9,7 @@ for how the pipeline works and `CLAUDE.md` for current infra state.
 ## Client punchlist 9.11.26 (Koehler Partners / IMPACT program team)
 
 The client's list, received 2026-09-11; the original file lives outside this public repo
-(`C:\Projects\impact-client-docs\`). Status is tracked here.
+(`client-docs/` in this repo — **gitignored**, moved in-tree 2026-09-22). Status is tracked here.
 
 | # | Item | Status |
 |---|---|---|
