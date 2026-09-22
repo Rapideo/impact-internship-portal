@@ -4,7 +4,7 @@
 // brand shell surrounds the recovery card. Copy mirrors the prototype's
 // RECOVER PASSWORD modal ("Send a recovery link.").
 
-import { Form, Link, useActionData, useNavigation } from 'react-router';
+import { Form, Link, data, useActionData, useNavigation } from 'react-router';
 import type { Route } from './+types/_public.auth.forgot';
 import { AuthShell } from '~/components/auth/AuthShell';
 import { PublicNav } from '~/components/nav/PublicNav';
@@ -44,15 +44,24 @@ export async function action({ request }: Route.ActionArgs) {
   await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${env.APP_URL}/auth/callback?next=/auth/reset`,
   });
-  return { sent: true };
+  // MUST return `headers`. @supabase/ssr runs the PKCE flow, so the call above
+  // writes the code verifier through the cookie adapter into `headers`. Return
+  // a bare object and that Set-Cookie is dropped, the browser never stores the
+  // verifier, and exchangeCodeForSession() in /auth/callback fails — which
+  // presents as the reset link silently bouncing to /login.
+  return data({ sent: true }, { headers });
 }
 
 export default function ForgotPasswordPage() {
   const actionData = useActionData<typeof action>();
+  // The two branches return different shapes, so narrow rather than reaching
+  // for a property that only exists on one of them.
+  const errorMessage = actionData && 'error' in actionData ? actionData.error : null;
+  const sent = Boolean(actionData && 'sent' in actionData && actionData.sent);
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
 
-  if (actionData?.sent) {
+  if (sent) {
     return (
       <>
         <PublicNav links={NAV_LINKS} />
@@ -82,9 +91,9 @@ export default function ForgotPasswordPage() {
           <span className="micro-label micro-label--navy">Recover</span>
         </div>
 
-        {actionData?.error ? (
+        {errorMessage ? (
           <div role="alert" className="auth__alert auth__alert--danger">
-            {actionData.error}
+            {errorMessage}
           </div>
         ) : null}
 
