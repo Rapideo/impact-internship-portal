@@ -2,11 +2,42 @@ import { eq } from 'drizzle-orm';
 import { getSupabaseAdmin } from './supabase-admin.server';
 import { sendEmail } from './email.server';
 import { db } from './db.server';
+import { getProgramInfo } from './admin-queries.server';
 import { env } from './env.server';
 import { employers, profiles } from '../../db/schema';
 import { renderEmployerInvite } from '../emails/employer-invite';
 
 export type EmployerAccountStatus = 'none' | 'pending' | 'active';
+
+/**
+ * Used only when `program_info` can't supply a name. The row is seeded and
+ * admin-editable, so this should never be what actually ships in an email.
+ */
+export const DEFAULT_PROGRAM_NAME = 'Equus Internship Program';
+
+/**
+ * The program name for branded emails, read from the `program_info` singleton
+ * that admins edit at Settings -> Program Info. Previously hardcoded, which
+ * meant renaming the program in Settings silently failed to reach the invite
+ * and reset subject lines.
+ *
+ * Never throws: a display string is not worth failing an invite over, so a
+ * missing row, a blank name or a dead connection all fall back.
+ */
+export async function resolveProgramName(): Promise<string> {
+  try {
+    const info = await getProgramInfo(db);
+    const name = info?.programName?.trim();
+    return name ? name : DEFAULT_PROGRAM_NAME;
+  } catch (err) {
+    console.warn(
+      `[invites] program_info lookup failed; falling back to "${DEFAULT_PROGRAM_NAME}". Error: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    );
+    return DEFAULT_PROGRAM_NAME;
+  }
+}
 
 export async function inviteEmployerUser(args: {
   employerId: string;
@@ -49,7 +80,7 @@ export async function inviteEmployerUser(args: {
   const { subject, html, text } = renderEmployerInvite({
     employerName: employer.name,
     acceptUrl,
-    programName: 'Equus Internship Program',
+    programName: await resolveProgramName(),
   });
   // TODO(sp5-phase-d): once RESEND_API_KEY is set, the catch can be tightened.
   try {

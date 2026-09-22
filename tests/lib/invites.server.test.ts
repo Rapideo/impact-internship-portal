@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // We mock the Supabase admin client + Drizzle + Resend so we don't need a live DB.
 // `vi.hoisted` ensures these refs exist before `vi.mock` factories run (they are
 // auto-hoisted to the top of the file, above plain `const` declarations).
-const { mockAdmin, mockSendEmail, mockDb } = vi.hoisted(() => {
+const { mockAdmin, mockSendEmail, mockGetProgramInfo, mockDb } = vi.hoisted(() => {
   return {
     mockAdmin: {
       auth: {
@@ -15,6 +15,7 @@ const { mockAdmin, mockSendEmail, mockDb } = vi.hoisted(() => {
       },
     },
     mockSendEmail: vi.fn(),
+    mockGetProgramInfo: vi.fn(),
     mockDb: {
       select: vi.fn(),
       insert: vi.fn(() => ({
@@ -30,6 +31,7 @@ vi.mock('~/lib/supabase-admin.server', () => ({
 }));
 vi.mock('~/lib/email.server', () => ({ sendEmail: mockSendEmail }));
 vi.mock('~/lib/db.server', () => ({ db: mockDb }));
+vi.mock('~/lib/admin-queries.server', () => ({ getProgramInfo: mockGetProgramInfo }));
 vi.mock('~/lib/env.server', () => ({
   env: {
     APP_URL: 'http://localhost:5173',
@@ -48,6 +50,8 @@ import {
   inviteEmployerUser,
   revokeEmployerAccess,
   employerAccountStatus,
+  resolveProgramName,
+  DEFAULT_PROGRAM_NAME,
 } from '~/lib/invites.server';
 
 describe('inviteEmployerUser', () => {
@@ -202,5 +206,56 @@ describe('employerAccountStatus', () => {
     });
 
     expect(await employerAccountStatus('emp-1')).toBe('active');
+  });
+});
+
+describe('resolveProgramName', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('uses the program_info row an admin edits in Settings', async () => {
+    mockGetProgramInfo.mockResolvedValue({ id: 1, programName: 'HirePath' });
+    expect(await resolveProgramName()).toBe('HirePath');
+  });
+
+  it('falls back when no program_info row exists', async () => {
+    mockGetProgramInfo.mockResolvedValue(null);
+    expect(await resolveProgramName()).toBe(DEFAULT_PROGRAM_NAME);
+  });
+
+  it('falls back when the stored name is blank or whitespace', async () => {
+    mockGetProgramInfo.mockResolvedValue({ id: 1, programName: '   ' });
+    expect(await resolveProgramName()).toBe(DEFAULT_PROGRAM_NAME);
+  });
+
+  it('falls back rather than throwing when the lookup fails', async () => {
+    mockGetProgramInfo.mockRejectedValue(new Error('connection refused'));
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    expect(await resolveProgramName()).toBe(DEFAULT_PROGRAM_NAME);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it('feeds the invite email subject, so editing Settings changes it', async () => {
+    mockGetProgramInfo.mockResolvedValue({ id: 1, programName: 'HirePath' });
+    mockAdmin.auth.admin.inviteUserByEmail.mockResolvedValue({
+      data: { user: { id: 'u9' } },
+      error: null,
+    });
+    mockDb.select.mockReturnValue({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          limit: vi.fn().mockResolvedValue([{ id: 'emp-1', name: 'Test Employer' }]),
+        })),
+      })),
+    });
+    mockSendEmail.mockResolvedValue(undefined);
+
+    await inviteEmployerUser({ employerId: 'emp-1', email: 'x@y.com' });
+
+    expect(mockSendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ subject: expect.stringContaining('HirePath') }),
+    );
   });
 });
