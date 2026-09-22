@@ -52,7 +52,12 @@ export async function loader({ request }: Route.LoaderArgs) {
   // payload in production so the card doesn't render at all (defense in
   // depth alongside the routes.ts spread gate on /dev/reseed and the
   // hard-coded 404 in that route handler).
-  const dangerZoneEnabled = process.env.NODE_ENV !== 'production';
+  // BUILD-time flag, not `process.env.NODE_ENV`. Netlify builds with
+  // NODE_ENV=production but serves from a Lambda where it is UNSET, so a
+  // runtime check renders this card on staging and prod while routes.ts
+  // (evaluated at build time) leaves /dev/reseed unregistered — a red
+  // destructive button whose target 404s. Vite substitutes DEV at build.
+  const dangerZoneEnabled = import.meta.env.DEV;
   return data({ row, dangerZoneEnabled }, { headers });
 }
 
