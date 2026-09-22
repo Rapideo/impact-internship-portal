@@ -5,8 +5,19 @@ project_id = "impact-dev"
 # into the JWT. Without this hook the app's getClaims() returns no role
 # claim and every login fails with "Account configured incorrectly".
 [auth]
-site_url = "http://localhost:3000"
-additional_redirect_urls = []
+# These govern the LOCAL stack (`supabase start`, which CI uses) only. The
+# cloud projects impact-dev and impact-prod are configured in their own
+# dashboards under Authentication -> URL Configuration, and this file does
+# not push to them.
+#
+# Supabase silently DISCARDS a `redirectTo` that is not on the allow list and
+# substitutes site_url instead — no error, the mail just points somewhere
+# useless. That is what the scaffold default `http://localhost:3000` caused
+# (our dev server is on 5173, so it was never a real address): recovery and
+# invite links resolved to a dead host. Keep site_url and the allow list in
+# step with where the app actually runs.
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173/**"]
 
 [auth.mfa]
 [auth.mfa.totp]

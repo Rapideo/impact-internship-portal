@@ -23,7 +23,7 @@ export interface RenderedEmail {
 export function renderEmployerInvite(args: EmployerInviteArgs): RenderedEmail {
   const subject = `You're invited: ${args.programName} Employer Portal`;
   const bodyHtml = `
-      <h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:22px;color:#051028;margin:0 0 16px;">Welcome to ${escapeHtml(args.programName)}.</h2>
+      <h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:22px;color:#051028;margin:0 0 16px;">Welcome to the ${escapeHtml(args.programName)}.</h2>
       <p style="margin:0 0 16px;">
         An account has been created for <strong>${escapeHtml(args.employerName)}</strong> in the Equus Internship Assessment Portal. Click the button below to set your password and start completing competency assessments for your interns.
       </p>
@@ -39,7 +39,7 @@ export function renderEmployerInvite(args: EmployerInviteArgs): RenderedEmail {
         You'll be able to view your cohorts and interns, submit competency assessments, and complete Exit Employer Surveys. Your account only sees data for ${escapeHtml(args.employerName)}.
       </p>
     `;
-  const text = `Welcome to ${args.programName}.
+  const text = `Welcome to the ${args.programName}.
 
 An account has been created for ${args.employerName} in the Equus Internship Assessment Portal.
 
@@ -50,7 +50,7 @@ This link expires in 24 hours. If it doesn't work, contact your program lead.
   return {
     subject,
     html: emailLayout({
-      previewText: `Set your password for ${args.programName}.`,
+      previewText: `Set your password for the ${args.programName}.`,
       bodyHtml,
     }),
     text,

@@ -63,11 +63,11 @@ to a file or copy from the terminal.
 
 ```powershell
 # Password reset
-npx tsx -e "import('./app/emails/password-reset').then(m => console.log(m.renderPasswordReset({ resetUrl: '{{ .ConfirmationURL }}', programName: 'IMPACT Internship Program' }).html))" `
+npx tsx -e "import('./app/emails/password-reset').then(m => console.log(m.renderPasswordReset({ resetUrl: '{{ .ConfirmationURL }}', programName: 'Equus Internship Program' }).html))" `
   | Out-File -FilePath "$env:TEMP\reset-template.html" -Encoding utf8
 
 # Employer invite
-npx tsx -e "import('./app/emails/employer-invite').then(m => console.log(m.renderEmployerInvite({ employerName: '{{ .Data.employer_name }}', acceptUrl: '{{ .ConfirmationURL }}', programName: 'IMPACT Internship Program' }).html))" `
+npx tsx -e "import('./app/emails/employer-invite').then(m => console.log(m.renderEmployerInvite({ employerName: '{{ .Data.employer_name }}', acceptUrl: '{{ .ConfirmationURL }}', programName: 'Equus Internship Program' }).html))" `
   | Out-File -FilePath "$env:TEMP\invite-template.html" -Encoding utf8
 ```
 
@@ -77,9 +77,9 @@ dashboard. (Or just inspect the stdout directly and copy from the terminal.)
 **Bash (Linux/macOS):**
 
 ```bash
-npx tsx -e "import('./app/emails/password-reset').then(m => console.log(m.renderPasswordReset({ resetUrl: '{{ .ConfirmationURL }}', programName: 'IMPACT Internship Program' }).html))" > /tmp/reset-template.html
+npx tsx -e "import('./app/emails/password-reset').then(m => console.log(m.renderPasswordReset({ resetUrl: '{{ .ConfirmationURL }}', programName: 'Equus Internship Program' }).html))" > /tmp/reset-template.html
 
-npx tsx -e "import('./app/emails/employer-invite').then(m => console.log(m.renderEmployerInvite({ employerName: '{{ .Data.employer_name }}', acceptUrl: '{{ .ConfirmationURL }}', programName: 'IMPACT Internship Program' }).html))" > /tmp/invite-template.html
+npx tsx -e "import('./app/emails/employer-invite').then(m => console.log(m.renderEmployerInvite({ employerName: '{{ .Data.employer_name }}', acceptUrl: '{{ .ConfirmationURL }}', programName: 'Equus Internship Program' }).html))" > /tmp/invite-template.html
 ```
 
 ### 2. Paste into Supabase Dashboard
@@ -87,20 +87,54 @@ npx tsx -e "import('./app/emails/employer-invite').then(m => console.log(m.rende
 Supabase Dashboard -> Authentication -> Email Templates:
 
 - **Reset Password**
-  - Subject: `Reset your IMPACT Internship Program password`
+  - Subject: `Reset your Equus Internship Program password`
   - Body (HTML): paste from `reset-template.html` above.
 - **Invite user**
-  - Subject: `You're invited: IMPACT Internship Program Employer Portal`
+  - Subject: `You're invited: Equus Internship Program Employer Portal`
   - Body (HTML): paste from `invite-template.html` above.
 
 Re-render and re-paste any time the template source changes — these
 templates live in Supabase, not in the repo at runtime.
 
+> **The program name is baked in at paste time.** `resolveProgramName()`
+> makes the *Resend* path follow Settings -> Program Info, but a template
+> pasted into Supabase is a frozen string. Rename the program in Settings and
+> you must re-render and re-paste these two templates, or the mail will keep
+> the old name.
+
+The masthead logo is `public/email-logo.png`, referenced by absolute URL
+because an email has no origin to resolve against. It is a PNG, not the app's
+SVG, because Gmail and Outlook strip inline SVG. Regenerate it with
+`npm run email:logo` if `public/logo-reverse.svg` changes, then re-render and
+re-paste the templates. The logo must be publicly reachable at that URL for
+the image to load, so it ships with the production deploy.
+
 ### 3. Redirect URL allow-list
 
 Supabase Dashboard -> Authentication -> URL Configuration -> **Redirect
-URLs**: every URL the app sends users to after auth must be listed here or
-the email link will land on a generic Supabase error page.
+URLs**: every URL the app sends users to after auth must be listed here.
+
+> **This bit silently: an unlisted `redirectTo` is DISCARDED, not rejected.**
+> Supabase substitutes the **Site URL** instead and sends the mail anyway,
+> with no error anywhere. On 2026-09-22 a staging password-reset mail arrived
+> pointing at `http://localhost:3000` — the untouched Supabase scaffold
+> default, and not even a port this app uses — because neither cloud project
+> had ever had its allow list populated. Recovery *and* invite links were
+> affected on both impact-dev and impact-prod. If a link goes somewhere
+> unexpected, check this screen before you debug the code.
+
+Wildcards are supported and are far less brittle than listing every
+query-string variant:
+
+```
+https://impact-portal-app.netlify.app/**              # production
+https://staging--impact-portal-app.netlify.app/**     # staging (impact-dev)
+https://deploy-preview-*--impact-portal-app.netlify.app/**   # PR previews
+http://localhost:5173/**                              # local dev
+```
+
+Set impact-prod to the production entry; impact-dev needs the other three.
+The explicit per-path form below also works if you prefer it.
 
 For local development (`APP_URL=http://localhost:5173`) and for production
 (`APP_URL=<deployed origin>`), add:
